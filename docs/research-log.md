@@ -51,3 +51,37 @@ Dated, append-only exploration notes for the Mini E-Reader. Newest last.
   `kicad-cli` ERC/DRC and export gerbers on push — the persistent
   "KiCad-capable environment". Interactive capture/layout is done locally
   in KiCad 8.
+
+## 2026-09-05 — Branch merge + design comparison
+
+Merged `claude/schematics-pcb-review-rq1i2t` into `main` (the
+`colophon-standard-compliance` branch had no unique commits). Main now holds
+two design tracks; **`ereader.*` (Rev C) is canonical**.
+
+Comparison — first-try board (`ereader.*`) vs the `hardware/` reference spec:
+
+| Area | ereader.* (Rev C, canonical) | hardware/ (reference spec) |
+|------|------------------------------|----------------------------|
+| MCU | ESP32-S3-WROOM-1-**N16R8** | ...-N8R2 (same family) |
+| Charger | **BQ25628E** I2C buck 2A, SoC-managed 80/50 | MCP73831 linear 500 mA |
+| 3V3 reg | **TPS62840** buck (60 nA Iq) | AP2112 LDO |
+| Fuel gauge | **MAX17048** ModelGauge (I2C) | resistor divider → ADC |
+| Frontlight | **LM3630A** single-boost/dual-sink (I2C) | 2× TPS61165 (2 inductors) |
+| Input | 3 buttons + **rotary encoder** | 3 buttons |
+| EPD | SSD1677 24-pin + boost ("copy ref schematic") | SSD1677 24-pin + boost **with exact values** |
+| USB ESD | USBLC6-2 (placed) | USBLC6-2 (recommended) |
+| PCB | **real: 56 fp, 237 nets, 4-layer, placed/planed/stitched, DRC-ruled, NOT routed** | scaffold outline only |
+| Compliance | detailed FCC/CE + magnet/phone-attach analysis | notes |
+| Fab | `fab.py` + `ereader-gerbers.zip` | CI (`kicad-cli`) |
+
+Verdict: `ereader.*` is more advanced and is the real board → **canonical**.
+`hardware/` keeps value only as (a) the CI, now retargeted to
+`ereader.kicad_pcb`; (b) repo hygiene (Colophon cleanup, e-reader docs);
+(c) the **exact SSD1677 boost values** worth porting into
+`ereader-pcb-design.md` §6.
+
+Recommended consolidation (deferred to owner): adopt Rev C parts as
+canonical (write a superseding ADR; my `docs/adr/0003` power + `0005`
+frontlight describe the simpler variant), fold the SSD1677 boost values
+into `ereader-pcb-design.md`, then remove the `hardware/` scaffold KiCad
+files and remaining cruft (`.history`, `ereader-gerbers.zip`).

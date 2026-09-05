@@ -5,6 +5,17 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Merged / consolidated (2026-09-05)
+- Merged `claude/schematics-pcb-review-rq1i2t` into `main` alongside the
+  first-try board `ereader.*` (`colophon-standard-compliance` had no unique
+  commits). Clean merge (disjoint paths).
+- Established the actual KiCad board **`ereader.*` (Rev C) as canonical**;
+  `hardware/` is now labelled a reference spec. Full comparison in
+  `docs/research-log.md`.
+- Retargeted the KiCad CI workflow at `ereader.kicad_pcb` (DRC + gerber
+  export). Removed a stray `~ereader.kicad_pro.lck`; git-ignore KiCad/lock/
+  history/gerber cruft going forward.
+
 ### Added
 - Hardware design for a 4.26" 800×480 frontlit e-paper reader:
   `hardware/DESIGN.md` (block diagram, power tree, net list, ESP32-S3 pin

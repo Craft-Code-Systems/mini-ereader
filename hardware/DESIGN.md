@@ -1,4 +1,13 @@
-# Mini E-Reader — Hardware Design
+# Mini E-Reader — Hardware Design (reference spec)
+
+> ⚠️ **Not the canonical board.** The actual, further-along KiCad design is
+> `../ereader.kicad_pcb` (`../ereader-pcb-design.md`, Rev C). This document
+> is an earlier, simpler *reference spec*; where they differ (power:
+> MCP73831+LDO here vs BQ25628E+TPS62840 buck there; frontlight: 2×TPS61165
+> here vs LM3630A there; input: 3 buttons here vs +rotary encoder there),
+> the `ereader.*` board wins. The one part worth porting *up* from here is
+> the **exact SSD1677 boost circuit** (§5), which the Rev C spec references
+> but does not enumerate.
 
 > Reference design v0.1. This is the electrical "source of truth": block
 > diagram, power architecture, net-by-net connectivity, MCU pin map, and

@@ -9,6 +9,14 @@ for a small e-reader. Docs follow the [Colophon](https://usecolophon.dev)
 method: a Brief (this file), Decisions (`docs/adr/`), a Log
 (`docs/research-log.md`), a Runbook (`docs/runbook.md`), and a Changelog.
 
+> **Two design tracks (being consolidated).** The **canonical board** is the
+> actual KiCad design at the repo root: **`ereader.kicad_pcb`** /
+> `ereader-pcb-design.md` (Rev C — placed, planed, stitched, DRC-ruled;
+> routing pending). The **`hardware/`** folder is an earlier, simpler
+> *reference spec* (empty scaffold + `DESIGN.md`). Where they differ (power,
+> frontlight, input), **`ereader.*` is authoritative** — see the comparison
+> in `docs/research-log.md`. Consolidating the two is the next step.
+
 ## Why
 
 Commercial e-readers are closed and hard to modify. This is a compact,

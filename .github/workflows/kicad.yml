@@ -1,48 +1,41 @@
 name: KiCad
 
-# Persistent "KiCad-capable environment": runs kicad-cli (v8) in the cloud
-# to check the design and export fabrication files. Interactive schematic
-# capture and PCB routing still happen locally in KiCad; this gates the
-# result and produces downloadable outputs.
+# Cloud "KiCad-capable environment": runs kicad-cli (v8) to check the board
+# and export fabrication files. Interactive capture/routing happen locally in
+# KiCad; this gates the result and produces downloadable outputs (artifacts).
+#
+# Primary target is the actual board, ereader.kicad_pcb (KiCad 7 format;
+# kicad-cli 8 opens/migrates it automatically). The hardware/ scaffold is a
+# reference spec and is checked only informationally.
 
 on:
   push:
-    paths: ["hardware/**", ".github/workflows/kicad.yml"]
+    paths: ["ereader.kicad_pcb", "hardware/**", ".github/workflows/kicad.yml"]
   pull_request:
-    paths: ["hardware/**", ".github/workflows/kicad.yml"]
+    paths: ["ereader.kicad_pcb", "hardware/**", ".github/workflows/kicad.yml"]
   workflow_dispatch:
 
 jobs:
-  erc-drc-export:
+  drc-export:
     runs-on: ubuntu-latest
     container:
       image: kicad/kicad:8.0
       options: --user root          # let actions/checkout own the workspace
     env:
       HOME: /root                    # writable config/home for kicad-cli
-      SCH: hardware/mini-ereader.kicad_sch
-      PCB: hardware/mini-ereader.kicad_pcb
+      PCB: ereader.kicad_pcb         # the canonical board
     steps:
       - uses: actions/checkout@v4
 
       - name: KiCad version
         run: kicad-cli version
 
-      # ERC / DRC are informational while the design is still a scaffold.
-      # Once the schematic/PCB are captured, add --exit-code-violations to
-      # each command below (and drop `continue-on-error`) to gate CI on a
-      # clean ERC/DRC.
-      - name: ERC (schematic)
-        continue-on-error: true
-        run: kicad-cli sch erc --output erc.rpt "$SCH" && cat erc.rpt || true
-
-      - name: DRC (board)
+      # DRC is informational until the board is fully routed (the first-try
+      # board is placed but not routed). To gate CI on a clean board later,
+      # add --exit-code-violations and drop continue-on-error.
+      - name: DRC (ereader.kicad_pcb)
         continue-on-error: true
         run: kicad-cli pcb drc --output drc.rpt "$PCB" && cat drc.rpt || true
-
-      - name: Export schematic PDF
-        continue-on-error: true
-        run: kicad-cli sch export pdf --output mini-ereader-sch.pdf "$SCH"
 
       - name: Export gerbers + drill
         continue-on-error: true
@@ -57,8 +50,6 @@ jobs:
         with:
           name: kicad-outputs
           path: |
-            erc.rpt
             drc.rpt
-            mini-ereader-sch.pdf
             fab/
           if-no-files-found: ignore

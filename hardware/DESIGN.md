@@ -21,8 +21,8 @@ programming. Optional **microSD** for book storage. Three tactile buttons.
 | Attribute        | Value                                                        |
 |------------------|-------------------------------------------------------------|
 | MCU              | ESP32-S3-WROOM-1 (N8R2 or N16R8 module)                     |
-| Display          | 4.26" mono E-Paper, 800×480, 4-wire SPI, SSD-family ctrlr  |
-| Frontlight       | Good Display FL0426-S01C, 2× (5 series LEDs), VF≤15V, IF≤15mA |
+| Display          | GDEY0426T82-FL01C, 4.26" 800×480, SSD1677, 4-wire SPI, 24-pin FPC |
+| Frontlight       | integrated dual (cold+warm), 2× 5-series LEDs, VF≤15V, IF≤15mA |
 | Wireless         | Wi-Fi b/g/n + BLE 5 (on-module)                            |
 | Storage          | On-module flash (8/16 MB) + optional microSD (SPI)         |
 | Power in         | USB-C (5 V) and/or 1S LiPo (3.0–4.2 V)                     |
@@ -32,9 +32,11 @@ programming. Optional **microSD** for book storage. Three tactile buttons.
 | Programming      | Native USB (USB-Serial-JTAG), no external UART bridge      |
 | Board            | 2-layer, ~1.6 mm FR-4, hand/JLCPCB-assemblable            |
 
-> **Correction history:** an earlier draft assumed a 2.13" SSD1680 panel.
-> The owner's **FL0426-S01C frontlight** datasheet fixes the display at
-> **4.26" / 800×480** and adds the frontlight subsystem (§5b). See ADR 0002.
+> **Correction history:** an early draft assumed a 2.13" SSD1680 panel. The
+> owner supplied the **FL0426-S01C** frontlight (→ 4.26"/800×480 + frontlight
+> subsystem, §5b) and then the **GDEY0426T82-FL01C** panel datasheet, which
+> locks the controller (**SSD1677**), the 24-pin EPD FPC pinout, and the
+> external DC-DC reference circuit (§5). See ADR 0002.
 
 ---
 
@@ -162,38 +164,56 @@ Decoupling: 100 nF per 3V3 pin + 10 µF and 22 µF bulk near the module.
 
 ---
 
-## 5. E-Paper display (4.26", 800×480)
+## 5. E-Paper display — GDEY0426T82-FL01C (4.26", 800×480, SSD1677)
 
-**Panel:** 4.26" mono E-Paper, 800×480, 4-wire SPI (matching part: Good
-Display **GDEQ0426T82** class; controller in the SSD family, e.g. SSD1677).
-The FL0426-S01C frontlight (§5b) is sized for exactly this panel.
+**Panel:** Good Display **GDEY0426T82-FL01C** — 4.26" reflective mono
+E-Paper, **800×480**, 1-bit B/W, **controller SSD1677**, 4-wire SPI, with
+the frontlight (§5b) laminated on (this is the integrated panel+frontlight
+module). Active area 92.8 × 55.68 mm; module outline **105.33 × 62.37 ×
+1.8 mm**. VCI/VDDIO = 3.3 V. Two FPC tails exit the bottom edge: a 24-pin
+(EPD) and a 6-pin (frontlight).
 
-**⛔ The EPD panel's own datasheet is still needed** to lock the display FPC
-connector pinout and the exact controller. What is panel-agnostic and safe
-now is the interface signal group; the pin *numbers* are not.
+**J4 — EPD FPC, 24-pin 0.5 mm** (from datasheet §5 + reference circuit §8.2):
 
-| Signal   | MCU net   | Notes                          |
-|----------|-----------|--------------------------------|
-| SCLK     | SPI_SCK   | SPI clock                      |
-| SDA/MOSI | SPI_MOSI  | SPI data in (write-only panel) |
-| CS#      | EPD_CS    |                                |
-| D/C#     | EPD_DC    |                                |
-| RST#     | EPD_RST   |                                |
-| BUSY     | EPD_BUSY  | input                          |
-| VDD/VDDIO/VCI | +3V3 | logic + analog supply, decoupled |
-| VSS      | GND       |                                |
-| pump/VCOM caps | — | per controller datasheet (1 µF-class caps) |
+| Pin | Name  | Connect to                    | Pin | Name  | Connect to                |
+|-----|-------|-------------------------------|-----|-------|---------------------------|
+| 1   | NC    | —                             | 13  | SCLK  | SPI_SCK (GPIO12)          |
+| 2   | GDR   | Q2 gate (boost N-FET)         | 14  | SDI   | SPI_MOSI (GPIO11)         |
+| 3   | RESE  | Q2 source / R_SENSE 2.2 Ω     | 15  | VDDIO | +3V3                      |
+| 4   | NC    | —                             | 16  | VCI   | +3V3 (+ 1 µF)             |
+| 5   | VSH2  | 4.7 µF → GND                  | 17  | VSS   | GND                       |
+| 6   | TSCL  | NC (internal temp sensor)     | 18  | VDD   | 1 µF → GND                |
+| 7   | TSDA  | NC                            | 19  | VPP   | NC (OTP program only)     |
+| 8   | BS    | **GND** (selects 4-wire SPI)  | 20  | VSH1  | 4.7 µF → GND              |
+| 9   | BUSY  | EPD_BUSY (GPIO7)              | 21  | VGH   | PREVGH (D6 cathode) + 4.7 µF |
+| 10  | RES#  | EPD_RST (GPIO8)              | 22  | VSL   | 4.7 µF → GND              |
+| 11  | D/C#  | EPD_DC (GPIO9)               | 23  | VGL   | PREVGL (D4) + 4.7 µF      |
+| 12  | CS#   | EPD_CS (GPIO10)              | 24  | VCOM  | 1 µF → GND                |
 
-> When you send the panel datasheet I will fill in the exact FPC pinout,
-> connector part, and the controller's decoupling/charge-pump network, and
-> update the schematic + BOM (`J4`).
+**SSD1677 external DC-DC (reference circuit §8.2), fed from +3V3:**
+
+- **L2** 47 µH, ≥500 mA (NR3015 class): +3V3 → switch node (Q2 drain).
+- **Q2** Si1308EDL N-MOSFET (SOT-23): gate = GDR (pin 2), drain = switch
+  node, source = RESE (pin 3). **R11** 1 M GDR→GND (gate pulldown);
+  **R12** 2.2 Ω RESE→GND (current sense).
+- **D4/D5/D6** MBR0530 Schottky (≥30 V, ≥500 mA): D6 builds PREVGH (→ VGH);
+  D4/D5 build PREVGL (→ VGL) charge-pump path.
+- **Caps (all ≥25 V, X5R/X7R):** 4.7 µF on VSH2, VSH1, VSL, VGL(PREVGL),
+  VGH(PREVGH), and the +3V3 boost input; 1 µF on VCI, VDD, VCOM.
+- Internal regulators produce VGH ≈ +20 V, VGL ≈ −20 V, VSH ≈ +15 V,
+  VSL ≈ −15 V, VCOM ≈ −2 V — hence the ≥25 V cap rating.
+
+EPD is write-only (no SDO/MISO). BS tied low = 4-wire SPI. Panel typical
+current is small (~7.5 mA on VCI), so the boost input on +3V3 is light.
 
 ---
 
-## 5b. Frontlight — Good Display FL0426-S01C
+## 5b. Frontlight (part of GDEY0426T82-FL01C; drawing FL0426-S01C)
 
 A light guide + LEDs laminated in front of the E-Paper for reading in the
-dark, with **adjustable colour temperature** (cold + warm channels).
+dark, with **adjustable colour temperature** (cold + warm channels). Both
+the frontlight drawing (FL0426-S01C) and the panel module mechanical
+drawing show the same dual-channel 6-pin FPC.
 
 **Electrical (from the datasheet drawing):**
 
@@ -223,8 +243,9 @@ dark, with **adjustable colour temperature** (cold + warm channels).
   (GPIO16). Brightness = combined duty; colour temperature = cold:warm duty
   ratio.
 
-> ⚠️ Confirm VF/IF and the series/parallel arrangement against the full
-> FL0426-S01C datasheet before finalising R_SET and Cout voltage rating.
+> Confirmed by both datasheets: 5 LEDs **in series** per channel, VF ≤ 15 V,
+> IF ≤ 15 mA. Size Cout ≥ 20 V and set R_SET for your target brightness
+> (start ~10 mA and tune up to the 15 mA max).
 
 ---
 
@@ -269,7 +290,13 @@ USBLC6-2 ESD on VBUS + D±.
   pull-ups, decoupling, 10/22 µF bulk.
 - **SPI_SCK / SPI_MOSI**: GPIO12/11 → EPD SCLK/SDA + SD CLK/DI.
 - **SPI_MISO**: GPIO14 → SD DO (pull-up).
-- **EPD_CS/DC/RST/BUSY**: GPIO10/9/8/7 ↔ EPD CS#/D-C#/RST#/BUSY.
+- **EPD_CS/DC/RST/BUSY**: GPIO10/9/8/7 ↔ EPD (J4) CS#/D-C#/RES#/BUSY.
+- **EPD J4 supplies**: VDDIO/VCI = +3V3; VSS = GND; BS (pin8) = GND.
+- **EPD boost**: +3V3 → L2 → EPD_SW (Q2 drain, D6 anode, D4 anode).
+  GDR → Q2 gate + R11(1M)→GND. RESE → Q2 source + R12(2.2Ω)→GND.
+  PREVGH = D6.K → VGH(21) + 4.7µF. PREVGL = D4/D5 network → VGL(23) + 4.7µF.
+  4.7µF each on VSH1(20)/VSH2(5)/VSL(22); 1µF each on VCI(16)/VDD(18)/VCOM(24).
+  VPP(19), TSCL(6), TSDA(7), pins 1/4 = NC.
 - **SD_CS / SD_CD**: GPIO13 / GPIO21.
 - **BTN_PREV/NEXT/SEL**: GPIO4/5/6 → button→GND + pull-up + 100 nF.
 - **BOOT / EN**: GPIO0 / EN with pull-ups + buttons; EN has 100 nF.
@@ -313,8 +340,8 @@ USBLC6-2 ESD on VBUS + D±.
 | KiCad schematic capture       | ⛔ **to do in KiCad** (also runs via CI ERC)       |
 | KiCad PCB layout + routing    | ⛔ **to do in KiCad** (CI DRC)                     |
 | ERC / DRC clean               | ⛔ **to do** — locally + CI                        |
-| EPD panel FPC pinout/controller | ⛔ **need the panel datasheet** (§5)             |
-| Frontlight LED VF/IF confirm  | ⚠️ confirm vs full FL0426-S01C datasheet          |
+| EPD panel FPC pinout/controller | ✅ locked from GDEY0426T82-FL01C datasheet (§5)  |
+| Frontlight LED VF/IF          | ✅ confirmed dual, 5-series, VF≤15V IF≤15mA        |
 
 CI (`.github/workflows/kicad.yml`) runs `kicad-cli` ERC/DRC + export once
 the design is captured. See `/docs/runbook.md`.
@@ -323,11 +350,9 @@ the design is captured. See `/docs/runbook.md`.
 
 ## 12. Open questions for the owner
 
-1. **EPD panel datasheet** — send it so I can lock the display FPC pinout +
-   controller (matching part: 4.26" 800×480, GDEQ0426T82 class).
-2. **Frontlight current** — target brightness / IF per channel (≤ 15 mA)?
-3. **microSD** — keep, or on-module flash only?
-4. **Enclosure & battery** — outline, connector/button placement, cell
-   capacity (sets charge current).
-5. **Buck-boost vs LDO** — how much 3.0–3.4 V battery tail must be usable?
-6. **Power switch** — hard slide switch on VBAT, or firmware deep-sleep?
+1. **Frontlight current** — target brightness / IF per channel (≤ 15 mA)?
+2. **microSD** — keep, or on-module flash only?
+3. **Enclosure & battery** — outline, connector/button placement, cell
+   capacity (sets charge current). Display module is 105.33 × 62.37 mm.
+4. **Buck-boost vs LDO** — how much 3.0–3.4 V battery tail must be usable?
+5. **Power switch** — hard slide switch on VBAT, or firmware deep-sleep?

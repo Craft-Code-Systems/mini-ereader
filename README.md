@@ -63,9 +63,9 @@ A buildable learning platform, not a product.
 ## Stack
 
 - **MCU:** ESP32-S3-WROOM-1 (Wi-Fi/BLE, PSRAM, native USB).
-- **Display:** 4.26" 800×480 E-Paper (Good Display GDEQ0426T82 class),
-  SSD-family controller, 4-wire SPI. Frontlight: Good Display
-  FL0426-S01C (5+5 series white LEDs, VF≤15 V, IF≤15 mA).
+- **Display:** Good Display **GDEY0426T82-FL01C** — 4.26" 800×480 E-Paper,
+  controller **SSD1677**, 4-wire SPI, 24-pin FPC, with an integrated dual
+  frontlight (5+5 series white LEDs, VF≤15 V, IF≤15 mA).
 - **Power:** MCP73831 charger, discrete USB-priority load-share,
   AP2112K-3.3 LDO; 2× TPS61165 frontlight boost drivers.
 - **EDA:** KiCad 8. **CI:** GitHub Actions (`kicad-cli` ERC/DRC/export).

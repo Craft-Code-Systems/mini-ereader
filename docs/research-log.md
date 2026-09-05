@@ -26,13 +26,23 @@ Dated, append-only exploration notes for the Mini E-Reader. Newest last.
 - Corrected the earlier 2.13" assumption; grew the board outline.
 
 ### Open questions
-- **EPD panel datasheet** still needed to lock the display FPC pinout and
-  controller (matching part: Good Display GDEQ0426T82 class, 4.26" 800×480).
-- Confirm frontlight LED VF/IF/series count against the full datasheet
-  before finalising R_SET and boost Cout voltage rating.
 - Enclosure + battery capacity (sets charge current, board outline, button
   placement).
 - microSD: keep, or rely on on-module flash?
+
+## 2026-09-05 — EPD panel datasheet received (GDEY0426T82-FL01C)
+
+- Owner supplied the panel datasheet. Confirms **GDEY0426T82-FL01C**:
+  4.26" 800×480, controller **SSD1677**, 4-wire SPI, 24-pin 0.5 mm FPC;
+  active area 92.8 × 55.68 mm; module outline 105.33 × 62.37 × 1.8 mm.
+- Locked the **24-pin EPD FPC pinout** and the **SSD1677 external DC-DC**
+  reference circuit (L 47 µH / Q Si1308EDL / D×3 MBR0530 / R 2.2 Ω sense +
+  1 M pulldown / caps ≥25 V), fed from +3V3. Rails: VGH≈+20, VGL≈−20,
+  VSH≈+15, VSL≈−15, VCOM≈−2 V.
+- The module's mechanical drawing shows the **same dual (cold+warm) 6-pin
+  frontlight** as FL0426-S01C → dual-driver design (ADR 0005) confirmed.
+- Updated DESIGN.md §5, BOM (J4 24-pin + boost parts), the SKiDL generator
+  (real EPD block), and ADR 0002. Verification table: EPD FPC now ✅.
 
 ## 2026-09-05 — Tooling note
 

@@ -175,17 +175,71 @@ def build():
     r5b[2] += gnd
     C("100nF")[1, 2] += bat_sense, gnd
 
-    # ---- E-Paper 4.26" 800x480 (panel datasheet REQUIRED) -------------
-    # The EPD FPC pin count/pinout/controller depend on the specific 4.26"
-    # panel (GDEQ0426T82 class). The MCU-side nets (EPD_*) exist above; map
-    # the connector ONLY from the panel datasheet, then uncomment and wire:
-    #   j4 = Part("Connector", "Conn_01xNN", footprint="Connector_FFC-FPC:...")
-    #   j4[<SCLK>] += spi_sck ;  j4[<SDA>]  += spi_mosi
-    #   j4[<CS#>]  += epd_cs  ;  j4[<D/C#>] += epd_dc
-    #   j4[<RST#>] += epd_rst ;  j4[<BUSY>] += epd_busy
-    #   j4[<VDD/VDDIO/VCI>] += v3v3 ;  j4[<VSS>] += gnd
-    #   # + controller charge-pump / VCOM caps per the datasheet
-    # (Left unwired here on purpose; ERC will flag EPD_* as single-pin nets.)
+    # ---- E-Paper: GDEY0426T82-FL01C (SSD1677, 24-pin FPC) -------------
+    # Pinout + external DC-DC from the panel datasheet (sec 5 / 8.2).
+    j4 = Part("Connector", "Conn_01x24",
+              footprint="Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal")
+    epd_sw = Net("EPD_SW")
+    gdr, rese = Net("EPD_GDR"), Net("EPD_RESE")
+    prevgh, prevgl = Net("EPD_PREVGH"), Net("EPD_PREVGL")
+    vsh1, vsh2, vsl = Net("EPD_VSH1"), Net("EPD_VSH2"), Net("EPD_VSL")
+    vdd, vcom = Net("EPD_VDD"), Net("EPD_VCOM")
+    # logic / SPI (4-wire; BS=GND)
+    j4[13] += spi_sck     # SCLK
+    j4[14] += spi_mosi    # SDI
+    j4[12] += epd_cs      # CS#
+    j4[11] += epd_dc      # D/C#
+    j4[10] += epd_rst     # RES#
+    j4[9]  += epd_busy    # BUSY
+    j4[8]  += gnd         # BS -> 4-wire SPI
+    # supplies
+    j4[15] += v3v3        # VDDIO
+    j4[16] += v3v3        # VCI
+    j4[17] += gnd         # VSS
+    j4[18] += vdd         # VDD (internal reg)
+    j4[19] += Net("EPD_VPP")   # OTP program only -> leave open
+    # driver rails
+    j4[2]  += gdr         # GDR (boost FET gate)
+    j4[3]  += rese        # RESE (current sense)
+    j4[5]  += vsh2        # VSH2
+    j4[20] += vsh1        # VSH1
+    j4[21] += prevgh      # VGH
+    j4[22] += vsl         # VSL
+    j4[23] += prevgl      # VGL
+    j4[24] += vcom        # VCOM
+    # pins 1,4 = NC ; 6,7 = TSCL/TSDA (internal temp sensor) -> leave open
+    # decoupling (>=25V, per datasheet)
+    C("1uF")[1, 2] += v3v3, gnd     # VCI local
+    C("1uF")[1, 2] += vdd, gnd
+    C("1uF")[1, 2] += vcom, gnd
+    for rail in (vsh1, vsh2, vsl, prevgh, prevgl):
+        C("4.7uF")[1, 2] += rail, gnd
+    # external DC-DC (reference circuit 8.2), fed from +3V3
+    L2 = Part("Device", "L", value="47uH",
+              footprint="Inductor_SMD:L_1210_3225Metric")
+    L2[1, 2] += v3v3, epd_sw
+    C("4.7uF")[1, 2] += v3v3, gnd   # boost input cap
+    q2 = Part("Transistor_FET", "Si1308EDL",
+              footprint="Package_TO_SOT_SMD:SOT-23")
+    q2["G"] += gdr
+    q2["D"] += epd_sw
+    q2["S"] += rese
+    R("1M")[1, 2] += gdr, gnd       # GDR pulldown
+    R("2.2R")[1, 2] += rese, gnd    # RESE sense
+    # D6 -> PREVGH (positive). D4/D5 form the PREVGL negative charge pump.
+    # TODO: verify the D4/D5 orientation against datasheet fig 8.2.
+    d6 = Part("Device", "D_Schottky", value="MBR0530",
+              footprint="Diode_SMD:D_SOD-123")
+    d6["A"] += epd_sw
+    d6["K"] += prevgh
+    d4 = Part("Device", "D_Schottky", value="MBR0530",
+              footprint="Diode_SMD:D_SOD-123")
+    d4["A"] += prevgl
+    d4["K"] += epd_sw
+    d5 = Part("Device", "D_Schottky", value="MBR0530",
+              footprint="Diode_SMD:D_SOD-123")
+    d5["A"] += prevgl
+    d5["K"] += gnd
 
     # ---- Frontlight: Good Display FL0426-S01C -------------------------
     # 6-pin FPC: 1 LEDC+  2 LEDC-  3 NC  4 NC  5 LEDW+  6 LEDW-

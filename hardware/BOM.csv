@@ -2,25 +2,27 @@ Ref,Qty,Value / Part,Description,Package,MPN (example),Notes
 U1,1,ESP32-S3-WROOM-1-N8R2,"Wi-Fi/BLE MCU module, 8MB flash, 2MB PSRAM",Module SMD,ESP32-S3-WROOM-1-N8R2,Antenna keep-out; place at board edge
 U2,1,MCP73831T-2ACI/OT,Single-cell Li-ion/LiPo charger 4.2V,SOT-23-5,MCP73831T-2ACI/OT,PROG sets I_chg
 U3,1,AP2112K-3.3TRG1,3.3V 600mA LDO,SOT-23-5,AP2112K-3.3TRG1,Vout=3.3V
-U4,2,TPS61165DBVR,WLED boost driver (frontlight, CC + PWM/EasyScale),SOT-23-6,TPS61165DBVR,One per FL channel (cold/warm)
+U4,2,TPS61165DBVR,WLED boost driver (frontlight, CC + PWM),SOT-23-6,TPS61165DBVR,One per FL channel (cold/warm)
+DS1,1,GDEY0426T82-FL01C,"4.26in 800x480 EPD (SSD1677) + integrated dual frontlight",Module,GDEY0426T82-FL01C,Good Display; EPD 24-pin FPC + FL 6-pin FPC
 Q1,1,DMG2305UX,P-channel MOSFET (load-share),SOT-23,DMG2305UX-7,USB-priority power path
-D1,1,SS14 / PMEG2010,Schottky diode (VBUS->VSYS),SOD-123 / SMA,PMEG2010AEH,~0.3V drop
-D3,2,PMEG4010 / 1N5819,Schottky for FL boost (>=20V),SOD-123,PMEG4010 CEH,One per TPS61165
+Q2,1,Si1308EDL,N-channel MOSFET (EPD boost),SOT-23,Si1308EDL-T1-GE3,GDR-driven; per panel ref circuit
+D1,1,SS14 / PMEG2010,Schottky (VBUS->VSYS),SOD-123 / SMA,PMEG2010AEH,~0.3V drop
 D2,1,LED green,Charge-status LED,0603,150060VS75000,Via R6 to VBUS
+D4,3,MBR0530,Schottky for EPD boost (>=30V >=500mA),SOD-123,MBR0530,D4/D5/D6 per panel ref circuit
+D7,2,PMEG4010 / 1N5819,Schottky for FL boost (>=20V),SOD-123,PMEG4010CEH,D7/D8 one per TPS61165
 L1,2,10uH,FL boost inductor (Isat > 0.3A),1210/1008,,One per TPS61165
-DS1,1,4.26in EPD 800x480,"4.26in mono E-Paper, 800x480, SPI",FPC panel,GDEQ0426T82 (class),CONFIRM FPC pinout + controller from datasheet
-FL1,1,FL0426-S01C,"Frontlight (tunable white), 2x 5-series LEDs VF<=15V IF<=15mA",FPC 6-pin,FL0426-S01C,Good Display; laminates on DS1
-J1,1,USB-C receptacle,USB 2.0 Type-C 16-pin,SMD,TYPE-C-31-M-12 / GT-USB-7010ASV,VBUS+data+CC
+L2,1,47uH,EPD boost inductor (NR3015 class, 500mA),1210,NR3015T470M,Per panel ref circuit
+J1,1,USB-C receptacle,USB 2.0 Type-C 16-pin,SMD,TYPE-C-31-M-12,VBUS+data+CC
 J2,1,JST-PH 2-pin,Battery connector,TH,B2B-PH-K-S,1S LiPo
 J3,1,microSD socket,microSD push-pull (SPI),SMD,DM3AT-SF-PEJM5,Optional
-J4,1,FPC ?pin 0.5mm,E-Paper connector,SMD,TBD from panel datasheet,Pin count/pinout per DS1 datasheet
-J5,1,FPC 6-pin 0.5mm,Frontlight connector,SMD,Hirose FH12-6S-0.5SH,Matches FL0426-S01C (1 LEDC+ 2 LEDC- 3 NC 4 NC 5 LEDW+ 6 LEDW-)
+J4,1,FPC 24-pin 0.5mm,E-Paper connector (SSD1677),SMD,Hirose FH12-24S-0.5SH,Pinout per DS1 datasheet (see DESIGN.md 5)
+J5,1,FPC 6-pin 0.5mm,Frontlight connector,SMD,Hirose FH12-6S-0.5SH,1 LEDC+ 2 LEDC- 3/4 NC 5 LEDW+ 6 LEDW-
 SW1,1,Tact SW,Button PREV,SMD 4-pin,TS-1187A,Debounce 100nF
 SW2,1,Tact SW,Button NEXT,SMD 4-pin,TS-1187A,
 SW3,1,Tact SW,Button SELECT,SMD 4-pin,TS-1187A,
 SW4,1,Tact SW,BOOT,SMD 4-pin,TS-1187A,GPIO0
 SW5,1,Tact SW,RESET / EN,SMD 4-pin,TS-1187A,EN
-R1,2,5.1k,USB-C CC pulldowns (Rd),0402/0603,RC0603FR-075K1L,One per CC line
+R1,2,5.1k,USB-C CC pulldowns (Rd),0603,RC0603FR-075K1L,One per CC line
 R2,1,2.0k,MCP73831 PROG (500mA),0603,,I_chg=1000/Rprog
 R3,4,10k,Pull-ups: EN BOOT SD_CS MISO,0603,,
 R4,3,10k,Button pull-ups PREV/NEXT/SEL,0603,,Or internal pull-ups
@@ -28,16 +30,19 @@ R5,2,100k,Battery-sense divider,0603,,VBAT/2 -> ADC
 R6,1,1k,Charge LED series,0603,,
 R7,2,100k,Q1 gate (to VBUS + pulldown),0603,,Load-share bias
 R8,2,13R,FL current-set R_SET (0.2V/ILED),0603,,~13R=15mA; start ~20R (~10mA) and tune
+R11,1,1M,EPD boost GDR gate pulldown,0603,,Per panel ref circuit
+R12,1,2.2R,EPD boost RESE current sense,0603/0805,,1% >=0.05W per panel ref circuit
 C1,2,4.7uF,Charger in/out bulk,0603/0805,,VBUS & VBAT
 C2,2,1uF,LDO in/out,0603,,VSYS & +3V3
 C3,1,22uF,Module bulk,0805/1206,,Near U1 3V3
 C4,1,10uF,+3V3 bulk,0805,,
-C5,10,100nF,Decoupling (per supply pin),0402/0603,,Module, EPD, SD, buttons
-C6,8,1uF,E-Paper controller/VCOM caps,0603,,Per panel datasheet
+C5,10,100nF,Decoupling (per supply pin),0402/0603,,Module, SD, buttons
 C7,3,100nF,Button/ADC debounce,0603,,
 C8,1,100nF,EN cap,0603,,
 C9,2,1uF,FL boost input cap (Cin),0603,,One per TPS61165
-C10,2,1uF/25V,FL boost output cap (Cout >=20V),0805,,One per TPS61165
+C10,2,1uF/25V,FL boost output cap (Cout),0805,,One per TPS61165
+C11,6,4.7uF/25V,EPD rails (VSH1 VSH2 VSL PREVGH PREVGL + boost Cin),0805,,X5R/X7R >=25V per panel ref circuit
+C12,3,1uF/25V,EPD rails (VCI VDD VCOM),0603,,X5R/X7R >=25V per panel ref circuit
 FB1,1,Ferrite bead,USB shield to GND,0603,,Optional; or 1M || 4.7nF
 TVS1,1,USBLC6-2SC6,USB ESD protection,SOT-23-6,USBLC6-2SC6,Optional but recommended
 TP1,8,Test point,3V3/GND/VBAT/VSYS/EN/BOOT/SPI/FL,-,,Optional pads

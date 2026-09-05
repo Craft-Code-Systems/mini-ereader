@@ -50,11 +50,11 @@ Capture, verification, CI, and fabrication steps are in
 
 ## Caveats (read before ordering parts)
 
-- **EPD panel datasheet still needed** — `DESIGN.md` §5 has the panel size
-  (4.26"/800×480) but the FPC pinout/controller (`J4`) must come from the
-  specific panel's datasheet.
-- **Frontlight LED spec** — confirm VF/IF/series-count vs the full
-  FL0426-S01C datasheet before finalising R_SET and the boost Cout rating.
+- **Display + frontlight locked** to Good Display GDEY0426T82-FL01C
+  (SSD1677, 24-pin EPD FPC + 6-pin frontlight FPC); pinout + SSD1677
+  external DC-DC captured in `DESIGN.md` §5.
 - **The KiCad schematic/PCB are scaffolds**, not a verified, routed design.
   Capture + run ERC/DRC in KiCad (or via CI) before trusting them.
+- **Verify the SKiDL EPD negative charge-pump (D4/D5) orientation** against
+  the datasheet reference circuit when you generate the netlist.
 - **Example MPNs in `BOM.csv`** need a stock/footprint check for your fab.

@@ -25,6 +25,11 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 - Display target corrected from an initial 2.13" assumption to **4.26"
   800×480** after the owner supplied the FL0426-S01C frontlight datasheet;
   a tunable-white frontlight subsystem was added (see ADR 0002 / 0005).
+- Display **locked to Good Display GDEY0426T82-FL01C** (controller SSD1677)
+  from the panel datasheet: 24-pin EPD FPC pinout and the SSD1677 external
+  DC-DC reference circuit captured in DESIGN.md §5; BOM gains J4 + boost
+  parts (L2, Q2, D4-D6, R11/R12, ≥25 V caps); the SKiDL generator now emits
+  the real EPD block.
 
 ### Removed
 - Colophon methodology content that no longer applies to this project:
@@ -36,5 +41,5 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 ### Notes
 - Schematic/PCB are valid scaffolds, not yet captured/routed; ERC/DRC must
   pass in KiCad (now also runnable in CI).
-- The EPD panel's own datasheet is still needed to lock the display FPC
-  pinout and controller.
+- Two switching subsystems (EPD DC-DC + frontlight boost) must be laid out
+  away from the antenna and the battery-sense ADC.

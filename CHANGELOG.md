@@ -26,6 +26,13 @@ All notable changes to the Mini E-Reader project. Format loosely follows
   800×480** after the owner supplied the FL0426-S01C frontlight datasheet;
   a tunable-white frontlight subsystem was added (see ADR 0002 / 0005).
 
+### Removed
+- Colophon methodology content that no longer applies to this project:
+  `docs/faq.md`, `docs/adoption.md`, the methodology ADRs
+  (`docs/adr/000{1..5}-*` Colophon versions), the duplicate `hardware/docs/`
+  tree, and `LICENSE-TEXT` (the methodology's CC BY 4.0 license). The
+  project is MIT (`LICENSE`).
+
 ### Notes
 - Schematic/PCB are valid scaffolds, not yet captured/routed; ERC/DRC must
   pass in KiCad (now also runnable in CI).

@@ -125,7 +125,7 @@ templates/             Colophon document templates (for ongoing use)
 
 ## License
 
-Code/hardware under [MIT](./LICENSE) unless noted. *(The repository began
-as the Colophon template; `LICENSE-TEXT` is the methodology's CC BY 4.0
-license and applies only to any retained Colophon prose — adjust licensing
-to suit this project.)*
+[MIT](./LICENSE) for code, hardware, and documentation. *(This repository
+started from the [Colophon](https://usecolophon.dev) template; the doc
+method is reused under MIT here — the template's separate CC BY methodology
+license has been removed.)*

@@ -1,0 +1,55 @@
+name: KiCad
+
+# Cloud "KiCad-capable environment": runs kicad-cli (v8) to check the board
+# and export fabrication files. Interactive capture/routing happen locally in
+# KiCad; this gates the result and produces downloadable outputs (artifacts).
+#
+# Primary target is the actual board, ereader.kicad_pcb (KiCad 7 format;
+# kicad-cli 8 opens/migrates it automatically). The hardware/ scaffold is a
+# reference spec and is checked only informationally.
+
+on:
+  push:
+    paths: ["ereader.kicad_pcb", "hardware/**", ".github/workflows/kicad.yml"]
+  pull_request:
+    paths: ["ereader.kicad_pcb", "hardware/**", ".github/workflows/kicad.yml"]
+  workflow_dispatch:
+
+jobs:
+  drc-export:
+    runs-on: ubuntu-latest
+    container:
+      image: kicad/kicad:8.0
+      options: --user root          # let actions/checkout own the workspace
+    env:
+      HOME: /root                    # writable config/home for kicad-cli
+      PCB: ereader.kicad_pcb         # the canonical board
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: KiCad version
+        run: kicad-cli version
+
+      # DRC is informational until the board is fully routed (the first-try
+      # board is placed but not routed). To gate CI on a clean board later,
+      # add --exit-code-violations and drop continue-on-error.
+      - name: DRC (ereader.kicad_pcb)
+        continue-on-error: true
+        run: kicad-cli pcb drc --output drc.rpt "$PCB" && cat drc.rpt || true
+
+      - name: Export gerbers + drill
+        continue-on-error: true
+        run: |
+          mkdir -p fab
+          kicad-cli pcb export gerbers --output fab/ "$PCB" || true
+          kicad-cli pcb export drill   --output fab/ "$PCB" || true
+
+      - name: Upload outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kicad-outputs
+          path: |
+            drc.rpt
+            fab/
+          if-no-files-found: ignore

@@ -11,3 +11,17 @@ Thumbs.db
 # Local env
 .env
 .env.local
+
+# KiCad transient / per-user
+*.lck
+*-bak
+*.kicad_prl
+_autosave-*
+fp-info-cache
+
+# Editor local history
+.history/
+
+# Fabrication outputs (regenerate: python3 fab.py)
+gerbers/
+*-gerbers.zip

@@ -1,0 +1,346 @@
+Cmp-Mod V01 Created by hand-authored scaffold  date = Fri 04 Sep 2026
+
+BeginCmp
+TimeStamp = /U1;
+Reference = U1;
+ValeurCmp = ESP32-S3-WROOM-1-N16R8;
+IdModule  = RF_Module:ESP32-S3-WROOM-1;
+EndCmp
+
+BeginCmp
+TimeStamp = /U2;
+Reference = U2;
+ValeurCmp = BQ25628E;
+IdModule  = Package_DFN_QFN:HVQFN-24-1EP_4x4mm_P0.5mm_EP2.1x2.1mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /U3;
+Reference = U3;
+ValeurCmp = MAX17048;
+IdModule  = Package_DFN_QFN:DFN-8-1EP_2x2mm_P0.5mm_EP0.9x1.5mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /U4;
+Reference = U4;
+ValeurCmp = LM3630A;
+IdModule  = Package_BGA:Maxim_WLP-12;
+EndCmp
+
+BeginCmp
+TimeStamp = /U5;
+Reference = U5;
+ValeurCmp = TPS62840;
+IdModule  = Package_SON:SON-8-1EP_3x2mm_P0.5mm_EP1.4x1.6mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /U6;
+Reference = U6;
+ValeurCmp = USBLC6-2SC6;
+IdModule  = Package_TO_SOT_SMD:SOT-23-6;
+EndCmp
+
+BeginCmp
+TimeStamp = /J1;
+Reference = J1;
+ValeurCmp = USB-C-16P;
+IdModule  = Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12;
+EndCmp
+
+BeginCmp
+TimeStamp = /J2;
+Reference = J2;
+ValeurCmp = EPD_FPC_24P;
+IdModule  = Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal;
+EndCmp
+
+BeginCmp
+TimeStamp = /J3;
+Reference = J3;
+ValeurCmp = FL_FPC_6P;
+IdModule  = Connector_FFC-FPC:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal;
+EndCmp
+
+BeginCmp
+TimeStamp = /J4;
+Reference = J4;
+ValeurCmp = microSD;
+IdModule  = Connector_Card:microSD_HC_Hirose_DM3AT-SF-PEJM5;
+EndCmp
+
+BeginCmp
+TimeStamp = /J5;
+Reference = J5;
+ValeurCmp = Battery_1S;
+IdModule  = Connector_JST:JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal;
+EndCmp
+
+BeginCmp
+TimeStamp = /L1;
+Reference = L1;
+ValeurCmp = 2.2uH;
+IdModule  = Inductor_SMD:L_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /L2;
+Reference = L2;
+ValeurCmp = 22uH;
+IdModule  = Inductor_SMD:L_1210_3225Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /LC;
+Reference = LC;
+ValeurCmp = 1uH;
+IdModule  = Inductor_SMD:L_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /D1;
+Reference = D1;
+ValeurCmp = Schottky_30V;
+IdModule  = Diode_SMD:D_SOD-123;
+EndCmp
+
+BeginCmp
+TimeStamp = /SW1;
+Reference = SW1;
+ValeurCmp = BTN_A;
+IdModule  = Button_Switch_SMD:SW_SPST_TL3342;
+EndCmp
+
+BeginCmp
+TimeStamp = /SW2;
+Reference = SW2;
+ValeurCmp = BTN_B;
+IdModule  = Button_Switch_SMD:SW_SPST_TL3342;
+EndCmp
+
+BeginCmp
+TimeStamp = /SW3;
+Reference = SW3;
+ValeurCmp = BTN_C;
+IdModule  = Button_Switch_SMD:SW_SPST_TL3342;
+EndCmp
+
+BeginCmp
+TimeStamp = /SW4;
+Reference = SW4;
+ValeurCmp = SLLB510200;
+IdModule  = Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical;
+EndCmp
+
+BeginCmp
+TimeStamp = /SW5;
+Reference = SW5;
+ValeurCmp = BOOT;
+IdModule  = Button_Switch_SMD:SW_SPST_TL3342;
+EndCmp
+
+BeginCmp
+TimeStamp = /SW6;
+Reference = SW6;
+ValeurCmp = RESET;
+IdModule  = Button_Switch_SMD:SW_SPST_TL3342;
+EndCmp
+
+BeginCmp
+TimeStamp = /R1;
+Reference = R1;
+ValeurCmp = 5.1k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R2;
+Reference = R2;
+ValeurCmp = 5.1k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R3;
+Reference = R3;
+ValeurCmp = 100k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R4;
+Reference = R4;
+ValeurCmp = 100k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R5;
+Reference = R5;
+ValeurCmp = 100k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R6;
+Reference = R6;
+ValeurCmp = 100k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R7;
+Reference = R7;
+ValeurCmp = 100k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R8;
+Reference = R8;
+ValeurCmp = 4.7k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R9;
+Reference = R9;
+ValeurCmp = 4.7k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R10;
+Reference = R10;
+ValeurCmp = 4.7k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R11;
+Reference = R11;
+ValeurCmp = 4.7k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R12;
+Reference = R12;
+ValeurCmp = 10k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R13;
+Reference = R13;
+ValeurCmp = 10k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R14;
+Reference = R14;
+ValeurCmp = 10k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /R15;
+Reference = R15;
+ValeurCmp = 10k;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CEN;
+Reference = CEN;
+ValeurCmp = 1uF;
+IdModule  = Capacitor_SMD:C_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CV;
+Reference = CV;
+ValeurCmp = 1uF;
+IdModule  = Capacitor_SMD:C_0603_1608Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CS;
+Reference = CS;
+ValeurCmp = 10uF;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CB;
+Reference = CB;
+ValeurCmp = 10uF;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CBT;
+Reference = CBT;
+ValeurCmp = 47nF;
+IdModule  = Capacitor_SMD:C_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CI;
+Reference = CI;
+ValeurCmp = 10uF;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CO;
+Reference = CO;
+ValeurCmp = 10uF;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CF;
+Reference = CF;
+ValeurCmp = 2.2uF/25V;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CU1;
+Reference = CU1;
+ValeurCmp = 22uF;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CU2;
+Reference = CU2;
+ValeurCmp = 0.1uF;
+IdModule  = Capacitor_SMD:C_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CU3;
+Reference = CU3;
+ValeurCmp = 0.1uF;
+IdModule  = Capacitor_SMD:C_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CU4;
+Reference = CU4;
+ValeurCmp = 0.1uF;
+IdModule  = Capacitor_SMD:C_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CU5;
+Reference = CU5;
+ValeurCmp = 0.1uF;
+IdModule  = Capacitor_SMD:C_0402_1005Metric;
+EndCmp
+
+EndListe

@@ -14,6 +14,8 @@ Colophon adheres to [Semantic Versioning](https://semver.org).
 - Spec template's Decision 0005 link made absolute so it survives
   the bootstrap step that deletes Colophon's own Decisions.
 - Stray Dutch word ("sjabloon") in the runbook.
+- British-spelling consistency: `artifacts` corrected to `artefacts`
+  in Decision 0001, matching the rest of the methodology text.
 
 ### Changed
 - Decision length guidance relaxed from "under roughly 30 lines" to

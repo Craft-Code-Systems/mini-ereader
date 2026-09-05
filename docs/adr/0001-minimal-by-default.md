@@ -27,7 +27,7 @@ explain in one page, and set up in ten minutes. Users will actually
 use it rather than opt out.
 
 **Con:** Some projects have real needs Colophon does not address
-(user documentation, compliance artifacts, formal specifications).
+(user documentation, compliance artefacts, formal specifications).
 Those users must combine Colophon with other methodologies.
 
 Rejected: adding optional "advanced" file types. Optional quickly

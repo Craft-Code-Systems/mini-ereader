@@ -35,5 +35,5 @@ or be built? What becomes harder?
 *Keep Decisions to roughly one screen. Genuinely contested choices
 may need a longer Context — that is fine; padding is not. Once
 accepted, do not edit the Decision itself — write a superseding
-Decision if the situation changes. See [adoption.md](../adoption.md)
-for the full supersession mechanism.*
+Decision (a new file that references the old one) if the situation
+changes, so the reasoning trail is preserved.*

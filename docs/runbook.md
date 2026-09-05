@@ -1,108 +1,92 @@
-# Runbook — Adopting Colophon
+# Runbook
 
-How to turn this template into a working Colophon project, and how
-to keep it healthy over time.
+How to work on the Mini E-Reader: open the design, verify it, run CI,
+produce fabrication files, and bring up a board.
 
-For applying Colophon to an existing project, see
-[adoption.md](./adoption.md).
+## Prerequisites
 
----
+- **KiCad 8.x** with its standard symbol/footprint libraries (they ship
+  with KiCad). The project files are KiCad 8 format.
+- Optional: `pip install skidl` to use `hardware/gen_netlist_skidl.py`.
 
-## Setting up a new project
+## Open the project
 
-1. **Create from template**
+```
+kicad hardware/mini-ereader.kicad_pro
+```
+
+The schematic and board currently contain a **valid scaffold** (title
+block, sheet, board outline, notes) — not the captured design. The design
+itself is `hardware/DESIGN.md`. First check: both editors open without file
+errors. If KiCad offers to upgrade the file version, accept and re-save.
+
+## Capture the schematic
+
+Two routes:
+
+1. **By hand in Eeschema** (recommended for a reviewable schematic): draw
+   each block from `hardware/DESIGN.md`. Assign footprints from
+   `hardware/BOM.csv`.
+2. **Bootstrap with SKiDL**:
    ```
-   gh repo create my-project --template Craft-Code-Systems/colophon --public
-   cd my-project
+   cd hardware && python gen_netlist_skidl.py   # -> mini-ereader.net
    ```
-   Or click **Use this template** on GitHub.
+   Then in the PCB editor: *File → Import → Netlist…*. Mind the `TODO`
+   markers — a few lib_ids/pin names depend on the exact connector/panel and
+   your library revision.
 
-2. **Rewrite the Brief (`README.md`)**
-   - Replace the Colophon description with your project's purpose.
-   - Fill in scope, non-scope, success criteria, stack.
-   - Keep it to one or two screens.
+## Verify (the "review" step)
 
-3. **Clean the Decisions folder**
-   - Delete Colophon's own Decisions (`0001-` through `0005-`).
-   - Keep `0000-template.md` — it is the template for your first
-     Decision.
+- **ERC** in Eeschema: *Inspect → Electrical Rules Checker*. Resolve every
+  error; justify any warning kept.
+- **Footprint assignment**: every symbol → a real footprint.
+- **DRC** in the PCB editor after layout: *Inspect → Design Rules Checker*.
+  Zero unrouted, zero clearance errors.
+- Update the verification table in `hardware/DESIGN.md` as items go green.
 
-4. **Rewrite the Runbook**
-   - This file. Replace with how *your* project runs and deploys.
-   - Include "how to unbreak at 3am" notes.
+## CI: KiCad in the cloud
 
-5. **Reset the Log and Changelog**
-   - Empty `docs/research-log.md` — keep the header only.
-   - Empty `CHANGELOG.md` down to the header and an `[Unreleased]`
-     section.
+`.github/workflows/kicad.yml` runs on pushes/PRs that touch `hardware/**`
+(and on demand via *Run workflow*). In the `kicad/kicad:8.0` container it:
 
-6. **Optional: add a Spec**
-   - If your project genuinely needs richer requirements documentation
-     (prototyping many capabilities, formal stakeholder requirement),
-     copy `templates/SPEC.template.md` to `docs/spec.md`.
-     Otherwise skip — most projects do not need one. See
-     [adoption.md](./adoption.md#when-to-add-the-optional-spec).
+- prints `kicad-cli version`,
+- runs **ERC** on the schematic and **DRC** on the board,
+- exports a **schematic PDF** and **gerbers**, uploaded as the
+  `kicad-outputs` build artifact.
 
-Total time: around ten minutes. You now have a working Colophon setup.
+While the design is still a scaffold, ERC/DRC are informational (the
+workflow does not hard-fail). Once the schematic/PCB are captured, flip
+`--exit-code-violations` handling in the workflow to make CI gate on a
+clean ERC/DRC. This is the persistent "KiCad-capable environment"; day-to-
+day capture and routing happen locally in KiCad 8.
 
----
+## Fabrication outputs (JLCPCB / generic)
 
-## Daily use
+From the PCB editor once DRC is clean (or download the CI artifact):
 
-- **Made a real design choice?** → add a Decision in `docs/adr/`.
-  Copy `0000-template.md`, increment the number, fill it in.
-  Keep it to roughly one screen.
-- **Explored something, found facts worth keeping?** → append a
-  dated entry to the Log. Do not rewrite older entries.
-- **Shipped something?** → add a line to the Changelog under
-  `[Unreleased]`. Group by *Added / Changed / Fixed / Removed*.
-- **Changed how you run or deploy?** → update the Runbook.
-- **Project direction shifted?** → update the Brief. It should
-  always reflect current reality.
+- **Gerbers**: *File → Plot* → F.Cu, B.Cu, F/B.SilkS, F/B.Mask, F/B.Paste,
+  Edge.Cuts → `fab/`. Then *Generate Drill Files* (Excellon).
+- **BOM**: *Tools → Generate BOM*, or use `hardware/BOM.csv` as master.
+- **Placement (CPL)**: *File → Fabrication Outputs → Component Placement*.
+- Zip the gerbers + drill for the fab house.
 
----
+`fab/`, `gerbers/`, `*.zip`, and `*.kicad_prl` are git-ignored (outputs /
+per-user state, not source).
 
-## Writing a Decision (the ritual)
+## Bring-up (first power-on)
 
-1. Copy `docs/adr/0000-template.md` to
-   `docs/adr/NNNN-short-title.md`.
-2. Increment `NNNN` by one over the highest existing number.
-3. Fill in *Context*, *Decision*, *Considerations*, *Consequences*.
-4. Commit in the same pull request as the code change, where possible.
-5. Never edit an accepted Decision's *Decision* section. If you
-   change your mind, write a new Decision that supersedes it, and
-   update the old one's Status to `Superseded by Decision NNNN`.
-   See [adoption.md](./adoption.md#when-a-structural-design-choice-changes)
-   for a full worked example.
+1. Inspect solder; ohmmeter-check VBUS/VBAT/VSYS/+3V3 → GND for shorts.
+2. Power via USB-C only (no battery). Confirm +3V3 = 3.3 V.
+3. Confirm the board enumerates as a USB serial/JTAG device.
+4. Flash a blinky/serial test over native USB (hold BOOT + tap RESET if the
+   toolchain can't auto-enter the bootloader).
+5. Bring up the E-Paper with a controller driver matched to the panel.
+6. Bring up the frontlight: PWM GPIO15 (cold) / GPIO16 (warm); start at low
+   duty and confirm current ≤ 15 mA/channel before going bright.
+7. Add battery; confirm charging (STAT LED) and the battery-sense ADC.
 
----
+## Adding a decision
 
-## Keeping it healthy
-
-Signs your Colophon setup is drifting:
-
-- The Brief no longer reflects what the project does → update it.
-- `docs/adr/` has design choices you never wrote down → write them
-  retroactively if still relevant; skip if not.
-- The Runbook is out of date → fix the next time it bites you,
-  not before.
-- The Changelog has not been touched in months → you are either not
-  shipping, or not recording. Both worth attention.
-
-Rule of thumb: if a file has not been touched in a long time *and*
-nobody has needed it in a long time, consider deleting it.
-Colophon files earn their place or leave.
-
----
-
-## Integration notes
-
-- **With Diátaxis**: Colophon covers project-internal docs. If your
-  project needs user-facing tutorials and reference, put those in a
-  separate `user-docs/` folder (or a dedicated site) structured per
-  Diátaxis. The two do not overlap.
-- **With Doxygen / Sphinx / JSDoc**: these generate API reference
-  from source comments. That is different from Colophon and
-  complementary. Link to the generated output from the Brief.
-- **With compliance documents**: keep those in whatever system the
-  regulator requires. Do not try to fold them into Colophon.
+When you make a real design choice, copy `docs/adr/0000-template.md` to the
+next number and fill it in. Decisions are immutable once accepted — write a
+superseding Decision rather than editing an old one.

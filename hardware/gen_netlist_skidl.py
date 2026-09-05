@@ -71,6 +71,8 @@ def build():
     usb_dm = Net("USB_DM")
     bat_sense = Net("BAT_SENSE")
     chg_stat = Net("CHG_STAT")
+    fl_cold_pwm = Net("FL_COLD_PWM")
+    fl_warm_pwm = Net("FL_WARM_PWM")
 
     # ---- MCU: ESP32-S3-WROOM-1 ----------------------------------------
     # lib_id RF_Module:ESP32-S3-WROOM-1 ships with KiCad 8. Pin *names*
@@ -96,6 +98,8 @@ def build():
     u1["IO6"] += btn_sel
     u1["IO1"] += bat_sense
     u1["IO2"] += chg_stat
+    u1["IO15"] += fl_cold_pwm
+    u1["IO16"] += fl_warm_pwm
 
     # Module decoupling
     C("22uF")[1, 2] += v3v3, gnd
@@ -171,28 +175,55 @@ def build():
     r5b[2] += gnd
     C("100nF")[1, 2] += bat_sense, gnd
 
-    # ---- E-Paper 24-pin FPC (SSD1680) ---------------------------------
-    # TODO: pinout is panel-specific. Wire logic/supply pins; pump caps
-    # per the panel datasheet. Using a generic 24-pin FPC symbol.
-    j4 = Part("Connector", "Conn_01x24",
-              footprint="Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal")
-    # SPI/logic group (panel-agnostic):
-    j4[18] += spi_sck    # SCLK
-    j4[19] += spi_mosi   # SDA
-    j4[17] += epd_cs     # CS#
-    j4[16] += epd_dc     # D/C#
-    j4[15] += epd_rst    # RST#
-    j4[14] += epd_busy   # BUSY
-    j4[13] += gnd        # BS1 -> 4-wire SPI
-    j4[20] += v3v3       # VDDIO
-    j4[21] += v3v3       # VCI
-    j4[24] += v3v3       # VDD
-    j4[22] += gnd        # VSS
-    j4[23] += gnd        # VSS
-    # Pump/VCOM decoupling (pins 5..11 typical) -> 1uF each to GND:
-    for pin in (5, 6, 7, 8, 9, 10, 11):
-        C("1uF")[1, 2] += j4[pin], gnd
-    C("1uF")[1, 2] += v3v3, gnd   # VCI bulk
+    # ---- E-Paper 4.26" 800x480 (panel datasheet REQUIRED) -------------
+    # The EPD FPC pin count/pinout/controller depend on the specific 4.26"
+    # panel (GDEQ0426T82 class). The MCU-side nets (EPD_*) exist above; map
+    # the connector ONLY from the panel datasheet, then uncomment and wire:
+    #   j4 = Part("Connector", "Conn_01xNN", footprint="Connector_FFC-FPC:...")
+    #   j4[<SCLK>] += spi_sck ;  j4[<SDA>]  += spi_mosi
+    #   j4[<CS#>]  += epd_cs  ;  j4[<D/C#>] += epd_dc
+    #   j4[<RST#>] += epd_rst ;  j4[<BUSY>] += epd_busy
+    #   j4[<VDD/VDDIO/VCI>] += v3v3 ;  j4[<VSS>] += gnd
+    #   # + controller charge-pump / VCOM caps per the datasheet
+    # (Left unwired here on purpose; ERC will flag EPD_* as single-pin nets.)
+
+    # ---- Frontlight: Good Display FL0426-S01C -------------------------
+    # 6-pin FPC: 1 LEDC+  2 LEDC-  3 NC  4 NC  5 LEDW+  6 LEDW-
+    j5 = Part("Connector", "Conn_01x06",
+              footprint="Connector_FFC-FPC:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal")
+
+    def fl_driver(pwm_net, out_net, fb_net, tag):
+        # TODO: TPS61165 may not be in your KiCad symbol libs; set lib_id and
+        #       verify pin names (VIN, GND, SW, FB, CTRL).
+        u = Part("Regulator_Switching", "TPS61165",
+                 footprint="Package_TO_SOT_SMD:SOT-23-6")
+        sw = Net("FL_SW_%s" % tag)
+        u["VIN"] += vsys
+        u["GND"] += gnd
+        u["CTRL"] += pwm_net
+        u["SW"] += sw
+        u["FB"] += fb_net           # LED string cathode returns into FB
+        # Boost: L (VSYS->SW), Schottky (SW->OUT), Cout (OUT->GND), Cin, R_SET
+        L = Part("Device", "L", value="10uH",
+                 footprint="Inductor_SMD:L_1210_3225Metric")
+        L[1, 2] += vsys, sw
+        D = Part("Device", "D_Schottky", value=">=20V",
+                 footprint="Diode_SMD:D_SOD-123")
+        D["A"] += sw
+        D["K"] += out_net
+        C("1uF")[1, 2] += out_net, gnd      # Cout (>=25V, see BOM)
+        C("1uF")[1, 2] += vsys, gnd         # Cin
+        R("13R")[1, 2] += fb_net, gnd       # R_SET: ILED = 0.2V / R_SET
+
+    fl_c_out, fl_c_fb = Net("FL_C_OUT"), Net("FL_C_FB")
+    fl_w_out, fl_w_fb = Net("FL_W_OUT"), Net("FL_W_FB")
+    fl_driver(fl_cold_pwm, fl_c_out, fl_c_fb, "C")
+    fl_driver(fl_warm_pwm, fl_w_out, fl_w_fb, "W")
+    j5[1] += fl_c_out    # LEDC+
+    j5[2] += fl_c_fb     # LEDC-
+    j5[5] += fl_w_out    # LEDW+
+    j5[6] += fl_w_fb     # LEDW-
+    # j5[3], j5[4] = NC
 
     # ---- microSD (SPI) ------------------------------------------------
     j3 = Part("Connector", "microSD_Card_Det",

@@ -9,7 +9,7 @@
 		(date "2026-09-05")
 		(rev "0.1")
 		(company "Craft Code Systems")
-		(comment 1 "ESP32-S3 + SPI E-Paper (SSD1680) reference design")
+		(comment 1 "ESP32-S3 + 4.26in 800x480 E-Paper + tunable frontlight")
 		(comment 2 "Capture this schematic from hardware/DESIGN.md")
 	)
 	(lib_symbols)
@@ -25,7 +25,7 @@
 		)
 		(uuid "a0000000-0000-0000-0000-000000000001")
 	)
-	(text "This sheet is an empty, valid scaffold. Capture the design from\nhardware/DESIGN.md (block diagram, power tree, net list, pin map).\nBlocks to draw:\n  1. USB-C receptacle + CC 5.1k + ESD\n  2. MCP73831 Li charger + status LED + PROG resistor\n  3. Load-share: DMG2305UX P-FET + Schottky (USB priority)\n  4. AP2112K-3.3 LDO -> +3V3\n  5. ESP32-S3-WROOM-1 + decoupling + EN/BOOT + buttons\n  6. E-Paper 24-pin FPC (SSD1680) + pump caps\n  7. microSD (SPI) [optional]\n  8. Battery sense divider -> ADC\nRun ERC after capture, then update DESIGN.md section 11."
+	(text "This sheet is an empty, valid scaffold. Capture the design from\nhardware/DESIGN.md (block diagram, power tree, net list, pin map).\nBlocks to draw:\n  1. USB-C receptacle + CC 5.1k + ESD\n  2. MCP73831 Li charger + status LED + PROG resistor\n  3. Load-share: DMG2305UX P-FET + Schottky (USB priority)\n  4. AP2112K-3.3 LDO -> +3V3\n  5. ESP32-S3-WROOM-1 + decoupling + EN/BOOT + buttons\n  6. E-Paper 4.26in 800x480 FPC (pinout from panel datasheet - TBD)\n  7. Frontlight FL0426-S01C: 6-pin FPC + 2x TPS61165 boost (cold/warm)\n  8. microSD (SPI) [optional]\n  9. Battery sense divider -> ADC\nRun ERC after capture, then update DESIGN.md section 11."
 		(exclude_from_sim no)
 		(at 25.4 38.1 0)
 		(effects

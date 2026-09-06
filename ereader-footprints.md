@@ -59,13 +59,31 @@ The switches now resolve from a **project-local library** registered in
 - `ALPS_SLLB5_Lever` — the SLLB5 lever (SW4), pads CW/COM/PUSH/CCW on 2mm pitch + 2× Ø1.1 locator holes + lugs, drawn from the ALPS datasheet.
 - `JumperPad_2P_P2.0mm` — bare 2-pad jumper (JP5 BOOT, JP6 RESET), two 1.2×1.2mm exposed pads on 2mm pitch, no switch part.
 
-All three carry simplified 3D bodies in `ereader.3dshapes/*.wrl` (referenced with
+The two switches carry simplified 3D bodies in `ereader.3dshapes/*.wrl` (referenced with
 `scale 0.3937` so KiCad renders them 1:1 in mm) so they show in the 3D viewer without
 KiCad's stock libraries, **except `JumperPad_2P_P2.0mm`**, which is flat copper with no
 3D body — nothing to model. The switch lands are **stand-ins** — swap in the vendor
 STEP/WRL and DRC the land vs the ordered MPN before fab; the jumper pad is hand-drawn
 geometry (no datasheet to verify against) — DRC the pad size/spacing against your
 fab's minimum clearance and your enclosure's access cutout before fab.
+
+- `ALPS_SLLB5_Lever` 3D body — the SLLB5 is a **flat, low "fan"/semicircular puck**
+  (W 9.5 × D 8.8 × **H 2.2 mm**, the datasheet Lever-Return family) that lies on the
+  board with the terminal row along the front edge and a **low sideways rocker/toggle
+  lever** on top (flick left↔right = CW/CCW, press = PUSH). The earlier body rendered as
+  a tall block with an upward knob — wrong; it is now the flat puck + sideways lever.
+
+## Self-contained 3D bodies (whole board renders without KiCad's stock libraries)
+Every placed component now references a **project-local** body in
+`ereader.3dshapes/*.wrl` (`${KIPRJMOD}/…`, `scale 0.3937`) instead of KiCad's stock
+`${KICAD*_3DMODEL_DIR}` packs, so `ereader.kicad_pcb` shows a full 3D view even on a
+machine/CI without the KiCad 3D-model add-on installed (the previous stock refs went
+missing there). These are **simplified stand-ins** (boxes/cylinders sized from each
+part's datasheet/footprint outline, colour-coded by class: black IC epoxy, beige MLCC,
+grey inductors/plastics, metal shells for USB-C/microSD, natural nylon for the JST) —
+they are for visualisation only. Swap in vendor STEP/WRL models before fabrication.
+Fiducials, M2 mounting holes, and the bare `JumperPad_2P_P2.0mm` have no body — nothing
+to model.
 
 ## Netlist / .cmp footprint status (Rev C3)
 In `ereader-kicad.net` + `ereader.cmp`:

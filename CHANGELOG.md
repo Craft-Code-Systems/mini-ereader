@@ -5,6 +5,26 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### 3D views: SW4 lever corrected + self-contained bodies for every component (2026-09-06)
+- **SW4 (ALPS SLLB5) 3D body fixed.** The old `ereader.3dshapes/ALPS_SLLB5_Lever.wrl`
+  rendered as a tall block with an upward box knob — an "odd big switch". The SLLB5 is
+  actually a **flat semicircular "fan" puck** (W 9.5 × D 8.8 × **H 2.2 mm**, the
+  datasheet Lever-Return family) that lies on the board with a **low sideways
+  rocker/toggle lever** on top (flick left↔right = CW/CCW, press = PUSH). Rebuilt the
+  body as the flat puck + sideways lever to match the ALPS datasheet drawing/photo.
+- **The whole board now renders in the 3D viewer without KiCad's stock 3D libraries.**
+  Every placed component previously pointed at stock `${KICAD6/7_3DMODEL_DIR}` packs,
+  which go missing on any machine/CI without the KiCad 3D-model add-on — so most parts
+  showed no 3D body. Added simplified project-local bodies for all remaining footprints
+  (R/C/L passives, `SOT-23-6`, `SON-8`, `DFN-8`, `HVQFN-24`, `ESP32-S3-WROOM-1`,
+  `Maxim_WLP-12`, `D_SOD-123`, `USB_C_Receptacle_HRO_TYPE-C-31-M-12`, `JST_PH_S2B-PH-K`,
+  `Hirose_FH12-6S/24S`, `microSD_HC_Hirose_DM3AT`) in `ereader.3dshapes/*.wrl`, and
+  repointed all 43 stock `(model …)` refs in `ereader.kicad_pcb` to
+  `${KIPRJMOD}/ereader.3dshapes/…` at `scale 0.3937`. Bodies are box/cylinder stand-ins
+  sized from each part's datasheet/footprint outline (colour-coded by class) — for
+  visualisation only; swap in vendor STEP/WRL before fab. Fiducials, M2 mounting holes,
+  and the bare `JumperPad_2P_P2.0mm` keep no body. Updated `ereader-footprints.md`.
+
 ### BOOT/RESET switches replaced with bare jumper pads (2026-09-06)
 - **SW5/SW6 → JP5/JP6.** BOOT and RESET are no longer Würth WS-TASU tactiles —
   they're bare 2-pad exposed jumpers (`ereader:JumperPad_2P_P2.0mm`, hand-drawn,

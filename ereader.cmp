@@ -134,17 +134,17 @@ IdModule  = ereader:ALPS_SLLB5_Lever;
 EndCmp
 
 BeginCmp
-TimeStamp = /SW5;
-Reference = SW5;
+TimeStamp = /JP5;
+Reference = JP5;
 ValeurCmp = BOOT;
-IdModule  = ereader:WE_WS-TASU_436351045816;
+IdModule  = ereader:JumperPad_2P_P2.0mm;
 EndCmp
 
 BeginCmp
-TimeStamp = /SW6;
-Reference = SW6;
+TimeStamp = /JP6;
+Reference = JP6;
 ValeurCmp = RESET;
-IdModule  = ereader:WE_WS-TASU_436351045816;
+IdModule  = ereader:JumperPad_2P_P2.0mm;
 EndCmp
 
 BeginCmp

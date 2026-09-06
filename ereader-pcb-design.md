@@ -13,7 +13,8 @@ Rev C: frontlight FULLY RESOLVED from FL0426-S01C (2 independent 4-wire strings)
 - Battery = single-cell Li-Po, **~1000–2000 mAh, thin large-area**. Fast charge not needed → conservative Ichg (§8).
 - USB-C = charge + native USB-OTG data + program (one connector; native USB-Serial/JTAG on S3).
 - SoC charge cap (stop 80 / resume 50) = ESP32 over I2C, + hardware CE fallback (§8).
-- Program/recovery = native USB + BOOT + RESET buttons.
+- Program/recovery = native USB + BOOT + RESET **jumper pads** (bare exposed
+  pads, momentarily shorted with a screwdriver tip or tweezers — no switch part).
 
 ---
 
@@ -44,7 +45,7 @@ Rev C: frontlight FULLY RESOLVED from FL0426-S01C (2 independent 4-wire strings)
                                    USB │      │  └─SPI──────────► EPD 24p FPC
                                        └─USB  └─SPI──────────► microSD
    Inputs: 3× side btn + SLLB510200 (CW/CCW/push) → GPIO pull-up, wake
-   Prog:   BOOT(GPIO0) + RESET(EN) tactiles
+   Prog:   BOOT(GPIO0) + RESET(EN) jumper pads (short w/ screwdriver)
 ```
 
 ---
@@ -65,8 +66,8 @@ Rev C: frontlight FULLY RESOLVED from FL0426-S01C (2 independent 4-wire strings)
 | J4 | microSD push-pull holder | storage | |
 | SW1–3 | Würth **WS-TASU 436351045816** (side push) | page/menu | `ereader:WE_WS-TASU_436351045816`; actuator faces board edge; Ø0.75 boss holes |
 | SW4 | ALPS **SLLB510200** (510100 = alt) | lever+push (CW/CCW/press) | 10 mA/5 V max, 9.5×8.8×2.2 mm; `ereader:ALPS_SLLB5_Lever`; 2mm-pitch pads + Ø1.1 locators |
-| SW5 | Würth **WS-TASU 436351045816** | BOOT | GPIO0→GND momentary; same side land |
-| SW6 | Würth **WS-TASU 436351045816** | RESET | EN→GND momentary; same side land |
+| JP5 | Bare pads (no MPN) | BOOT | GPIO0→GND, shorted momentarily w/ screwdriver/tweezers; `ereader:JumperPad_2P_P2.0mm` |
+| JP6 | Bare pads (no MPN) | RESET | EN→GND, shorted momentarily w/ screwdriver/tweezers; `ereader:JumperPad_2P_P2.0mm` |
 | — | 5.1 kΩ ×2 | CC1/CC2 Rd (sink) | |
 | — | 100 kΩ | EN pull-up + 1 µF | module EN weak ~2 MΩ |
 | — | 100 kΩ pull-up ×2 | EPD_CS, SD_CS idle-high thru boot | §5 |
@@ -122,8 +123,8 @@ Safe pins: 1–18, 21, 38–42, 47, 48. **Never 26–37** (26–32 flash, 33–3
 | GAUGE_ALRT | 48 | I | MAX17048 /ALRT (low-SoC wake) |
 | FL_HWEN | 21 | O | LM3630A HWEN; 100k pull-down (FL off at boot) |
 | CHG_CE | 14 | O | BQ25628E CE; 100k strap = charge-on default (§8) |
-| BOOT | 0 | I | strap; SW5→GND; module 10k pull-up |
-| RESET | EN | I | SW6→GND; 100k pull-up + 1 µF |
+| BOOT | 0 | I | strap; JP5→GND (jumper pad); module 10k pull-up |
+| RESET | EN | I | JP6→GND (jumper pad); 100k pull-up + 1 µF |
 | USB_D- | 19 | — | native → J1 |
 | USB_D+ | 20 | — | native → J1 |
 
@@ -248,7 +249,7 @@ if (soc <= 50) bq25628_charge_en();   // set EN_CHG
 5. EPD booster caps hugging FPC pins; short stubs. J2 + J3 adjacent on bottom edge.
 6. USB D+/D- 90 Ω diff, ESD at connector then module.
 7. Decouple module 3V3: 22 µF + 4×0.1 µF at power pins; bulk at buck.
-8. EN: 100 kΩ pull-up + 1 µF + RESET(SW6). BOOT(SW5)→GPIO0→GND.
+8. EN: 100 kΩ pull-up + 1 µF + RESET(JP6). BOOT(JP5)→GPIO0→GND.
 9. Boot-default pulls: EPD_CS/SD_CS 100k↑, FL_HWEN 100k↓, CHG_CE 100k strap = charge-on.
 10. I2C0 + I2C1: 4.7 kΩ pull-ups each to 3V3.
 11. **Magnet alignment silk markers**: on the face nearest the shell magnets, print crosshair/circle fiducials at each magnet pocket center so the printed shell registers to the PCB. Copper-free zones there (mechanical only). Mirror position on far end from antenna.

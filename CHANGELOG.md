@@ -5,6 +5,19 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### BOOT/RESET switches replaced with bare jumper pads (2026-09-06)
+- **SW5/SW6 → JP5/JP6.** BOOT and RESET are no longer Würth WS-TASU tactiles —
+  they're bare 2-pad exposed jumpers (`ereader:JumperPad_2P_P2.0mm`, hand-drawn,
+  two 1.2×1.2 mm pads on 2 mm pitch, no switch part), momentarily shorted with a
+  screwdriver tip or tweezers to pull `IO0_BOOT`/`EN` low. Same board position and
+  nets as the tactiles they replace (pad 1 → `IO0_BOOT`/`EN`, pad 2 → `GND`), so
+  routing/placement elsewhere is unaffected; drops two tactile switches from the
+  BOM. Updated `ereader-connection-list.md`, `ereader-schematic.md`,
+  `ereader-pcb-design.md`, `ereader-footprints.md`, `ereader-kicad.net`,
+  `ereader.cmp`, `ereader.kicad_pcb`, `ereader-placement.svg`, and ADR 0008.
+  Hand-drawn pad geometry (no datasheet, since there's no part to order) —
+  still to be DRC'd against fab minimum clearance and the case cutout before fab.
+
 ### Switch footprints locked to datasheets (2026-09-06)
 - **Tactiles → Würth WS-TASU 436351045816** (4.7×3.5 mm side push with boss).
   Replaced the generic `Tact_Side_TS1187A` stand-in with `ereader:WE_WS-TASU_436351045816`,

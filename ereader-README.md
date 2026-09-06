@@ -12,7 +12,7 @@ Open **`ereader.kicad_pro`** in KiCad 7/8 → open the **PCB Editor** (Pcbnew). 
 | `ereader-connection-list.md` | master net-by-net (source of truth) |
 | `ereader-schematic.md` | schematic (subsystem Mermaid diagrams; renders on GitHub) |
 | `ereader-footprints.md` | footprint picklist + ✓/⚑ status |
-| `ereader.pretty/` + `ereader.3dshapes/` | project footprints (side tactile, SLLB5 lever) + simple 3D bodies |
+| `ereader.pretty/` + `ereader.3dshapes/` | project footprints (side tactile, SLLB5 lever, bare jumper pad) + simple 3D bodies for the switches |
 | `ereader-pcb-design.md` | full design spec (power, pinmap, compliance, layout) |
 
 ## Honest status — what this IS / IS NOT
@@ -21,7 +21,7 @@ Open **`ereader.kicad_pro`** in KiCad 7/8 → open the **PCB Editor** (Pcbnew). 
 
 ## Two manual steps remain (unavoidable — this is the engineering)
 1. **Fix the flagged parts + name-only pins** (~29% of endpoints unconnected by design, listed below):
-   - **Placeholder footprints (real land = wrong)** → replace with exact per datasheet: `U2` BQ25628E, `U3` MAX17048, `U4` LM3630A, `U5` TPS62840. Pull from SnapEDA / Ultra-Librarian. (`SW1-6` now use the project-local `ereader.pretty` lands — side-actuated tactile + SLLB5 lever — still DRC vs the ordered MPN.)
+   - **Placeholder footprints (real land = wrong)** → replace with exact per datasheet: `U2` BQ25628E, `U3` MAX17048, `U4` LM3630A, `U5` TPS62840. Pull from SnapEDA / Ultra-Librarian. (`SW1-4` now use the project-local `ereader.pretty` lands — side-actuated tactile + SLLB5 lever — still DRC vs the ordered MPN. `JP5`/`JP6`, BOOT/RESET, are bare jumper pads — also project-local, but no MPN to DRC against, just check the pad spacing against fab minimum clearance.)
    - **Name-only pins** don't auto-match numeric pads → assign in symbol or connect while routing: `J2` (EPD, 8 pins → map to GDEY0426T82 FPC numbers), `J4` (microSD, 6), `U2-U5`/`U6` (IC function names→pads). (`SW4` is resolved — its pads are named CW/CCW/PUSH/COM.)
 2. **Place-tune → route → DRC → Gerbers.** Follow §11 layout rules in the design spec (antenna keep-out, FL-boost + charger loops tight, USB 90Ω diff, GND plane).
 

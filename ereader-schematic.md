@@ -13,9 +13,9 @@
 > they render directly on GitHub (Mermaid) and mirror the connection list net-for-net.
 >
 > **To get a native Eeschema schematic:** create a new schematic in the `ereader`
-> project, drop the symbols for U1–U6 / J1–J5 / SW1–SW6 / passives, and wire them to
-> match these diagrams (label-based wiring is fine — same-named net labels connect).
-> Run **ERC**, then it drives the same `ereader-kicad.net`.
+> project, drop the symbols for U1–U6 / J1–J5 / SW1–SW4 / JP5–JP6 / passives, and
+> wire them to match these diagrams (label-based wiring is fine — same-named net
+> labels connect). Run **ERC**, then it drives the same `ereader-kicad.net`.
 
 All pin **numbers** on U1 are the exact ESP32‑S3‑WROOM‑1 datasheet pins; IC pins on
 U2–U6 are by **function name** (remap to your chosen symbol's pads). Nets are taken
@@ -97,8 +97,8 @@ J4.VSS, J5.−, all cap returns, all pull-down / switch returns.
 |-----|------|-----|---------|
 | 2 | 3V3 | +3V3 | supply |
 | 1 / 40 / 41 | GND/EPAD | GND | ground |
-| 3 | EN | EN | SW6 (RESET), R3 pull-up, C_EN |
-| 27 | IO0 | IO0_BOOT | SW5 (BOOT) |
+| 3 | EN | EN | JP6 (RESET), R3 pull-up, C_EN |
+| 27 | IO0 | IO0_BOOT | JP5 (BOOT) |
 | 4 | IO4 | BTN_A | SW1.1 |
 | 5 | IO5 | BTN_B | SW2.1 |
 | 6 | IO6 | BTN_C | SW3.1 |
@@ -131,12 +131,16 @@ Strap/PSRAM/unused pins (IO3/13/45/46/35/36/37, RXD0/TXD0) → NC or test-point.
 
 ## 4. Navigation input (this is the input scheme from ADR 0008)
 
-All contacts are **active-low momentary to GND** with the ESP32‑S3 **internal
+Nav contacts are **active-low momentary to GND** with the ESP32‑S3 **internal
 pull-ups**; every one sits on an RTC‑capable GPIO so it can wake the MCU from deep
-sleep. **SW1–SW3 and SW5/SW6 are side-actuated (right-angle) tactiles** and **SW4 is
-the ALPS SLLB5 two-way lever + push** — the actuators face the **board edge** because
-the screen covers the whole front and magnets hold the back to the phone, so nothing
-can be pressed from the top or bottom faces.
+sleep. **SW1–SW3 are side-actuated (right-angle) tactiles** and **SW4 is the ALPS
+SLLB5 two-way lever + push** — the actuators face the **board edge** because the
+screen covers the whole front and magnets hold the back to the phone, so nothing
+can be pressed from the top or bottom faces. **JP5/JP6 (BOOT/RESET) are not
+switches** — they're bare exposed 2-pad jumpers, momentarily shorted with a
+screwdriver tip or tweezers when you actually need to flash/recover the board;
+they read open (floating high through the pull-up) in normal use, so there's no
+switch part, cap, or accidental-press risk sitting on a rarely-used recovery path.
 
 ```mermaid
 flowchart LR
@@ -147,7 +151,7 @@ flowchart LR
   end
   SW1["SW1 side tact<br/>BTN_A"]; SW2["SW2 side tact<br/>BTN_B"]; SW3["SW3 side tact<br/>BTN_C"]
   SW4["SW4 ALPS SLLB5 lever<br/>CW / CCW / PUSH / COM"]
-  SW5["SW5 side tact<br/>BOOT"]; SW6["SW6 side tact<br/>RESET"]
+  JP5["JP5 jumper pad<br/>BOOT (screwdriver-shortable)"]; JP6["JP6 jumper pad<br/>RESET (screwdriver-shortable)"]
   GND(["GND"])
 
   IO4 -- "BTN_A" --> SW1 --> GND
@@ -157,8 +161,8 @@ flowchart LR
   IO2 -- "LEV_CCW" --> SW4
   IO15 -- "LEV_PUSH" --> SW4
   SW4 -- "COM" --> GND
-  IO0 -- "IO0_BOOT" --> SW5 --> GND
-  EN -- "EN" --> SW6 --> GND
+  IO0 -- "IO0_BOOT" --> JP5 --> GND
+  EN -- "EN" --> JP6 --> GND
 ```
 
 `R3` (100k) pulls **EN** up with `C_EN` (1µF) for a clean reset; BOOT uses the

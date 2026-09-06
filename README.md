@@ -60,7 +60,7 @@ A buildable learning platform, not a product.
 - Wi-Fi/BLE (ESP32-S3) for fetching and syncing books.
 - Battery power (1S LiPo) with USB-C charging and USB-priority power path.
 - Battery state-of-charge and charge-status telemetry.
-- Three navigation buttons; BOOT/RESET for flashing.
+- Three navigation buttons; BOOT/RESET jumper pads (screwdriver-shortable) for flashing.
 - Optional microSD for local library storage.
 
 ## Non-functional baseline

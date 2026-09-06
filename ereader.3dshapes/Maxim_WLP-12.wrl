@@ -1,0 +1,26 @@
+#VRML V2.0 utf8
+# Simplified project-local 3D stand-in for a WLP-12 / DSBGA-12 package (U4 frontlight driver).
+# Authored in mm; the footprint references it with scale 0.3937 (= 1/2.54)
+# so KiCad renders it 1:1 and the board shows in the 3D viewer WITHOUT
+# KiCad's stock 3D libraries. NOT a full mechanical model.
+
+# --- silicon body ---
+Transform {
+  translation 0 0 0.35
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.13 0.13 0.13 } }
+      geometry Box { size 1.86 1.42 0.5 }
+    }
+  ]
+}
+# --- ball side (toward board) ---
+Transform {
+  translation 0 0 0.06
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.8 0.66 0.3 } }
+      geometry Box { size 1.7 1.3 0.12 }
+    }
+  ]
+}

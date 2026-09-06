@@ -1,0 +1,36 @@
+#VRML V2.0 utf8
+# Simplified project-local 3D stand-in for a 1210 power inductor (22 uH).
+# Authored in mm; the footprint references it with scale 0.3937 (= 1/2.54)
+# so KiCad renders it 1:1 and the board shows in the 3D viewer WITHOUT
+# KiCad's stock 3D libraries. NOT a full mechanical model.
+
+# --- shielded inductor body ---
+Transform {
+  translation 0 0 1
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.24 0.24 0.24 } }
+      geometry Box { size 3.2 2.5 2 }
+    }
+  ]
+}
+# --- terminal ---
+Transform {
+  translation -1.48 0 0.8
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.86 0.72 0.45 } }
+      geometry Box { size 0.25 2.25 1.6 }
+    }
+  ]
+}
+# --- terminal ---
+Transform {
+  translation 1.48 0 0.8
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.86 0.72 0.45 } }
+      geometry Box { size 0.25 2.25 1.6 }
+    }
+  ]
+}

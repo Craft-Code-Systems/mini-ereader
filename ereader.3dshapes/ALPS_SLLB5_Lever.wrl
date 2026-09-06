@@ -1,26 +1,69 @@
 #VRML V2.0 utf8
-# Simplified stand-in for the ALPS SLLB5 lever+push switch
-# (SLLB510200/SLLB510100, body 9.5 x 8.8 x 2.2 mm). Terminal row on the -Y
-# edge; body extends +Y with the lever knob on top. Authored in mm;
-# footprint references it with scale 0.3937 (= 1/2.54). NOT a full model.
+# Simplified stand-in for the ALPS SLLB5 lever + push switch
+# (SLLB510200 / SLLB510100). Per the ALPS datasheet (p.490-491, "Lever and
+# Push Operation Type Switch", Lever-Return family) the part is a FLAT
+# semicircular "fan" puck that lies on the PCB: W 9.5 x D 8.8 x H 2.2 mm, with
+# the terminal row along the -Y (front) edge and a low SIDEWAYS rocker lever on
+# top that flicks left<->right (CW / CCW) and presses (PUSH). This is NOT a
+# tall knob/toggle standing off the board — it is a low fan-shaped body with a
+# sideways tumbler lever. Authored in mm; the footprint references it with
+# scale 0.3937 (= 1/2.54) so KiCad renders it 1:1. NOT a full mechanical model.
+#
+# Footprint frame: X = width (terminal row), +Y = depth into the fan (terminal
+# edge at -Y), Z = up. Origin at the footprint datum; locator pins at y=0.
 
-# --- switch body (dark grey), centred over the footprint ---
+# --- flat fan body: rounded rear puck (dark grey), lying on the board ---
 Transform {
-  translation 0 2.4 1.1
+  translation 0 2.6 1.1
+  rotation 1 0 0 1.5708
   children [
     Shape {
       appearance Appearance { material Material { diffuseColor 0.16 0.16 0.16 } }
-      geometry Box { size 9.5 8.8 2.2 }
+      geometry Cylinder { radius 4.4 height 2.2 }
     }
   ]
 }
-# --- lever knob on top (yellow-ish) ---
+# --- flat body: straight front section carrying the terminals (dark grey) ---
 Transform {
-  translation 0 3.2 3.0
+  translation 0 -0.2 1.1
   children [
     Shape {
-      appearance Appearance { material Material { diffuseColor 0.80 0.72 0.20 } }
-      geometry Box { size 2.0 3.0 1.6 }
+      appearance Appearance { material Material { diffuseColor 0.16 0.16 0.16 } }
+      geometry Box { size 9.5 3.4 2.2 }
+    }
+  ]
+}
+# --- lever pivot hub: axle runs front<->back (+Y), so the lever rocks
+#     sideways in the X-Z (width/height) plane (metallic grey) ---
+Transform {
+  translation 0 2.2 2.2
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.55 0.55 0.58 } }
+      geometry Cylinder { radius 0.85 height 3.4 }
+    }
+  ]
+}
+# --- sideways rocker/toggle lever (cream actuator), tilted about +Y so it
+#     leans to one side: the "sideways toggle" position from the datasheet ---
+Transform {
+  translation 0.7 2.2 2.9
+  rotation 0 1 0 0.28
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.86 0.82 0.68 } }
+      geometry Box { size 7.2 2.4 0.9 }
+    }
+  ]
+}
+# --- knurled thumb pad on the raised end of the lever (lighter cream) ---
+Transform {
+  translation 3.1 2.2 3.6
+  rotation 0 1 0 0.28
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.90 0.87 0.75 } }
+      geometry Box { size 1.6 2.4 0.7 }
     }
   ]
 }

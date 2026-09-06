@@ -1,0 +1,76 @@
+#VRML V2.0 utf8
+# Simplified project-local 3D stand-in for a SOT-23-6 package (U6 ESD array).
+# Authored in mm; the footprint references it with scale 0.3937 (= 1/2.54)
+# so KiCad renders it 1:1 and the board shows in the 3D viewer WITHOUT
+# KiCad's stock 3D libraries. NOT a full mechanical model.
+
+# --- epoxy body ---
+Transform {
+  translation 0 0 0.6
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.13 0.13 0.13 } }
+      geometry Box { size 1.6 2.9 1.1 }
+    }
+  ]
+}
+# --- lead ---
+Transform {
+  translation -1.15 -0.95 0.1
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.6 0.62 0.66 } }
+      geometry Box { size 0.7 0.5 0.15 }
+    }
+  ]
+}
+# --- lead ---
+Transform {
+  translation -1.15 0 0.1
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.6 0.62 0.66 } }
+      geometry Box { size 0.7 0.5 0.15 }
+    }
+  ]
+}
+# --- lead ---
+Transform {
+  translation -1.15 0.95 0.1
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.6 0.62 0.66 } }
+      geometry Box { size 0.7 0.5 0.15 }
+    }
+  ]
+}
+# --- lead ---
+Transform {
+  translation 1.15 -0.95 0.1
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.6 0.62 0.66 } }
+      geometry Box { size 0.7 0.5 0.15 }
+    }
+  ]
+}
+# --- lead ---
+Transform {
+  translation 1.15 0 0.1
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.6 0.62 0.66 } }
+      geometry Box { size 0.7 0.5 0.15 }
+    }
+  ]
+}
+# --- lead ---
+Transform {
+  translation 1.15 0.95 0.1
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.6 0.62 0.66 } }
+      geometry Box { size 0.7 0.5 0.15 }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+#VRML V2.0 utf8
+# Simplified project-local 3D stand-in for an HVQFN-24 4x4 mm package (U2 charger).
+# Authored in mm; the footprint references it with scale 0.3937 (= 1/2.54)
+# so KiCad renders it 1:1 and the board shows in the 3D viewer WITHOUT
+# KiCad's stock 3D libraries. NOT a full mechanical model.
+
+# --- package body ---
+Transform {
+  translation 0 0 0.45
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.13 0.13 0.13 } }
+      geometry Box { size 4 4 0.9 }
+    }
+  ]
+}
+# --- pin-1 dot ---
+Transform {
+  translation -1.5 -1.5 0.9
+  rotation 1 0 0 1.5708
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.05 0.05 0.05 } }
+      geometry Cylinder { radius 0.25 height 0.02 }
+    }
+  ]
+}

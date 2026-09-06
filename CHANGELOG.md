@@ -28,6 +28,11 @@ All notable changes to the Mini E-Reader project. Format loosely follows
   [ADR 0007](docs/adr/0007-lm3630a-frontlight-driver.md) (LM3630A
   single-boost dual-sink frontlight driver) which supersedes ADR 0005. ADRs
   0003 and 0005 are marked Superseded, with their reasoning preserved.
+- Documented the navigation input scheme in
+  [ADR 0008](docs/adr/0008-navigation-input.md): three side tactile buttons +
+  an ALPS SLLB510200 multi-directional lever switch (CW/CCW/press), all on
+  RTC-capable wake GPIOs. (New decision; the reference spec had three buttons
+  only.)
 
 ### Added
 - Hardware design for a 4.26" 800×480 frontlit e-paper reader:

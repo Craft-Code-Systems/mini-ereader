@@ -97,7 +97,8 @@ files and remaining cruft (`.history`, `ereader-gerbers.zip`).
   **0007** (LM3630A single-boost dual-sink frontlight) supersedes **0005**.
   0003/0005 marked Superseded, reasoning preserved.
 - The `-N16R8` module variant is treated as a selection under ADR 0001, not a
-  new decision. Still open (deferred): the input change (3 buttons +
-  SLLB510200 rotary encoder) has no ADR yet; folding the exact SSD1677 boost
-  values from `hardware/DESIGN.md` §5 into `ereader-pcb-design.md` §6; and
-  removing the remaining `ereader-gerbers.zip` build artifact.
+  new decision. Also added **0008** (navigation input: 3 side buttons + ALPS
+  SLLB510200 lever switch — CW/CCW/press, not a quadrature encoder). Still
+  open (deferred): folding the exact SSD1677 boost values from
+  `hardware/DESIGN.md` §5 into `ereader-pcb-design.md` §6; and removing the
+  remaining `ereader-gerbers.zip` build artifact.

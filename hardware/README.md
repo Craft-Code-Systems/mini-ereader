@@ -36,6 +36,7 @@ See [`/docs/adr/`](../docs/adr/):
 | [0005](../docs/adr/0005-frontlight-driver.md) | Dual boost constant-current frontlight driver *(superseded by 0007)* |
 | [0006](../docs/adr/0006-i2c-managed-power-path.md) | I2C-managed power path: BQ25628E + TPS62840 + MAX17048 |
 | [0007](../docs/adr/0007-lm3630a-frontlight-driver.md) | LM3630A single-boost dual-sink frontlight driver |
+| [0008](../docs/adr/0008-navigation-input.md) | Navigation input: 3 side buttons + ALPS SLLB510200 lever switch |
 
 ## Getting started
 

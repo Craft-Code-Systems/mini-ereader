@@ -9,7 +9,7 @@ Rev C: frontlight FULLY RESOLVED from FL0426-S01C (2 independent 4-wire strings)
 ## 1. Decisions / assumptions
 
 - MCU = **ESP32-S3-WROOM-1-N16R8** (kept). 8 MB octal PSRAM holds 800×480×2-plane framebuffer (96 KB) + EPUB render + fonts. 16 MB flash = OTA A/B + fonts + cache.
-- Panel = **GDEQ0426T82-FL01C** (frontlight cool/warm, 800×480, SSD1677, SPI, 3V3 logic). Panel FPC = 24-pin 0.5 mm. Frontlight FPC = 6-pin 0.5 mm (**FL0426-S01C**, confirmed §7).
+- Panel = **GDEY0426T82-FL01C** (frontlight cool/warm, 800×480, SSD1677, SPI, 3V3 logic). Panel FPC = 24-pin 0.5 mm. Frontlight FPC = 6-pin 0.5 mm (**FL0426-S01C**, confirmed §7).
 - Battery = single-cell Li-Po, **~1000–2000 mAh, thin large-area**. Fast charge not needed → conservative Ichg (§8).
 - USB-C = charge + native USB-OTG data + program (one connector; native USB-Serial/JTAG on S3).
 - SoC charge cap (stop 80 / resume 50) = ESP32 over I2C, + hardware CE fallback (§8).

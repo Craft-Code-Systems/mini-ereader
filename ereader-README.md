@@ -20,7 +20,7 @@ Open **`ereader.kicad_pro`** in KiCad 7/8 → open the **PCB Editor** (Pcbnew). 
 ## Two manual steps remain (unavoidable — this is the engineering)
 1. **Fix the flagged parts + name-only pins** (~29% of endpoints unconnected by design, listed below):
    - **Placeholder footprints (real land = wrong)** → replace with exact per datasheet: `U2` BQ25628E, `U3` MAX17048, `U4` LM3630A, `U5` TPS62840, `SW4` SLLB510200. Pull from SnapEDA / Ultra-Librarian.
-   - **Name-only pins** don't auto-match numeric pads → assign in symbol or connect while routing: `J2` (EPD, 8 pins → map to GDEQ0426T82 FPC numbers), `J4` (microSD, 6), `SW4` (CW/CCW/PUSH/COM→1-4), `U2-U5`/`U6` (IC function names→pads).
+   - **Name-only pins** don't auto-match numeric pads → assign in symbol or connect while routing: `J2` (EPD, 8 pins → map to GDEY0426T82 FPC numbers), `J4` (microSD, 6), `SW4` (CW/CCW/PUSH/COM→1-4), `U2-U5`/`U6` (IC function names→pads).
 2. **Place-tune → route → DRC → Gerbers.** Follow §11 layout rules in the design spec (antenna keep-out, FL-boost + charger loops tight, USB 90Ω diff, GND plane).
 
 ## EasyEDA instead?

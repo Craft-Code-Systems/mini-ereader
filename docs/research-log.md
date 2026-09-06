@@ -104,6 +104,9 @@ files and remaining cruft (`.history`, `ereader-gerbers.zip`).
   VGH/VGL/VSH/VSL/VCOM) from `hardware/DESIGN.md` §5 into
   `ereader-pcb-design.md` §6, so the canonical spec is self-contained.
 - Removed the committed `ereader-gerbers.zip` build artifact (regenerable via
-  `fab.py`; already git-ignored). No consolidation items remain open; the
-  only pointer left to verify is the panel prefix GDEQ vs GDEY in
-  `ereader-pcb-design.md` (README/DESIGN.md say GDEY0426T82-FL01C).
+  `fab.py`; already git-ignored).
+- Fixed the panel part-number prefix in the `ereader-*` docs: **GDEQ0426T82 →
+  GDEY0426T82** (`ereader-pcb-design.md`, `ereader-README.md`,
+  `ereader-connection-list.md`, `ereader-footprints.md`), matching the panel
+  datasheet confirmed in README/`DESIGN.md` (GDEY0426T82-FL01C). No
+  consolidation items remain open.

@@ -19,7 +19,7 @@ Always DRC land vs the ordered part's datasheet before route.
 | Ref | MPN | Footprint | Source | Notes |
 |-----|-----|-----------|--------|-------|
 | J1 | USB-C 16-pin recept (USB2, e.g. HRO TYPE-C-31-M-12 / GCT USB4085) | `Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12` | ✓ KiCad | 16-pin = power+USB2 only. Add 2 mount posts to GND |
-| J2 | EPD FPC 24p 0.5mm | `Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal` ✓ KiCad | ⚑ verify | ⚠ match **contact side** (GDEQ0426T82 FPC = bottom-contact) + flip-lock. Pick a flip-lock ZIF |
+| J2 | EPD FPC 24p 0.5mm | `Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal` ✓ KiCad | ⚑ verify | ⚠ match **contact side** (GDEY0426T82 FPC = bottom-contact) + flip-lock. Pick a flip-lock ZIF |
 | J3 | FL FPC 6p 0.5mm | `Connector_FFC-FPC:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal` ✓ KiCad | ⚑ verify | same contact-side rule as J2 |
 | J4 | microSD push-pull | `Connector_Card:microSD_HC_Hirose_DM3AT-SF-PEJM5` | ✓ KiCad | or Molex 5031821852 |
 | J5 | Li-Po 1S | `Connector_JST:JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal` | ✓ KiCad | or SH 1.0mm if slim |
@@ -44,7 +44,7 @@ Always DRC land vs the ordered part's datasheet before route.
 | D1 | Schottky 30V | `Diode_SMD:D_SOD-123` | FL boost rectifier |
 
 ## EPD support (SSD1677, local to J2)
-Not separate line items — copy the **Good Display GDEQ0426T82 reference** block verbatim: reservoir caps (0402/0603, 1µF/4.7µF X7R 25V+) on VGH/VGL/VSH/VSL/VCOM/VPP/PREVGH + booster components (GDR/RESE). Place hugging J2.
+Not separate line items — copy the **Good Display GDEY0426T82 reference** block verbatim: reservoir caps (0402/0603, 1µF/4.7µF X7R 25V+) on VGH/VGL/VSH/VSL/VCOM/VPP/PREVGH + booster components (GDR/RESE). Place hugging J2.
 
 ## Library setup
 1. KiCad official libs cover ✓ rows out of the box.

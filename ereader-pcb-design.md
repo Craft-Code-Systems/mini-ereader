@@ -148,7 +148,7 @@ Match the **panel datasheet pin numbers exactly** (24-pin EPD FPC, 0.5 mm):
 - Logic: SCLK, SDA(MOSI), CS, DC, RST, BUSY, VDD=3V3, VSS=GND, BS (tie low = 4-wire SPI).
 - Booster/analog: GDR, RESE, VSH1/VSH2, VSL, VGL, VGH, VCOM, VCI, VDD, VPP — external DC-DC + reservoir caps per the **Good Display reference circuit** ("ESP32 Sample Code" zip). Copy 1:1; rail values non-negotiable. Short FPC stubs; guard-ground under booster caps.
 
-**External DC-DC — exact values** (ported from `hardware/DESIGN.md` §5; verify against the panel datasheet reference circuit before order. Designators are from that source — renumber to match the `ereader` schematic):
+**External DC-DC — exact values** (from the Good Display GDEY0426T82-FL01C reference circuit; verify against the panel datasheet before order. Designators are from that reference — renumber to match the `ereader` schematic):
 - **L** 47 µH, ≥500 mA (NR3015 class): +3V3 → switch node (boost FET drain).
 - **Q** Si1308EDL N-MOSFET (SOT-23): gate = GDR, drain = switch node, source = RESE. **R** 1 MΩ GDR→GND (gate pulldown) + **R** 2.2 Ω RESE→GND (current sense).
 - **D×3** MBR0530 Schottky (≥30 V, ≥500 mA): one builds PREVGH (→ VGH); two build the PREVGL (→ VGL) charge-pump path.

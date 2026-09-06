@@ -27,6 +27,14 @@ All notable changes to the Mini E-Reader project. Format loosely follows
   diagrams built from the connection list; renders on GitHub). Documents why the
   netlist-first design has no native Eeschema `.kicad_sch` and how to draw one. Updated
   `ereader-footprints.md`, `ereader-README.md`, `ereader-pcb-design.md`, and ADR 0008.
+- **Removed the legacy `hardware/` reference spec** (`DESIGN.md`, `BOM.csv`,
+  `gen_netlist_skidl.py`, its `README.md`) — the older 3-button lineage with a
+  conflicting parts list (MCP73831 / AP2112K / TPS61165), superseded by the canonical
+  `ereader.*` docs. Redirected all live references (README, `docs/runbook.md`, the
+  CI workflow trigger paths + comment, ADRs 0001/0002/0003/0008, and the
+  `ereader-pcb-design.md` DC-DC provenance note) to the `ereader-*` docs so there is a
+  single source of truth. Historical entries in this changelog and `docs/research-log.md`
+  are left as-is.
 
 ### Merged / consolidated (2026-09-05)
 - Merged `claude/schematics-pcb-review-rq1i2t` into `main` alongside the

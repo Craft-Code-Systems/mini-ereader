@@ -8,9 +8,10 @@
 The reader needs navigation input — page forward/back, menu, scroll, select —
 and it must work from deep sleep: the device sleeps with the page retained in
 the µA range (README non-functional baseline), so every input has to be able
-to wake the ESP32-S3. No prior ADR covered input; the reference spec
-(`hardware/DESIGN.md`) assumed three buttons, while the canonical board
-(`ereader.*`, Rev C) settled on a richer scheme. This decision documents that
+to wake the ESP32-S3. No prior ADR covered input; the earlier reference spec
+(the since-removed `hardware/` lineage) assumed three buttons, while the
+canonical board (`ereader.*`, Rev C) settled on a richer scheme. This
+decision documents that
 scheme.
 
 The tension is affordance vs. cost/pins. Plain buttons are cheap, obvious,

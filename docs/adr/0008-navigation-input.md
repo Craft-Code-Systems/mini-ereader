@@ -71,13 +71,15 @@ Rejected:
 - Sourcing: verify SLLB510200 stock before order. **SLLB510100** is a
   pin-compatible alternative in the same SLLB5 series (same 9.5×8.8×2.2 mm
   envelope and CW/CCW/PUSH/COM terminals) — swap the value if it sources better.
-- **Footprints (Rev C2):** the three nav tactiles + BOOT/RESET now use a genuinely
-  **side-actuated (right-angle)** land, `ereader:Tact_Side_TS1187A_4P_3.5x4.7mm`,
-  with the actuator facing the board edge — the earlier `SW_SPST_TL3342` stand-in
-  was **top-actuated**, which is unusable here because the screen covers the whole
-  front and magnets hold the back to the phone. SW4 now has a real
-  `ereader:ALPS_SLLB5_Lever` land (pads CW/CCW/PUSH/COM), so `LEV_CW/CCW/PUSH` and
-  `COM→GND` connect on netlist import instead of sitting unconnected. Both lands are
-  approximate stand-ins in `ereader.pretty` — DRC each against the ordered part's
-  datasheet before route/fab, and tune SW4's placement/orientation to the enclosure
-  edge.
+- **Footprints (Rev C2):** the three nav tactiles + BOOT/RESET use a genuinely
+  **side-actuated** land, `ereader:WE_WS-TASU_436351045816` (Würth WS-TASU
+  436351045816, 4.7×3.5 mm side push), drawn from the WE datasheet — 4 pads
+  1.2×0.7 mm + two Ø0.75 boss holes — with the actuator facing the board edge. The
+  earlier `SW_SPST_TL3342` stand-in was **top-actuated**, unusable here because the
+  screen covers the whole front and magnets hold the back to the phone. SW4 uses
+  `ereader:ALPS_SLLB5_Lever`, drawn from the ALPS SLLB5 datasheet (4 signal pads on
+  2 mm pitch in CW/COM/PUSH/CCW order + two Ø1.1 locator holes + solder lugs), so
+  `LEV_CW/CCW/PUSH` and `COM→GND` connect on netlist import instead of sitting
+  unconnected. Both lands are drawn from the datasheets but still to be DRC'd against
+  the ordered part before route/fab; tune SW4's placement/orientation to the
+  enclosure edge.

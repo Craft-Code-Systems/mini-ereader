@@ -5,6 +5,21 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Switch footprints locked to datasheets (2026-09-06)
+- **Tactiles → Würth WS-TASU 436351045816** (4.7×3.5 mm side push with boss).
+  Replaced the generic `Tact_Side_TS1187A` stand-in with `ereader:WE_WS-TASU_436351045816`,
+  its land drawn from the WE datasheet (rev 001.003): 4 pads 1.2×0.7 mm at x=±2.8 /
+  y=±1.35 plus **two Ø0.75 boss holes** at y=±1.375 (pins 1≡3 top, 2≡4 bottom). SW1–SW3
+  and SW5/SW6 rotated **270°** so the actuator faces the right board edge.
+- **SW4 → exact ALPS SLLB5 land.** Rebuilt `ereader:ALPS_SLLB5_Lever` from the ALPS
+  datasheet (p.491): 4 signal pads 1.0×1.3 mm on **2 mm pitch** in terminal order
+  **CW / COM / PUSH / CCW**, plus **two Ø1.1 locator holes** at x=±1.9 and side solder
+  lugs; body 9.5×8.8 mm. Rotated **90°** so the lever faces the left edge. Nets
+  unchanged (LEV_CW/CCW/PUSH + COM→GND).
+- 3D bodies (`ereader.3dshapes/*.wrl`) and `ereader-kicad.net` / `ereader.cmp` updated
+  to the new footprint ids. Lands are datasheet-drawn but still to be DRC'd against the
+  ordered part before fab.
+
 ### Switches + schematic (2026-09-06)
 - **Navigation buttons are now genuinely side-actuated.** SW1–SW3 (and BOOT/RESET
   SW5/SW6) moved off the top-actuated `Button_Switch_SMD:SW_SPST_TL3342` stand-in

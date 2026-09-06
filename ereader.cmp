@@ -109,21 +109,21 @@ BeginCmp
 TimeStamp = /SW1;
 Reference = SW1;
 ValeurCmp = BTN_A;
-IdModule  = ereader:Tact_Side_TS1187A_4P_3.5x4.7mm;
+IdModule  = ereader:WE_WS-TASU_436351045816;
 EndCmp
 
 BeginCmp
 TimeStamp = /SW2;
 Reference = SW2;
 ValeurCmp = BTN_B;
-IdModule  = ereader:Tact_Side_TS1187A_4P_3.5x4.7mm;
+IdModule  = ereader:WE_WS-TASU_436351045816;
 EndCmp
 
 BeginCmp
 TimeStamp = /SW3;
 Reference = SW3;
 ValeurCmp = BTN_C;
-IdModule  = ereader:Tact_Side_TS1187A_4P_3.5x4.7mm;
+IdModule  = ereader:WE_WS-TASU_436351045816;
 EndCmp
 
 BeginCmp
@@ -137,14 +137,14 @@ BeginCmp
 TimeStamp = /SW5;
 Reference = SW5;
 ValeurCmp = BOOT;
-IdModule  = ereader:Tact_Side_TS1187A_4P_3.5x4.7mm;
+IdModule  = ereader:WE_WS-TASU_436351045816;
 EndCmp
 
 BeginCmp
 TimeStamp = /SW6;
 Reference = SW6;
 ValeurCmp = RESET;
-IdModule  = ereader:Tact_Side_TS1187A_4P_3.5x4.7mm;
+IdModule  = ereader:WE_WS-TASU_436351045816;
 EndCmp
 
 BeginCmp

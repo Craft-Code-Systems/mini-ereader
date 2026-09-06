@@ -28,8 +28,8 @@ Always DRC land vs the ordered part's datasheet before route.
 
 | Ref | MPN | Footprint | Source | Notes |
 |-----|-----|-----------|--------|-------|
-| SW1-3,5,6 | **SIDE-actuated** SMD tactile (TS-1187A / YD-3414 class, ~4.7×3.5mm) | `ereader:Tact_Side_TS1187A_4P_3.5x4.7mm` | ⚑ project lib | **Right-angle / side-throw** — actuator faces the board edge (screen covers the front, magnets the back, so no top/bottom access). The old `SW_SPST_TL3342` was **top-actuated** — wrong for this build. Land approximate; DRC vs your exact MPN before fab |
-| SW4 | ALPS **SLLB510200** (SLLB510100 = pin-compatible alt) | `ereader:ALPS_SLLB5_Lever` | ⚑ project lib | 2-dir lever + push, 9.5×8.8×2.2mm. Land drawn in `ereader.pretty` with signal pads CW/CCW/PUSH/COM + 2 mechanical lugs. **Approximate** — no KiCad official; DRC vs the ALPS drawing before fab |
+| SW1-3,5,6 | Würth **WS-TASU 436351045816** (4.7×3.5mm side push, boss) | `ereader:WE_WS-TASU_436351045816` | ⚑ project lib (from WE datasheet) | **Side-actuated** — actuator faces the board edge (screen covers the front, magnets the back, so no top/bottom access). The old `SW_SPST_TL3342` was **top-actuated** — wrong. Land per WE datasheet rev 001.003: 4 pads 1.2×0.7mm at x=±2.8/y=±1.35 + **2× Ø0.75 boss holes** at y=±1.375 (pins 1≡3 / 2≡4). DRC vs datasheet before fab |
+| SW4 | ALPS **SLLB510200** (SLLB510100 = pin-compatible alt) | `ereader:ALPS_SLLB5_Lever` | ⚑ project lib (from ALPS datasheet) | 2-dir lever + push, 9.5×8.8×2.2mm. Land per ALPS SLLB5 datasheet (p.491): 4 signal pads 1.0×1.3mm on 2mm pitch in order CW/COM/PUSH/CCW + **2× Ø1.1 locator holes** at x=±1.9 + solder lugs. DRC vs the ALPS drawing before fab |
 
 ## Passives / discrete
 
@@ -54,8 +54,8 @@ Not separate line items — copy the **Good Display GDEY0426T82 reference** bloc
 ## Project footprint library (`ereader.pretty`)
 The switches now resolve from a **project-local library** registered in
 [`fp-lib-table`](./fp-lib-table) as nickname **`ereader`** (`${KIPRJMOD}/ereader.pretty`):
-- `Tact_Side_TS1187A_4P_3.5x4.7mm` — side-actuated tactile (SW1-3, SW5, SW6).
-- `ALPS_SLLB5_Lever` — the SLLB5 lever (SW4), pads named CW/CCW/PUSH/COM + 2 lugs.
+- `WE_WS-TASU_436351045816` — Würth WS-TASU side-push tactile (SW1-3, SW5, SW6); land + Ø0.75 boss holes drawn from the WE datasheet.
+- `ALPS_SLLB5_Lever` — the SLLB5 lever (SW4), pads CW/COM/PUSH/CCW on 2mm pitch + 2× Ø1.1 locator holes + lugs, drawn from the ALPS datasheet.
 
 Both carry simplified 3D bodies in `ereader.3dshapes/*.wrl` (referenced with
 `scale 0.3937` so KiCad renders them 1:1 in mm) so they show in the 3D viewer without
@@ -64,7 +64,7 @@ DRC the land vs the ordered MPN before fab.
 
 ## Netlist / .cmp footprint status (Rev C2)
 Fixed the import errors. In `ereader-kicad.net` + `ereader.cmp`:
-- **Assigned (import clean):** U1, U6, J1, J2 (full FH12-24S name), J3 (full FH12-6S name), J4, J5, L1/L2/LC, D1, **SW1-6** (SW1-3/5/6 → `ereader:Tact_Side_TS1187A_4P_3.5x4.7mm`, SW4 → `ereader:ALPS_SLLB5_Lever`), all R/C.
+- **Assigned (import clean):** U1, U6, J1, J2 (full FH12-24S name), J3 (full FH12-6S name), J4, J5, L1/L2/LC, D1, **SW1-6** (SW1-3/5/6 → `ereader:WE_WS-TASU_436351045816`, SW4 → `ereader:ALPS_SLLB5_Lever`), all R/C.
 - **Left BLANK on purpose → assign in KiCad *Footprint Assignment* (CvPcb):** U2 BQ25628E, U3 MAX17048, U4 LM3630A, U5 TPS62840. No official KiCad footprint exists → pull from SnapEDA/Ultra-Librarian per confirmed MPN, or draw the land from the datasheet. Blank = no "not found" error; component just awaits a footprint.
 - ⚠ J1 USB-C string assumes `USB_C_Receptacle_HRO_TYPE-C-31-M-12` exists in your install (it imported fine for you). If a future error hits it, blank it and assign your exact 16-pin part.
 - SW4 is no longer a pin-header placeholder — its pads are named **CW / CCW / PUSH / COM**, so the lever's nets (LEV_CW/CCW/PUSH + GND) now connect on netlist import. Verify the land against the ALPS SLLB5 drawing before route.

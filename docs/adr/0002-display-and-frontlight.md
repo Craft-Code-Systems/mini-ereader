@@ -63,9 +63,9 @@ when on-module flash already holds a large text library).
   see [Decision 0005](./0005-frontlight-driver.md).
 - An SSD1677 external DC-DC is required (J4 pins GDR/RESE + L2/Q2/D4-D6 +
   ≥25 V caps), fed from +3V3, per the datasheet reference circuit
-  (`hardware/DESIGN.md` §5).
+  (`ereader-pcb-design.md` §6).
 - **Resolved:** the full 24-pin EPD FPC pinout and controller are locked
-  from the GDEY0426T82-FL01C datasheet (`hardware/DESIGN.md` §5).
+  from the GDEY0426T82-FL01C datasheet (`ereader-pcb-design.md` §6).
 - EPD and microSD share one SPI bus; EPD is write-only (no MISO), SD needs
   MISO + pull-ups.
 - Firmware brings up the panel with a controller driver matched to the

@@ -5,6 +5,52 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Switch footprints locked to datasheets (2026-09-06)
+- **Tactiles → Würth WS-TASU 436351045816** (4.7×3.5 mm side push with boss).
+  Replaced the generic `Tact_Side_TS1187A` stand-in with `ereader:WE_WS-TASU_436351045816`,
+  its land drawn from the WE datasheet (rev 001.003): 4 pads 1.2×0.7 mm at x=±2.8 /
+  y=±1.35 plus **two Ø0.75 boss holes** at y=±1.375 (pins 1≡3 top, 2≡4 bottom). SW1–SW3
+  and SW5/SW6 rotated **270°** so the actuator faces the right board edge.
+- **SW4 → exact ALPS SLLB5 land.** Rebuilt `ereader:ALPS_SLLB5_Lever` from the ALPS
+  datasheet (p.491): 4 signal pads 1.0×1.3 mm on **2 mm pitch** in terminal order
+  **CW / COM / PUSH / CCW**, plus **two Ø1.1 locator holes** at x=±1.9 and side solder
+  lugs; body 9.5×8.8 mm. Rotated **90°** so the lever faces the left edge. Nets
+  unchanged (LEV_CW/CCW/PUSH + COM→GND).
+- 3D bodies (`ereader.3dshapes/*.wrl`) and `ereader-kicad.net` / `ereader.cmp` updated
+  to the new footprint ids. Lands are datasheet-drawn but still to be DRC'd against the
+  ordered part before fab.
+
+### Switches + schematic (2026-09-06)
+- **Navigation buttons are now genuinely side-actuated.** SW1–SW3 (and BOOT/RESET
+  SW5/SW6) moved off the top-actuated `Button_Switch_SMD:SW_SPST_TL3342` stand-in
+  onto a new project footprint `ereader:Tact_Side_TS1187A_4P_3.5x4.7mm` (TS-1187A /
+  YD-3414 class), with the actuator facing the board edge — required because the
+  screen covers the whole front and magnets hold the back to the phone, so top/bottom
+  actuation is unreachable. SW1–SW3 rotation set to 0° so the actuators point at the
+  right edge; nets (BTN_A/B/C, IO0_BOOT, EN, GND) preserved.
+- **SW4 lever land built.** Replaced the `PinHeader_1x04` placeholder with
+  `ereader:ALPS_SLLB5_Lever` (ALPS SLLB5, ~9.5×8.8×2.2 mm) whose pads are named
+  **CW/CCW/PUSH/COM**, so `LEV_CW`(23)/`LEV_CCW`(24)/`LEV_PUSH`(25) and `COM→GND`(5)
+  now connect on netlist import instead of sitting unconnected. Noted SLLB510100 as a
+  pin-compatible alternative.
+- Added project footprint library `ereader.pretty` (registered in a new `fp-lib-table`)
+  and simplified 3D bodies in `ereader.3dshapes/*.wrl` (referenced with `scale 0.3937`)
+  so the switches render in the 3D viewer without KiCad's stock libraries. Updated
+  `ereader-kicad.net` + `ereader.cmp` footprint IDs to match. Lands are approximate
+  stand-ins — DRC vs the ordered MPN before fab.
+- **Added a reviewable schematic, `ereader-schematic.md`** (subsystem Mermaid
+  diagrams built from the connection list; renders on GitHub). Documents why the
+  netlist-first design has no native Eeschema `.kicad_sch` and how to draw one. Updated
+  `ereader-footprints.md`, `ereader-README.md`, `ereader-pcb-design.md`, and ADR 0008.
+- **Removed the legacy `hardware/` reference spec** (`DESIGN.md`, `BOM.csv`,
+  `gen_netlist_skidl.py`, its `README.md`) — the older 3-button lineage with a
+  conflicting parts list (MCP73831 / AP2112K / TPS61165), superseded by the canonical
+  `ereader.*` docs. Redirected all live references (README, `docs/runbook.md`, the
+  CI workflow trigger paths + comment, ADRs 0001/0002/0003/0008, and the
+  `ereader-pcb-design.md` DC-DC provenance note) to the `ereader-*` docs so there is a
+  single source of truth. Historical entries in this changelog and `docs/research-log.md`
+  are left as-is.
+
 ### Merged / consolidated (2026-09-05)
 - Merged `claude/schematics-pcb-review-rq1i2t` into `main` alongside the
   first-try board `ereader.*` (`colophon-standard-compliance` had no unique

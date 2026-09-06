@@ -9,15 +9,15 @@ for a small e-reader. Docs follow the [Colophon](https://usecolophon.dev)
 method: a Brief (this file), Decisions (`docs/adr/`), a Log
 (`docs/research-log.md`), a Runbook (`docs/runbook.md`), and a Changelog.
 
-> **One KiCad project.** The board lives at the repo root:
-> **`ereader.kicad_pcb`** / `ereader-pcb-design.md` (Rev C — placed, planed,
-> stitched, DRC-ruled; routing pending). The **`hardware/`** folder is no
-> longer a second KiCad project — it now holds only the electrical
-> source-of-truth docs (`DESIGN.md`, `BOM.csv`, the SKiDL netlist
-> generator). The earlier `hardware/` scaffold KiCad files were an earlier,
-> simpler *reference spec*; where the two tracks differ (power, frontlight,
-> input), **`ereader.*` is authoritative** — see the comparison in
-> `docs/research-log.md`. The Rev C parts are now reconciled into the ADRs:
+> **One KiCad project, one source of truth.** The board lives at the repo root:
+> **`ereader.kicad_pcb`**, with the electrical design in the `ereader-*.md`
+> docs — `ereader-connection-list.md` (net-by-net source of truth),
+> `ereader-schematic.md` (subsystem schematic), `ereader-pcb-design.md`
+> (full spec), `ereader-footprints.md` (BOM/footprint picklist) — and the
+> `ereader-kicad.net` netlist. (Rev C — placed, planed, stitched, DRC-ruled;
+> routing pending.) An earlier, simpler `hardware/` *reference spec* was
+> removed once `ereader.*` superseded it; the historical comparison is in
+> `docs/research-log.md`. The Rev C parts are reconciled into the ADRs:
 > [0006](./docs/adr/0006-i2c-managed-power-path.md) (power) supersedes 0003
 > and [0007](./docs/adr/0007-lm3630a-frontlight-driver.md) (frontlight)
 > supersedes 0005.
@@ -85,18 +85,18 @@ A buildable learning platform, not a product.
 
 ## Status & milestones
 
-**v0.1 — design captured; schematic/PCB not yet drawn in KiCad.**
+**v0.1 — design captured; reviewable schematic in `ereader-schematic.md`; native Eeschema `.kicad_sch` + routed PCB not yet drawn in KiCad.**
 
-- [x] Architecture, power tree, net list, pin map — `hardware/DESIGN.md`
+- [x] Architecture, power tree, net list, pin map — `ereader-pcb-design.md` + `ereader-connection-list.md`
 - [x] Decisions recorded — `docs/adr/0001`–`0005`
 - [x] KiCad board `ereader.*` placed + config that opens cleanly
 - [x] BOM + SKiDL netlist generator
 - [x] CI: `kicad-cli` ERC/DRC/export workflow
-- [ ] Schematic captured + **ERC clean**
+- [~] Schematic — reviewable subsystem diagrams in `ereader-schematic.md`; native Eeschema capture + **ERC clean** pending
 - [ ] PCB placed, routed + **DRC clean**
 - [ ] Prototype built + brought up
 
-Live verification state: `hardware/DESIGN.md` §"Verification status".
+Live verification state: the milestone checklist above.
 
 ## Key decisions
 
@@ -118,25 +118,29 @@ Live verification state: `hardware/DESIGN.md` §"Verification status".
 kicad ereader.kicad_pro
 
 # Read the electrical design (source of truth)
-less hardware/DESIGN.md
+less ereader-connection-list.md
 ```
 
 See [`docs/runbook.md`](./docs/runbook.md) for capture, verification,
 CI, fabrication, and bring-up. Component-level detail lives in
-[`hardware/DESIGN.md`](./hardware/DESIGN.md).
+[`ereader-pcb-design.md`](./ereader-pcb-design.md) and
+[`ereader-schematic.md`](./ereader-schematic.md).
 
 ## Repository layout
 
 ```
 README.md              This Brief
 CHANGELOG.md           Project history
-ereader.*              The KiCad board (project, PCB, netlist) + ereader-*.md docs
+ereader.*              The KiCad board (project, PCB, netlist, cmp)
+ereader-*.md           Electrical source of truth: connection-list, schematic, pcb-design, footprints, README
+ereader.pretty/        Project footprints (side tactile, ALPS SLLB5 lever)
+ereader.3dshapes/      Simple 3D bodies for the project footprints
+fp-lib-table           Registers the ereader.pretty footprint library
 fab.py                 Gerber/drill export helper
 docs/
-  adr/                 Decisions (0001–0005 + template)
+  adr/                 Decisions (0001–0008 + template)
   research-log.md      Dated exploration notes
   runbook.md           Capture / verify / fabricate / bring-up
-hardware/              Electrical source-of-truth: DESIGN.md, BOM, netlist generator
 templates/             Colophon document templates (for ongoing use)
 .github/workflows/     CI (KiCad ERC/DRC/export)
 ```

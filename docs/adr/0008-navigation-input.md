@@ -8,9 +8,10 @@
 The reader needs navigation input — page forward/back, menu, scroll, select —
 and it must work from deep sleep: the device sleeps with the page retained in
 the µA range (README non-functional baseline), so every input has to be able
-to wake the ESP32-S3. No prior ADR covered input; the reference spec
-(`hardware/DESIGN.md`) assumed three buttons, while the canonical board
-(`ereader.*`, Rev C) settled on a richer scheme. This decision documents that
+to wake the ESP32-S3. No prior ADR covered input; the earlier reference spec
+(the since-removed `hardware/` lineage) assumed three buttons, while the
+canonical board (`ereader.*`, Rev C) settled on a richer scheme. This
+decision documents that
 scheme.
 
 The tension is affordance vs. cost/pins. Plain buttons are cheap, obvious,
@@ -67,6 +68,18 @@ Rejected:
   not switch any power rail through the lever.
 - Firmware provides debounce and CW/CCW/press decode; no hardware quadrature
   or encoder peripheral is used.
-- Sourcing: verify SLLB510200 stock and confirm its KiCad footprint before
-  order — it is one of the placeholder footprints flagged for replacement in
-  `ereader-README.md`.
+- Sourcing: verify SLLB510200 stock before order. **SLLB510100** is a
+  pin-compatible alternative in the same SLLB5 series (same 9.5×8.8×2.2 mm
+  envelope and CW/CCW/PUSH/COM terminals) — swap the value if it sources better.
+- **Footprints (Rev C2):** the three nav tactiles + BOOT/RESET use a genuinely
+  **side-actuated** land, `ereader:WE_WS-TASU_436351045816` (Würth WS-TASU
+  436351045816, 4.7×3.5 mm side push), drawn from the WE datasheet — 4 pads
+  1.2×0.7 mm + two Ø0.75 boss holes — with the actuator facing the board edge. The
+  earlier `SW_SPST_TL3342` stand-in was **top-actuated**, unusable here because the
+  screen covers the whole front and magnets hold the back to the phone. SW4 uses
+  `ereader:ALPS_SLLB5_Lever`, drawn from the ALPS SLLB5 datasheet (4 signal pads on
+  2 mm pitch in CW/COM/PUSH/CCW order + two Ø1.1 locator holes + solder lugs), so
+  `LEV_CW/CCW/PUSH` and `COM→GND` connect on netlist import instead of sitting
+  unconnected. Both lands are drawn from the datasheets but still to be DRC'd against
+  the ordered part before route/fab; tune SW4's placement/orientation to the
+  enclosure edge.

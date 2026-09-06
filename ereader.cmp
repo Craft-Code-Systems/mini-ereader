@@ -109,42 +109,42 @@ BeginCmp
 TimeStamp = /SW1;
 Reference = SW1;
 ValeurCmp = BTN_A;
-IdModule  = Button_Switch_SMD:SW_SPST_TL3342;
+IdModule  = ereader:WE_WS-TASU_436351045816;
 EndCmp
 
 BeginCmp
 TimeStamp = /SW2;
 Reference = SW2;
 ValeurCmp = BTN_B;
-IdModule  = Button_Switch_SMD:SW_SPST_TL3342;
+IdModule  = ereader:WE_WS-TASU_436351045816;
 EndCmp
 
 BeginCmp
 TimeStamp = /SW3;
 Reference = SW3;
 ValeurCmp = BTN_C;
-IdModule  = Button_Switch_SMD:SW_SPST_TL3342;
+IdModule  = ereader:WE_WS-TASU_436351045816;
 EndCmp
 
 BeginCmp
 TimeStamp = /SW4;
 Reference = SW4;
 ValeurCmp = SLLB510200;
-IdModule  = Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical;
+IdModule  = ereader:ALPS_SLLB5_Lever;
 EndCmp
 
 BeginCmp
 TimeStamp = /SW5;
 Reference = SW5;
 ValeurCmp = BOOT;
-IdModule  = Button_Switch_SMD:SW_SPST_TL3342;
+IdModule  = ereader:WE_WS-TASU_436351045816;
 EndCmp
 
 BeginCmp
 TimeStamp = /SW6;
 Reference = SW6;
 ValeurCmp = RESET;
-IdModule  = Button_Switch_SMD:SW_SPST_TL3342;
+IdModule  = ereader:WE_WS-TASU_436351045816;
 EndCmp
 
 BeginCmp

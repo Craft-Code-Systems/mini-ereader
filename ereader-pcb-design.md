@@ -63,10 +63,10 @@ Rev C: frontlight FULLY RESOLVED from FL0426-S01C (2 independent 4-wire strings)
 | J2 | 24-pin 0.5 mm FPC, bottom-contact | EPD | flip-lock |
 | J3 | 6-pin 0.5 mm FPC | frontlight | 1=C+ 2=C− 3=NC 4=NC 5=W+ 6=W− |
 | J4 | microSD push-pull holder | storage | |
-| SW1–3 | tactile SMD (side) | page/menu | |
-| SW4 | ALPS **SLLB510200** | lever+push (CW/CCW/press) | 10 mA/5 V max, 9.5×8.8×2.2 mm |
-| SW5 | tactile SMD | BOOT | GPIO0→GND momentary |
-| SW6 | tactile SMD | RESET | EN→GND momentary |
+| SW1–3 | Würth **WS-TASU 436351045816** (side push) | page/menu | `ereader:WE_WS-TASU_436351045816`; actuator faces board edge; Ø0.75 boss holes |
+| SW4 | ALPS **SLLB510200** (510100 = alt) | lever+push (CW/CCW/press) | 10 mA/5 V max, 9.5×8.8×2.2 mm; `ereader:ALPS_SLLB5_Lever`; 2mm-pitch pads + Ø1.1 locators |
+| SW5 | Würth **WS-TASU 436351045816** | BOOT | GPIO0→GND momentary; same side land |
+| SW6 | Würth **WS-TASU 436351045816** | RESET | EN→GND momentary; same side land |
 | — | 5.1 kΩ ×2 | CC1/CC2 Rd (sink) | |
 | — | 100 kΩ | EN pull-up + 1 µF | module EN weak ~2 MΩ |
 | — | 100 kΩ pull-up ×2 | EPD_CS, SD_CS idle-high thru boot | §5 |
@@ -148,7 +148,7 @@ Match the **panel datasheet pin numbers exactly** (24-pin EPD FPC, 0.5 mm):
 - Logic: SCLK, SDA(MOSI), CS, DC, RST, BUSY, VDD=3V3, VSS=GND, BS (tie low = 4-wire SPI).
 - Booster/analog: GDR, RESE, VSH1/VSH2, VSL, VGL, VGH, VCOM, VCI, VDD, VPP — external DC-DC + reservoir caps per the **Good Display reference circuit** ("ESP32 Sample Code" zip). Copy 1:1; rail values non-negotiable. Short FPC stubs; guard-ground under booster caps.
 
-**External DC-DC — exact values** (ported from `hardware/DESIGN.md` §5; verify against the panel datasheet reference circuit before order. Designators are from that source — renumber to match the `ereader` schematic):
+**External DC-DC — exact values** (from the Good Display GDEY0426T82-FL01C reference circuit; verify against the panel datasheet before order. Designators are from that reference — renumber to match the `ereader` schematic):
 - **L** 47 µH, ≥500 mA (NR3015 class): +3V3 → switch node (boost FET drain).
 - **Q** Si1308EDL N-MOSFET (SOT-23): gate = GDR, drain = switch node, source = RESE. **R** 1 MΩ GDR→GND (gate pulldown) + **R** 2.2 Ω RESE→GND (current sense).
 - **D×3** MBR0530 Schottky (≥30 V, ≥500 mA): one builds PREVGH (→ VGH); two build the PREVGL (→ VGL) charge-pump path.

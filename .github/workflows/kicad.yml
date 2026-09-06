@@ -4,9 +4,10 @@ name: KiCad
 # and export fabrication files. Interactive capture/routing happen locally in
 # KiCad; this gates the result and produces downloadable outputs (artifacts).
 #
-# Primary target is the actual board, ereader.kicad_pcb (KiCad 7 format;
-# kicad-cli 8 opens/migrates it automatically). The hardware/ scaffold is a
-# reference spec and is checked only informationally.
+# Target is the single canonical board, ereader.kicad_pcb (KiCad 7 format;
+# kicad-cli 8 opens/migrates it automatically). The hardware/ folder holds
+# the electrical source-of-truth docs (DESIGN.md, BOM, netlist generator);
+# changes there also trigger this workflow.
 
 on:
   push:

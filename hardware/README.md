@@ -4,8 +4,9 @@
 > ESP32-S3, tunable-white frontlight, USB-C + 1S LiPo. KiCad 8 + design docs.
 
 Project-level orientation, decisions, and the runbook live at the repo root
-(`/README.md`, `/docs/`). This folder holds the KiCad project and the
-electrical source-of-truth.
+(`/README.md`, `/docs/`). The **KiCad board is at the repo root**
+(`/ereader.kicad_pro`, the single canonical project). This folder holds the
+electrical source-of-truth docs and the netlist generator.
 
 ## Files
 
@@ -14,14 +15,13 @@ DESIGN.md              Electrical source-of-truth: block diagram, power tree,
                        net list, pin map, display + frontlight, PCB guidance,
                        verification status.
 BOM.csv                Bill of materials (example MPNs).
-gen_netlist_skidl.py   SKiDL generator -> mini-ereader.net.
-mini-ereader.kicad_pro Project + config.
-mini-ereader.kicad_sch Root schematic (scaffold; capture from DESIGN.md).
-mini-ereader.kicad_pcb Board (2-layer, outline + stackup; lay out here).
-sym-lib-table          Inherits KiCad global symbol libs.
-fp-lib-table           Inherits KiCad global footprint libs.
-docs/                  (leftover pointers to /docs — safe to delete)
+gen_netlist_skidl.py   SKiDL generator -> a netlist you can import in KiCad.
 ```
+
+> The KiCad project that used to live here (`mini-ereader.*`) was an empty
+> scaffold and has been removed. Open the real board at the repo root:
+> `/ereader.kicad_pro`. Where this folder's docs describe simpler parts than
+> the root board (see `/docs/research-log.md`), `ereader.*` is authoritative.
 
 ## Key decisions
 
@@ -38,8 +38,8 @@ See [`/docs/adr/`](../docs/adr/):
 ## Getting started
 
 ```
-# Open in KiCad 8
-kicad mini-ereader.kicad_pro
+# Open the board in KiCad 8 (it lives at the repo root)
+kicad ../ereader.kicad_pro
 
 # Or bootstrap a netlist (needs `pip install skidl` + KiCad libs)
 python gen_netlist_skidl.py
@@ -53,8 +53,9 @@ Capture, verification, CI, and fabrication steps are in
 - **Display + frontlight locked** to Good Display GDEY0426T82-FL01C
   (SSD1677, 24-pin EPD FPC + 6-pin frontlight FPC); pinout + SSD1677
   external DC-DC captured in `DESIGN.md` §5.
-- **The KiCad schematic/PCB are scaffolds**, not a verified, routed design.
-  Capture + run ERC/DRC in KiCad (or via CI) before trusting them.
+- **The root board (`/ereader.*`) is placed but not routed**, and its
+  schematic is not yet captured — not a verified, routed design. Capture +
+  run ERC/DRC in KiCad (or via CI) before trusting it.
 - **Verify the SKiDL EPD negative charge-pump (D4/D5) orientation** against
   the datasheet reference circuit when you generate the netlist.
 - **Example MPNs in `BOM.csv`** need a stock/footprint check for your fab.

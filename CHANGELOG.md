@@ -15,6 +15,12 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 - Retargeted the KiCad CI workflow at `ereader.kicad_pcb` (DRC + gerber
   export). Removed a stray `~ereader.kicad_pro.lck`; git-ignore KiCad/lock/
   history/gerber cruft going forward.
+- **Consolidated to a single KiCad project.** Removed the redundant
+  `hardware/` scaffold KiCad files (`mini-ereader.kicad_pro`, `.kicad_sch`,
+  `.kicad_pcb`, `fp-lib-table`, `sym-lib-table`); the canonical board is now
+  the only KiCad project, `ereader.*` at the repo root. `hardware/` keeps the
+  electrical source-of-truth (`DESIGN.md`, `BOM.csv`, `gen_netlist_skidl.py`).
+  Docs, the runbook, ADR 0002, and CI updated to point at `ereader.*`.
 
 ### Added
 - Hardware design for a 4.26" 800×480 frontlit e-paper reader:

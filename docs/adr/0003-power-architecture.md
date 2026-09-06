@@ -1,7 +1,12 @@
 # Decision 0003: USB-C + 1S LiPo, discrete load-share, 3.3 V LDO
 
-**Status:**      Accepted
+**Status:**      Superseded by [Decision 0006](./0006-i2c-managed-power-path.md)
 **Date:**        2026-09-05
+
+> Superseded 2026-09-06: the canonical board (`ereader.*`, Rev C) uses an
+> I2C-managed power path (BQ25628E charger, TPS62840 buck, MAX17048 gauge).
+> See [Decision 0006](./0006-i2c-managed-power-path.md). The Context and
+> reasoning below are preserved as the trail.
 
 ## Context
 

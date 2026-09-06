@@ -21,6 +21,13 @@ All notable changes to the Mini E-Reader project. Format loosely follows
   the only KiCad project, `ereader.*` at the repo root. `hardware/` keeps the
   electrical source-of-truth (`DESIGN.md`, `BOM.csv`, `gen_netlist_skidl.py`).
   Docs, the runbook, ADR 0002, and CI updated to point at `ereader.*`.
+- **Reconciled the ADRs to the canonical Rev C parts.** Added
+  [ADR 0006](docs/adr/0006-i2c-managed-power-path.md) (I2C-managed power path:
+  BQ25628E charger + TPS62840 buck + MAX17048 gauge, two I2C buses) which
+  supersedes ADR 0003, and
+  [ADR 0007](docs/adr/0007-lm3630a-frontlight-driver.md) (LM3630A
+  single-boost dual-sink frontlight driver) which supersedes ADR 0005. ADRs
+  0003 and 0005 are marked Superseded, with their reasoning preserved.
 
 ### Added
 - Hardware design for a 4.26" 800×480 frontlit e-paper reader:

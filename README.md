@@ -17,8 +17,10 @@ method: a Brief (this file), Decisions (`docs/adr/`), a Log
 > generator). The earlier `hardware/` scaffold KiCad files were an earlier,
 > simpler *reference spec*; where the two tracks differ (power, frontlight,
 > input), **`ereader.*` is authoritative** — see the comparison in
-> `docs/research-log.md`. Reconciling the reference-spec parts back into the
-> ADRs is the remaining consolidation step.
+> `docs/research-log.md`. The Rev C parts are now reconciled into the ADRs:
+> [0006](./docs/adr/0006-i2c-managed-power-path.md) (power) supersedes 0003
+> and [0007](./docs/adr/0007-lm3630a-frontlight-driver.md) (frontlight)
+> supersedes 0005.
 
 ## Why
 
@@ -102,9 +104,11 @@ Live verification state: `hardware/DESIGN.md` §"Verification status".
 |---|----------|
 | [0001](./docs/adr/0001-mcu-esp32-s3.md) | ESP32-S3-WROOM-1 as the MCU |
 | [0002](./docs/adr/0002-display-and-frontlight.md) | 4.26" 800×480 E-Paper + laminated tunable frontlight |
-| [0003](./docs/adr/0003-power-architecture.md) | USB-C + 1S LiPo, load-share, 3.3 V LDO |
+| [0003](./docs/adr/0003-power-architecture.md) | USB-C + 1S LiPo, load-share, 3.3 V LDO *(superseded by 0006)* |
 | [0004](./docs/adr/0004-native-usb-programming.md) | Native-USB programming (no UART bridge) |
-| [0005](./docs/adr/0005-frontlight-driver.md) | Dual boost constant-current frontlight driver |
+| [0005](./docs/adr/0005-frontlight-driver.md) | Dual boost constant-current frontlight driver *(superseded by 0007)* |
+| [0006](./docs/adr/0006-i2c-managed-power-path.md) | I2C-managed power path: BQ25628E + TPS62840 + MAX17048 |
+| [0007](./docs/adr/0007-lm3630a-frontlight-driver.md) | LM3630A single-boost dual-sink frontlight driver |
 
 ## Getting started
 

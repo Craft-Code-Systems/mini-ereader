@@ -85,3 +85,19 @@ canonical (write a superseding ADR; my `docs/adr/0003` power + `0005`
 frontlight describe the simpler variant), fold the SSD1677 boost values
 into `ereader-pcb-design.md`, then remove the `hardware/` scaffold KiCad
 files and remaining cruft (`.history`, `ereader-gerbers.zip`).
+
+## 2026-09-06 — Consolidation executed (single project + ADRs reconciled)
+
+- Removed the `hardware/` scaffold KiCad project (`mini-ereader.*` + empty
+  lib tables). The board is now a single canonical KiCad project, `ereader.*`
+  at the repo root; `hardware/` keeps only the electrical source-of-truth
+  docs. Docs/runbook/CI/ADR-0002 references retargeted.
+- Reconciled the ADRs to the Rev C parts: **0006** (I2C-managed power path —
+  BQ25628E + TPS62840 + MAX17048, two I2C buses) supersedes **0003**;
+  **0007** (LM3630A single-boost dual-sink frontlight) supersedes **0005**.
+  0003/0005 marked Superseded, reasoning preserved.
+- The `-N16R8` module variant is treated as a selection under ADR 0001, not a
+  new decision. Still open (deferred): the input change (3 buttons +
+  SLLB510200 rotary encoder) has no ADR yet; folding the exact SSD1677 boost
+  values from `hardware/DESIGN.md` §5 into `ereader-pcb-design.md` §6; and
+  removing the remaining `ereader-gerbers.zip` build artifact.

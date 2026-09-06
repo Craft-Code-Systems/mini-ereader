@@ -1,7 +1,13 @@
 # Decision 0005: Dual constant-current boost driver for the frontlight
 
-**Status:**      Accepted
+**Status:**      Superseded by [Decision 0007](./0007-lm3630a-frontlight-driver.md)
 **Date:**        2026-09-05
+
+> Superseded 2026-09-06: the canonical board (`ereader.*`, Rev C) uses a
+> single LM3630A dual-string driver (one boost + two current sinks) instead
+> of two TPS61165 boosts. See
+> [Decision 0007](./0007-lm3630a-frontlight-driver.md). The Context and
+> reasoning below are preserved as the trail.
 
 ## Context
 

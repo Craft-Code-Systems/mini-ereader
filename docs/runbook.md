@@ -12,13 +12,14 @@ produce fabrication files, and bring up a board.
 ## Open the project
 
 ```
-kicad hardware/mini-ereader.kicad_pro
+kicad ereader.kicad_pro
 ```
 
-The schematic and board currently contain a **valid scaffold** (title
-block, sheet, board outline, notes) — not the captured design. The design
-itself is `hardware/DESIGN.md`. First check: both editors open without file
-errors. If KiCad offers to upgrade the file version, accept and re-save.
+This is the single canonical KiCad project (at the repo root). The board
+(`ereader.kicad_pcb`) is **placed but not routed**; the schematic is not yet
+captured in KiCad. The electrical design itself is `hardware/DESIGN.md`.
+First check: the PCB editor opens without file errors. If KiCad offers to
+upgrade the file version, accept and re-save.
 
 ## Capture the schematic
 
@@ -46,15 +47,16 @@ Two routes:
 
 ## CI: KiCad in the cloud
 
-`.github/workflows/kicad.yml` runs on pushes/PRs that touch `hardware/**`
-(and on demand via *Run workflow*). In the `kicad/kicad:8.0` container it:
+`.github/workflows/kicad.yml` runs on pushes/PRs that touch
+`ereader.kicad_pcb`, `hardware/**`, or the workflow itself (and on demand
+via *Run workflow*). In the `kicad/kicad:8.0` container it:
 
 - prints `kicad-cli version`,
-- runs **ERC** on the schematic and **DRC** on the board,
-- exports a **schematic PDF** and **gerbers**, uploaded as the
-  `kicad-outputs` build artifact.
+- runs **DRC** on the board (`ereader.kicad_pcb`),
+- exports **gerbers** + drill, uploaded as the `kicad-outputs`
+  build artifact.
 
-While the design is still a scaffold, ERC/DRC are informational (the
+While the board is placed but not yet routed, DRC is informational (the
 workflow does not hard-fail). Once the schematic/PCB are captured, flip
 `--exit-code-violations` handling in the workflow to make CI gate on a
 clean ERC/DRC. This is the persistent "KiCad-capable environment"; day-to-

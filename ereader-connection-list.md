@@ -66,7 +66,7 @@ I2C1_SDA : U1.9(IO16),  U4.SDA, R10.2
 I2C1_SCL : U1.31(IO38), U4.SCL, R11.2
 ```
 
-### EPD (SSD1677 @ J2) — match GDEQ0426T82 datasheet pin numbers
+### EPD (SSD1677 @ J2) — match GDEY0426T82 datasheet pin numbers
 ```
 EPD_SCLK : U1.20(IO12), J2.SCLK
 EPD_MOSI : U1.19(IO11), J2.SDA(DIN)

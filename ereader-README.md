@@ -20,7 +20,7 @@ Open **`ereader.kicad_pro`** in KiCad 7/8 → open the **PCB Editor** (Pcbnew). 
 ## Two manual steps remain (unavoidable — this is the engineering)
 1. **Fix the flagged parts + name-only pins** (~29% of endpoints unconnected by design, listed below):
    - **Placeholder footprints (real land = wrong)** → replace with exact per datasheet: `U2` BQ25628E, `U3` MAX17048, `U4` LM3630A, `U5` TPS62840, `SW4` SLLB510200. Pull from SnapEDA / Ultra-Librarian.
-   - **Name-only pins** don't auto-match numeric pads → assign in symbol or connect while routing: `J2` (EPD, 8 pins → map to GDEQ0426T82 FPC numbers), `J4` (microSD, 6), `SW4` (CW/CCW/PUSH/COM→1-4), `U2-U5`/`U6` (IC function names→pads).
+   - **Name-only pins** don't auto-match numeric pads → assign in symbol or connect while routing: `J2` (EPD, 8 pins → map to GDEY0426T82 FPC numbers), `J4` (microSD, 6), `SW4` (CW/CCW/PUSH/COM→1-4), `U2-U5`/`U6` (IC function names→pads).
 2. **Place-tune → route → DRC → Gerbers.** Follow §11 layout rules in the design spec (antenna keep-out, FL-boost + charger loops tight, USB 90Ω diff, GND plane).
 
 ## EasyEDA instead?
@@ -45,12 +45,11 @@ EasyEDA **Pro** → File → Import → *KiCad* accepts `ereader.kicad_pcb`. No 
 - **Fiducials** FID1-3 (bottom edge) for assembly.
 - **GND via stitching** — 58 vias, ~6mm pitch perimeter ring, tied to GND, knitting the planes.
 - **DRC ruleset (JLCPCB 4-layer)** baked into `ereader.kicad_pro`: min track 0.15mm, clearance 0.15mm, via 0.45/0.30, edge clearance 0.30, annular ≥0.13. Track/via/diff-pair presets loaded.
-- **`fab.py`** — one command to emit Gerbers + Excellon drill + zip:  `python3 fab.py`  → `ereader-gerbers.zip` (11 layers + PTH/NPTH).
-- **`ereader-gerbers.zip`** — a set generated NOW so the pipeline is proven.
+- **`fab.py`** — one command to emit Gerbers + Excellon drill + zip:  `python3 fab.py`  → `ereader-gerbers.zip` (11 layers + PTH/NPTH). The zip is a build artifact (git-ignored) — regenerate it, don't commit it.
 
 ## ⛔ The one gate that remains: ROUTING
 The board is **placed, planed, stitched, and DRC-ruled — but NOT routed** (no signal traces).
-`ereader-gerbers.zip` as shipped = pours + pads + vias, **no traces between pads → not manufacturable yet.** Fab it and you get a dead board.
+Gerbers from `fab.py` at this stage = pours + pads + vias, **no traces between pads → not manufacturable yet.** Fab them and you get a dead board.
 
 To finish:
 1. Swap the 5 placeholder footprints (U2-U5, SW4) for exact parts; remap the name-only pins (EPD/microSD/SW4/ICs) so their nets connect.

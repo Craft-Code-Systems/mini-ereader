@@ -9,13 +9,18 @@ for a small e-reader. Docs follow the [Colophon](https://usecolophon.dev)
 method: a Brief (this file), Decisions (`docs/adr/`), a Log
 (`docs/research-log.md`), a Runbook (`docs/runbook.md`), and a Changelog.
 
-> **Two design tracks (being consolidated).** The **canonical board** is the
-> actual KiCad design at the repo root: **`ereader.kicad_pcb`** /
-> `ereader-pcb-design.md` (Rev C — placed, planed, stitched, DRC-ruled;
-> routing pending). The **`hardware/`** folder is an earlier, simpler
-> *reference spec* (empty scaffold + `DESIGN.md`). Where they differ (power,
-> frontlight, input), **`ereader.*` is authoritative** — see the comparison
-> in `docs/research-log.md`. Consolidating the two is the next step.
+> **One KiCad project.** The board lives at the repo root:
+> **`ereader.kicad_pcb`** / `ereader-pcb-design.md` (Rev C — placed, planed,
+> stitched, DRC-ruled; routing pending). The **`hardware/`** folder is no
+> longer a second KiCad project — it now holds only the electrical
+> source-of-truth docs (`DESIGN.md`, `BOM.csv`, the SKiDL netlist
+> generator). The earlier `hardware/` scaffold KiCad files were an earlier,
+> simpler *reference spec*; where the two tracks differ (power, frontlight,
+> input), **`ereader.*` is authoritative** — see the comparison in
+> `docs/research-log.md`. The Rev C parts are now reconciled into the ADRs:
+> [0006](./docs/adr/0006-i2c-managed-power-path.md) (power) supersedes 0003
+> and [0007](./docs/adr/0007-lm3630a-frontlight-driver.md) (frontlight)
+> supersedes 0005.
 
 ## Why
 
@@ -84,7 +89,7 @@ A buildable learning platform, not a product.
 
 - [x] Architecture, power tree, net list, pin map — `hardware/DESIGN.md`
 - [x] Decisions recorded — `docs/adr/0001`–`0005`
-- [x] KiCad 8 project scaffold + config that opens cleanly
+- [x] KiCad board `ereader.*` placed + config that opens cleanly
 - [x] BOM + SKiDL netlist generator
 - [x] CI: `kicad-cli` ERC/DRC/export workflow
 - [ ] Schematic captured + **ERC clean**
@@ -99,15 +104,18 @@ Live verification state: `hardware/DESIGN.md` §"Verification status".
 |---|----------|
 | [0001](./docs/adr/0001-mcu-esp32-s3.md) | ESP32-S3-WROOM-1 as the MCU |
 | [0002](./docs/adr/0002-display-and-frontlight.md) | 4.26" 800×480 E-Paper + laminated tunable frontlight |
-| [0003](./docs/adr/0003-power-architecture.md) | USB-C + 1S LiPo, load-share, 3.3 V LDO |
+| [0003](./docs/adr/0003-power-architecture.md) | USB-C + 1S LiPo, load-share, 3.3 V LDO *(superseded by 0006)* |
 | [0004](./docs/adr/0004-native-usb-programming.md) | Native-USB programming (no UART bridge) |
-| [0005](./docs/adr/0005-frontlight-driver.md) | Dual boost constant-current frontlight driver |
+| [0005](./docs/adr/0005-frontlight-driver.md) | Dual boost constant-current frontlight driver *(superseded by 0007)* |
+| [0006](./docs/adr/0006-i2c-managed-power-path.md) | I2C-managed power path: BQ25628E + TPS62840 + MAX17048 |
+| [0007](./docs/adr/0007-lm3630a-frontlight-driver.md) | LM3630A single-boost dual-sink frontlight driver |
+| [0008](./docs/adr/0008-navigation-input.md) | Navigation input: 3 side buttons + ALPS SLLB510200 lever switch |
 
 ## Getting started
 
 ```
-# Open the hardware in KiCad 8
-kicad hardware/mini-ereader.kicad_pro
+# Open the board in KiCad 8
+kicad ereader.kicad_pro
 
 # Read the electrical design (source of truth)
 less hardware/DESIGN.md
@@ -122,11 +130,13 @@ CI, fabrication, and bring-up. Component-level detail lives in
 ```
 README.md              This Brief
 CHANGELOG.md           Project history
+ereader.*              The KiCad board (project, PCB, netlist) + ereader-*.md docs
+fab.py                 Gerber/drill export helper
 docs/
   adr/                 Decisions (0001–0005 + template)
   research-log.md      Dated exploration notes
   runbook.md           Capture / verify / fabricate / bring-up
-hardware/              KiCad project, DESIGN.md, BOM, netlist generator
+hardware/              Electrical source-of-truth: DESIGN.md, BOM, netlist generator
 templates/             Colophon document templates (for ongoing use)
 .github/workflows/     CI (KiCad ERC/DRC/export)
 ```

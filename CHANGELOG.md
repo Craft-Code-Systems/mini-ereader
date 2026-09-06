@@ -15,6 +15,31 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 - Retargeted the KiCad CI workflow at `ereader.kicad_pcb` (DRC + gerber
   export). Removed a stray `~ereader.kicad_pro.lck`; git-ignore KiCad/lock/
   history/gerber cruft going forward.
+- **Consolidated to a single KiCad project.** Removed the redundant
+  `hardware/` scaffold KiCad files (`mini-ereader.kicad_pro`, `.kicad_sch`,
+  `.kicad_pcb`, `fp-lib-table`, `sym-lib-table`); the canonical board is now
+  the only KiCad project, `ereader.*` at the repo root. `hardware/` keeps the
+  electrical source-of-truth (`DESIGN.md`, `BOM.csv`, `gen_netlist_skidl.py`).
+  Docs, the runbook, ADR 0002, and CI updated to point at `ereader.*`.
+- **Reconciled the ADRs to the canonical Rev C parts.** Added
+  [ADR 0006](docs/adr/0006-i2c-managed-power-path.md) (I2C-managed power path:
+  BQ25628E charger + TPS62840 buck + MAX17048 gauge, two I2C buses) which
+  supersedes ADR 0003, and
+  [ADR 0007](docs/adr/0007-lm3630a-frontlight-driver.md) (LM3630A
+  single-boost dual-sink frontlight driver) which supersedes ADR 0005. ADRs
+  0003 and 0005 are marked Superseded, with their reasoning preserved.
+- Documented the navigation input scheme in
+  [ADR 0008](docs/adr/0008-navigation-input.md): three side tactile buttons +
+  an ALPS SLLB510200 multi-directional lever switch (CW/CCW/press), all on
+  RTC-capable wake GPIOs. (New decision; the reference spec had three buttons
+  only.)
+- Folded the exact SSD1677 external DC-DC values from `hardware/DESIGN.md` §5
+  into `ereader-pcb-design.md` §6 (L 47 µH, Si1308EDL FET, MBR0530 ×3,
+  2.2 Ω sense + 1 MΩ pulldown, 4.7 µF/1 µF ≥25 V caps, and the VGH/VGL/VSH/
+  VSL/VCOM rails) so the canonical spec no longer defers to the vendor zip.
+- Removed the committed `ereader-gerbers.zip` build artifact (regenerable with
+  `python3 fab.py`; already git-ignored); docs now describe it as a generated
+  output, not a shipped file.
 
 ### Added
 - Hardware design for a 4.26" 800×480 frontlit e-paper reader:

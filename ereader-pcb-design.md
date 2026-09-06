@@ -9,7 +9,7 @@ Rev C: frontlight FULLY RESOLVED from FL0426-S01C (2 independent 4-wire strings)
 ## 1. Decisions / assumptions
 
 - MCU = **ESP32-S3-WROOM-1-N16R8** (kept). 8 MB octal PSRAM holds 800×480×2-plane framebuffer (96 KB) + EPUB render + fonts. 16 MB flash = OTA A/B + fonts + cache.
-- Panel = **GDEQ0426T82-FL01C** (frontlight cool/warm, 800×480, SSD1677, SPI, 3V3 logic). Panel FPC = 24-pin 0.5 mm. Frontlight FPC = 6-pin 0.5 mm (**FL0426-S01C**, confirmed §7).
+- Panel = **GDEY0426T82-FL01C** (frontlight cool/warm, 800×480, SSD1677, SPI, 3V3 logic). Panel FPC = 24-pin 0.5 mm. Frontlight FPC = 6-pin 0.5 mm (**FL0426-S01C**, confirmed §7).
 - Battery = single-cell Li-Po, **~1000–2000 mAh, thin large-area**. Fast charge not needed → conservative Ichg (§8).
 - USB-C = charge + native USB-OTG data + program (one connector; native USB-Serial/JTAG on S3).
 - SoC charge cap (stop 80 / resume 50) = ESP32 over I2C, + hardware CE fallback (§8).
@@ -144,9 +144,17 @@ Free/unused after this map: 3(strap), 13. All 6 btn/lever inputs RTC-capable →
 
 4-line SPI (SDA-in only; write-mostly). Tie **BS1** for 4-wire SPI.
 
-Match **GDEQ0426T82 datasheet pin numbers exactly**:
-- Logic: SCLK, SDA(MOSI), CS, DC, RST, BUSY, VDD=3V3, VSS=GND, BS1.
-- Booster/analog: GDR, RESE, VSH, VSL, VGL, VGH, VCOM, VPP, PREVGH — reservoir caps (1 µF/4.7 µF X7R 25 V+) + booster L/Schottky per **Good Display GDEQ0426T82 reference schematic** ("ESP32 Sample Code" zip). Copy 1:1; rail values non-negotiable. Short FPC stubs; guard-ground under booster caps.
+Match the **panel datasheet pin numbers exactly** (24-pin EPD FPC, 0.5 mm):
+- Logic: SCLK, SDA(MOSI), CS, DC, RST, BUSY, VDD=3V3, VSS=GND, BS (tie low = 4-wire SPI).
+- Booster/analog: GDR, RESE, VSH1/VSH2, VSL, VGL, VGH, VCOM, VCI, VDD, VPP — external DC-DC + reservoir caps per the **Good Display reference circuit** ("ESP32 Sample Code" zip). Copy 1:1; rail values non-negotiable. Short FPC stubs; guard-ground under booster caps.
+
+**External DC-DC — exact values** (ported from `hardware/DESIGN.md` §5; verify against the panel datasheet reference circuit before order. Designators are from that source — renumber to match the `ereader` schematic):
+- **L** 47 µH, ≥500 mA (NR3015 class): +3V3 → switch node (boost FET drain).
+- **Q** Si1308EDL N-MOSFET (SOT-23): gate = GDR, drain = switch node, source = RESE. **R** 1 MΩ GDR→GND (gate pulldown) + **R** 2.2 Ω RESE→GND (current sense).
+- **D×3** MBR0530 Schottky (≥30 V, ≥500 mA): one builds PREVGH (→ VGH); two build the PREVGL (→ VGL) charge-pump path.
+- **Caps (all ≥25 V, X5R/X7R):** 4.7 µF on VSH1, VSH2, VSL, VGL/PREVGL, VGH/PREVGH, and the +3V3 boost input; 1 µF on VCI, VDD, VCOM.
+- Internal rails: **VGH ≈ +20 V, VGL ≈ −20 V, VSH ≈ +15 V, VSL ≈ −15 V, VCOM ≈ −2 V** — hence the ≥25 V cap rating. Panel VCI draw is small (~7.5 mA), so the +3V3 boost input is light.
+
 - Mechanical: EPD 24p FPC + FL 6p FPC both exit the bottom edge → place J2 + J3 adjacent on bottom edge.
 
 ---

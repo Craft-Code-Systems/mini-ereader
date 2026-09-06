@@ -345,7 +345,7 @@ USBLC6-2 ESD on VBUS + D±.
 | Frontlight subsystem          | ✅ specified (§5b, ADR 0005)                       |
 | Net connectivity              | ✅ specified (§9) + `gen_netlist_skidl.py`         |
 | BOM                           | ✅ `BOM.csv` (verify stock/footprints before order)|
-| KiCad project/config          | ✅ scaffold opens in KiCad 8                       |
+| KiCad project/config          | ✅ `ereader.*` (root) opens in KiCad 8; placed     |
 | KiCad schematic capture       | ⛔ **to do in KiCad** (also runs via CI ERC)       |
 | KiCad PCB layout + routing    | ⛔ **to do in KiCad** (CI DRC)                     |
 | ERC / DRC clean               | ⛔ **to do** — locally + CI                        |

@@ -57,7 +57,7 @@ when on-module flash already holds a large text library).
 ## Consequences
 
 - Board outline grows to fit the 105.33 × 62.37 mm display module
-  (`hardware/mini-ereader.kicad_pcb` outline placeholder ~66 × 115 mm; match
+  (`ereader.kicad_pcb` outline ~66 × 115 mm; match
   to the final enclosure).
 - A frontlight subsystem is required (connector J5 + dual boost driver);
   see [Decision 0005](./0005-frontlight-driver.md).

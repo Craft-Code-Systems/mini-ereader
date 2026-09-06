@@ -27,9 +27,13 @@ Use **three side tactile buttons** (SW1–SW3: page/menu) plus **one ALPS
 SLLB510200 multi-directional lever switch** (SW4: CW / CCW / press). All are
 active-low momentary contacts to GND with pull-ups, each on an **RTC-capable
 GPIO** so any can wake the S3 from deep sleep. Firmware debounces and decodes
-them (no hardware quadrature). BOOT (SW5→GPIO0) and RESET (SW6→EN) tactiles
-remain for native-USB programming/recovery (see
-[Decision 0004](./0004-native-usb-programming.md)).
+them (no hardware quadrature). BOOT (JP5→GPIO0) and RESET (JP6→EN) remain for
+native-USB programming/recovery (see
+[Decision 0004](./0004-native-usb-programming.md)) — as of Rev C3 they're bare
+exposed jumper pads rather than tactiles, momentarily shorted with a
+screwdriver tip or tweezers, since that recovery path is used rarely enough
+that a dedicated switch part isn't worth the BOM cost or the accidental-press
+risk of a labelled button sitting on the case.
 
 ## Considerations
 
@@ -71,7 +75,7 @@ Rejected:
 - Sourcing: verify SLLB510200 stock before order. **SLLB510100** is a
   pin-compatible alternative in the same SLLB5 series (same 9.5×8.8×2.2 mm
   envelope and CW/CCW/PUSH/COM terminals) — swap the value if it sources better.
-- **Footprints (Rev C2):** the three nav tactiles + BOOT/RESET use a genuinely
+- **Footprints (Rev C2):** the three nav tactiles use a genuinely
   **side-actuated** land, `ereader:WE_WS-TASU_436351045816` (Würth WS-TASU
   436351045816, 4.7×3.5 mm side push), drawn from the WE datasheet — 4 pads
   1.2×0.7 mm + two Ø0.75 boss holes — with the actuator facing the board edge. The
@@ -83,3 +87,11 @@ Rejected:
   unconnected. Both lands are drawn from the datasheets but still to be DRC'd against
   the ordered part before route/fab; tune SW4's placement/orientation to the
   enclosure edge.
+- **BOOT/RESET → bare jumper pads (Rev C3).** SW5/SW6 (the Würth tactiles on
+  BOOT/RESET) are replaced by `ereader:JumperPad_2P_P2.0mm` under refs `JP5`/`JP6`:
+  two 1.2×1.2 mm exposed pads on 2 mm pitch, no switch part, at the same board
+  location the tactiles occupied. Short the pair momentarily with a screwdriver tip
+  or tweezers to pull `IO0_BOOT`/`EN` low; open circuit otherwise. Hand-drawn
+  geometry (no datasheet to check against, since there's no part to order) — DRC
+  the pad spacing against fab minimum clearance and confirm the case cutout still
+  reaches them before fab.

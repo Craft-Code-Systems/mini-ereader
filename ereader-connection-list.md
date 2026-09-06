@@ -28,8 +28,8 @@ Module U1 pin **numbers** are exact (ESP32-S3-WROOM-1 datasheet). IC pins by **f
 | D1 | Schottky ~30V | LM3630A boost |
 | SW1..3 | tactile | BTN_A/B/C |
 | SW4 | SLLB510200 | lever CW/CCW/PUSH + COM |
-| SW5 | tactile | BOOT |
-| SW6 | tactile | RESET |
+| JP5 | jumper pad (2-pin, open) | BOOT |
+| JP6 | jumper pad (2-pin, open) | RESET |
 | R1,R2 | 5.1k | CC1,CC2 Rd |
 | R3 | 100k | EN pull-up (+C_EN 1µF) |
 | R4,R5 | 100k | EPD_CS, SD_CS pull-up |
@@ -101,9 +101,12 @@ SW4.COM  : GND
 
 ### Program / reset
 ```
-IO0_BOOT : U1.27(IO0), SW5.1     (SW5.2→GND)
-EN       : U1.3(EN),   SW6.1, R3.2, C_EN.1   (SW6.2→GND, C_EN.2→GND)
+IO0_BOOT : U1.27(IO0), JP5.1     (JP5.2→GND)
+EN       : U1.3(EN),   JP6.1, R3.2, C_EN.1   (JP6.2→GND, C_EN.2→GND)
 ```
+JP5/JP6 are bare exposed pads (no switch part) — short them momentarily with a
+screwdriver tip or tweezers to trigger BOOT/RESET. See §4 of
+`ereader-schematic.md` and `ereader-footprints.md`.
 
 ### USB-C
 ```

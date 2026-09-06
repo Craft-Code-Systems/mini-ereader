@@ -38,3 +38,10 @@ legacy COM port with hardware auto-reset for a fixed toolchain.
   (USBLC6-2 ESD recommended).
 - Bring-up docs note the manual bootloader gesture as a fallback.
 - GPIO19/20 are reserved for USB and excluded from the peripheral pin map.
+- The physical BOOT/RESET contacts started as tactile switches and were
+  replaced with bare jumper pads in Rev C3 — see
+  [Decision 0008](./0008-navigation-input.md) for the current implementation
+  (`JP5`/`JP6`, screwdriver/tweezer-shortable). This ADR's "buttons" language
+  describes the original implementation; the architectural call it documents
+  (plain GPIO0/EN triggers, no UART bridge, no auto-reset circuit) is
+  unaffected by that change.

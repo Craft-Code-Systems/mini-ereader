@@ -80,8 +80,10 @@ per-user state, not source).
 1. Inspect solder; ohmmeter-check VBUS/VBAT/VSYS/+3V3 → GND for shorts.
 2. Power via USB-C only (no battery). Confirm +3V3 = 3.3 V.
 3. Confirm the board enumerates as a USB serial/JTAG device.
-4. Flash a blinky/serial test over native USB (hold BOOT + tap RESET if the
-   toolchain can't auto-enter the bootloader).
+4. Flash a blinky/serial test over native USB (if the toolchain can't
+   auto-enter the bootloader: bridge the JP5 BOOT pads with a screwdriver tip
+   or tweezers and hold, briefly bridge the JP6 RESET pads and release them,
+   then release JP5).
 5. Bring up the E-Paper with a controller driver matched to the panel.
 6. Bring up the frontlight: PWM GPIO15 (cold) / GPIO16 (warm); start at low
    duty and confirm current ≤ 15 mA/channel before going bright.

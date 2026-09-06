@@ -10,17 +10,19 @@ Open **`ereader.kicad_pro`** in KiCad 7/8 → open the **PCB Editor** (Pcbnew). 
 | `ereader-kicad.net` | netlist (import to refresh nets) |
 | `ereader.cmp` | ref↔footprint map |
 | `ereader-connection-list.md` | master net-by-net (source of truth) |
+| `ereader-schematic.md` | schematic (subsystem Mermaid diagrams; renders on GitHub) |
 | `ereader-footprints.md` | footprint picklist + ✓/⚑ status |
+| `ereader.pretty/` + `ereader.3dshapes/` | project footprints (side tactile, SLLB5 lever) + simple 3D bodies |
 | `ereader-pcb-design.md` | full design spec (power, pinmap, compliance, layout) |
 
 ## Honest status — what this IS / IS NOT
-**IS:** an openable project; every part positioned in a real floorplan; board outline; keep-out + magnet fiducials; ratsnest for the module, all passives, and most of USB-C.
-**IS NOT:** routed, not a Gerber, not manufacturing-ready.
+**IS:** an openable project; every part positioned in a real floorplan; board outline; keep-out + magnet fiducials; ratsnest for the module, all passives, and most of USB-C; a reviewable schematic (`ereader-schematic.md`).
+**IS NOT:** routed, not a Gerber, not manufacturing-ready, **not** a native Eeschema `.kicad_sch` — the design is netlist-first (see `ereader-schematic.md` for why, and how to draw one).
 
 ## Two manual steps remain (unavoidable — this is the engineering)
 1. **Fix the flagged parts + name-only pins** (~29% of endpoints unconnected by design, listed below):
-   - **Placeholder footprints (real land = wrong)** → replace with exact per datasheet: `U2` BQ25628E, `U3` MAX17048, `U4` LM3630A, `U5` TPS62840, `SW4` SLLB510200. Pull from SnapEDA / Ultra-Librarian.
-   - **Name-only pins** don't auto-match numeric pads → assign in symbol or connect while routing: `J2` (EPD, 8 pins → map to GDEY0426T82 FPC numbers), `J4` (microSD, 6), `SW4` (CW/CCW/PUSH/COM→1-4), `U2-U5`/`U6` (IC function names→pads).
+   - **Placeholder footprints (real land = wrong)** → replace with exact per datasheet: `U2` BQ25628E, `U3` MAX17048, `U4` LM3630A, `U5` TPS62840. Pull from SnapEDA / Ultra-Librarian. (`SW1-6` now use the project-local `ereader.pretty` lands — side-actuated tactile + SLLB5 lever — still DRC vs the ordered MPN.)
+   - **Name-only pins** don't auto-match numeric pads → assign in symbol or connect while routing: `J2` (EPD, 8 pins → map to GDEY0426T82 FPC numbers), `J4` (microSD, 6), `U2-U5`/`U6` (IC function names→pads). (`SW4` is resolved — its pads are named CW/CCW/PUSH/COM.)
 2. **Place-tune → route → DRC → Gerbers.** Follow §11 layout rules in the design spec (antenna keep-out, FL-boost + charger loops tight, USB 90Ω diff, GND plane).
 
 ## EasyEDA instead?
@@ -52,7 +54,7 @@ The board is **placed, planed, stitched, and DRC-ruled — but NOT routed** (no 
 Gerbers from `fab.py` at this stage = pours + pads + vias, **no traces between pads → not manufacturable yet.** Fab them and you get a dead board.
 
 To finish:
-1. Swap the 5 placeholder footprints (U2-U5, SW4) for exact parts; remap the name-only pins (EPD/microSD/SW4/ICs) so their nets connect.
+1. Swap the 4 placeholder footprints (U2-U5) for exact parts; remap the name-only pins (EPD/microSD/ICs) so their nets connect. (SW1-6 lands are in `ereader.pretty` — still DRC vs the ordered switch datasheets.)
 2. **Route** every ratsnest line (Route → Route Tracks). Honor §11 of the design spec: antenna keep-out, tight FL-boost + charger switch loops, USB 90Ω diff pair, star-ground the analog returns.
 3. Run **DRC** → zero unconnected, zero violations.
 4. `python3 fab.py` (or Pcbnew → Plot) → upload `ereader-gerbers.zip` to JLCPCB.

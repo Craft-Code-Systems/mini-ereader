@@ -5,6 +5,29 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Switches + schematic (2026-09-06)
+- **Navigation buttons are now genuinely side-actuated.** SW1–SW3 (and BOOT/RESET
+  SW5/SW6) moved off the top-actuated `Button_Switch_SMD:SW_SPST_TL3342` stand-in
+  onto a new project footprint `ereader:Tact_Side_TS1187A_4P_3.5x4.7mm` (TS-1187A /
+  YD-3414 class), with the actuator facing the board edge — required because the
+  screen covers the whole front and magnets hold the back to the phone, so top/bottom
+  actuation is unreachable. SW1–SW3 rotation set to 0° so the actuators point at the
+  right edge; nets (BTN_A/B/C, IO0_BOOT, EN, GND) preserved.
+- **SW4 lever land built.** Replaced the `PinHeader_1x04` placeholder with
+  `ereader:ALPS_SLLB5_Lever` (ALPS SLLB5, ~9.5×8.8×2.2 mm) whose pads are named
+  **CW/CCW/PUSH/COM**, so `LEV_CW`(23)/`LEV_CCW`(24)/`LEV_PUSH`(25) and `COM→GND`(5)
+  now connect on netlist import instead of sitting unconnected. Noted SLLB510100 as a
+  pin-compatible alternative.
+- Added project footprint library `ereader.pretty` (registered in a new `fp-lib-table`)
+  and simplified 3D bodies in `ereader.3dshapes/*.wrl` (referenced with `scale 0.3937`)
+  so the switches render in the 3D viewer without KiCad's stock libraries. Updated
+  `ereader-kicad.net` + `ereader.cmp` footprint IDs to match. Lands are approximate
+  stand-ins — DRC vs the ordered MPN before fab.
+- **Added a reviewable schematic, `ereader-schematic.md`** (subsystem Mermaid
+  diagrams built from the connection list; renders on GitHub). Documents why the
+  netlist-first design has no native Eeschema `.kicad_sch` and how to draw one. Updated
+  `ereader-footprints.md`, `ereader-README.md`, `ereader-pcb-design.md`, and ADR 0008.
+
 ### Merged / consolidated (2026-09-05)
 - Merged `claude/schematics-pcb-review-rq1i2t` into `main` alongside the
   first-try board `ereader.*` (`colophon-standard-compliance` had no unique

@@ -85,14 +85,14 @@ A buildable learning platform, not a product.
 
 ## Status & milestones
 
-**v0.1 — design captured; schematic/PCB not yet drawn in KiCad.**
+**v0.1 — design captured; reviewable schematic in `ereader-schematic.md`; native Eeschema `.kicad_sch` + routed PCB not yet drawn in KiCad.**
 
 - [x] Architecture, power tree, net list, pin map — `hardware/DESIGN.md`
 - [x] Decisions recorded — `docs/adr/0001`–`0005`
 - [x] KiCad board `ereader.*` placed + config that opens cleanly
 - [x] BOM + SKiDL netlist generator
 - [x] CI: `kicad-cli` ERC/DRC/export workflow
-- [ ] Schematic captured + **ERC clean**
+- [~] Schematic — reviewable subsystem diagrams in `ereader-schematic.md`; native Eeschema capture + **ERC clean** pending
 - [ ] PCB placed, routed + **DRC clean**
 - [ ] Prototype built + brought up
 

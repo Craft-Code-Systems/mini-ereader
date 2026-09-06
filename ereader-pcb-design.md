@@ -63,10 +63,10 @@ Rev C: frontlight FULLY RESOLVED from FL0426-S01C (2 independent 4-wire strings)
 | J2 | 24-pin 0.5 mm FPC, bottom-contact | EPD | flip-lock |
 | J3 | 6-pin 0.5 mm FPC | frontlight | 1=C+ 2=C− 3=NC 4=NC 5=W+ 6=W− |
 | J4 | microSD push-pull holder | storage | |
-| SW1–3 | tactile SMD (side) | page/menu | |
-| SW4 | ALPS **SLLB510200** | lever+push (CW/CCW/press) | 10 mA/5 V max, 9.5×8.8×2.2 mm |
-| SW5 | tactile SMD | BOOT | GPIO0→GND momentary |
-| SW6 | tactile SMD | RESET | EN→GND momentary |
+| SW1–3 | **side-actuated** tactile SMD (TS-1187A/YD-3414 class) | page/menu | `ereader:Tact_Side_TS1187A_4P_3.5x4.7mm`; actuator faces board edge |
+| SW4 | ALPS **SLLB510200** (510100 = alt) | lever+push (CW/CCW/press) | 10 mA/5 V max, 9.5×8.8×2.2 mm; `ereader:ALPS_SLLB5_Lever` |
+| SW5 | **side-actuated** tactile SMD | BOOT | GPIO0→GND momentary; same side land |
+| SW6 | **side-actuated** tactile SMD | RESET | EN→GND momentary; same side land |
 | — | 5.1 kΩ ×2 | CC1/CC2 Rd (sink) | |
 | — | 100 kΩ | EN pull-up + 1 µF | module EN weak ~2 MΩ |
 | — | 100 kΩ pull-up ×2 | EPD_CS, SD_CS idle-high thru boot | §5 |

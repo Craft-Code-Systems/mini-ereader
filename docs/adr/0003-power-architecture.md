@@ -48,7 +48,7 @@ Rejected for v0.1, kept as upgrade paths:
 ## Consequences
 
 - Bulk capacitance near the module 3V3 pins must cover 500 mA TX bursts
-  (≥ 22 µF local + 10 µF rail); see `hardware/DESIGN.md`.
+  (≥ 22 µF local + 10 µF rail); see `ereader-pcb-design.md`.
 - Usable battery floor is ~3.4 V; firmware low-battery warning triggers
   above that.
 - Charge current (R_PROG) is re-chosen for the actual cell capacity

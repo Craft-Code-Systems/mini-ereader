@@ -5,15 +5,15 @@ name: KiCad
 # KiCad; this gates the result and produces downloadable outputs (artifacts).
 #
 # Target is the single canonical board, ereader.kicad_pcb (KiCad 7 format;
-# kicad-cli 8 opens/migrates it automatically). The hardware/ folder holds
-# the electrical source-of-truth docs (DESIGN.md, BOM, netlist generator);
-# changes there also trigger this workflow.
+# kicad-cli 8 opens/migrates it automatically). The electrical source of truth
+# is the ereader-*.md docs at the repo root (connection list, pcb-design,
+# footprints, schematic) plus the ereader-kicad.net netlist.
 
 on:
   push:
-    paths: ["ereader.kicad_pcb", "hardware/**", ".github/workflows/kicad.yml"]
+    paths: ["ereader.kicad_pcb", "ereader-kicad.net", ".github/workflows/kicad.yml"]
   pull_request:
-    paths: ["ereader.kicad_pcb", "hardware/**", ".github/workflows/kicad.yml"]
+    paths: ["ereader.kicad_pcb", "ereader-kicad.net", ".github/workflows/kicad.yml"]
   workflow_dispatch:
 
 jobs:

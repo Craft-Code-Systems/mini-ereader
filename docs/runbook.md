@@ -6,8 +6,8 @@ produce fabrication files, and bring up a board.
 ## Prerequisites
 
 - **KiCad 8.x** with its standard symbol/footprint libraries (they ship
-  with KiCad). The project files are KiCad 8 format.
-- Optional: `pip install skidl` to use `hardware/gen_netlist_skidl.py`.
+  with KiCad). The project files are KiCad 8 format. The switch footprints
+  come from the project-local `ereader.pretty` library (`fp-lib-table`).
 
 ## Open the project
 
@@ -16,8 +16,10 @@ kicad ereader.kicad_pro
 ```
 
 This is the single canonical KiCad project (at the repo root). The board
-(`ereader.kicad_pcb`) is **placed but not routed**; the schematic is not yet
-captured in KiCad. The electrical design itself is `hardware/DESIGN.md`.
+(`ereader.kicad_pcb`) is **placed but not routed**; no native Eeschema
+schematic is captured yet. The electrical design itself is
+`ereader-connection-list.md` (net-by-net source of truth) +
+`ereader-pcb-design.md`, drawn up in `ereader-schematic.md`.
 First check: the PCB editor opens without file errors. If KiCad offers to
 upgrade the file version, accept and re-save.
 
@@ -26,15 +28,13 @@ upgrade the file version, accept and re-save.
 Two routes:
 
 1. **By hand in Eeschema** (recommended for a reviewable schematic): draw
-   each block from `hardware/DESIGN.md`. Assign footprints from
-   `hardware/BOM.csv`.
-2. **Bootstrap with SKiDL**:
-   ```
-   cd hardware && python gen_netlist_skidl.py   # -> mini-ereader.net
-   ```
-   Then in the PCB editor: *File → Import → Netlist…*. Mind the `TODO`
-   markers — a few lib_ids/pin names depend on the exact connector/panel and
-   your library revision.
+   each block from `ereader-schematic.md` / `ereader-connection-list.md`.
+   Assign footprints from `ereader-footprints.md` (switches resolve from the
+   project `ereader.pretty` library).
+2. **Refresh nets from the netlist**: in the PCB editor, *File → Import →
+   Netlist…* → `ereader-kicad.net`. This is the connectivity source; it does
+   not draw a schematic (see `ereader-schematic.md` for why the design is
+   netlist-first and how to get a native `.kicad_sch`).
 
 ## Verify (the "review" step)
 
@@ -43,12 +43,12 @@ Two routes:
 - **Footprint assignment**: every symbol → a real footprint.
 - **DRC** in the PCB editor after layout: *Inspect → Design Rules Checker*.
   Zero unrouted, zero clearance errors.
-- Update the verification table in `hardware/DESIGN.md` as items go green.
+- Update the milestone checklist in `/README.md` as items go green.
 
 ## CI: KiCad in the cloud
 
 `.github/workflows/kicad.yml` runs on pushes/PRs that touch
-`ereader.kicad_pcb`, `hardware/**`, or the workflow itself (and on demand
+`ereader.kicad_pcb`, `ereader-kicad.net`, or the workflow itself (and on demand
 via *Run workflow*). In the `kicad/kicad:8.0` container it:
 
 - prints `kicad-cli version`,
@@ -68,7 +68,7 @@ From the PCB editor once DRC is clean (or download the CI artifact):
 
 - **Gerbers**: *File → Plot* → F.Cu, B.Cu, F/B.SilkS, F/B.Mask, F/B.Paste,
   Edge.Cuts → `fab/`. Then *Generate Drill Files* (Excellon).
-- **BOM**: *Tools → Generate BOM*, or use `hardware/BOM.csv` as master.
+- **BOM**: *Tools → Generate BOM*, or use `ereader-footprints.md` as the master picklist.
 - **Placement (CPL)**: *File → Fabrication Outputs → Component Placement*.
 - Zip the gerbers + drill for the fab house.
 

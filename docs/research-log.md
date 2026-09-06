@@ -98,7 +98,12 @@ files and remaining cruft (`.history`, `ereader-gerbers.zip`).
   0003/0005 marked Superseded, reasoning preserved.
 - The `-N16R8` module variant is treated as a selection under ADR 0001, not a
   new decision. Also added **0008** (navigation input: 3 side buttons + ALPS
-  SLLB510200 lever switch — CW/CCW/press, not a quadrature encoder). Still
-  open (deferred): folding the exact SSD1677 boost values from
-  `hardware/DESIGN.md` §5 into `ereader-pcb-design.md` §6; and removing the
-  remaining `ereader-gerbers.zip` build artifact.
+  SLLB510200 lever switch — CW/CCW/press, not a quadrature encoder).
+- Folded the exact SSD1677 external DC-DC values (L 47 µH, Q Si1308EDL,
+  D×3 MBR0530, R 2.2 Ω sense + 1 M pulldown, 4.7 µF/1 µF ≥25 V caps, rails
+  VGH/VGL/VSH/VSL/VCOM) from `hardware/DESIGN.md` §5 into
+  `ereader-pcb-design.md` §6, so the canonical spec is self-contained.
+- Removed the committed `ereader-gerbers.zip` build artifact (regenerable via
+  `fab.py`; already git-ignored). No consolidation items remain open; the
+  only pointer left to verify is the panel prefix GDEQ vs GDEY in
+  `ereader-pcb-design.md` (README/DESIGN.md say GDEY0426T82-FL01C).

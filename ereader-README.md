@@ -45,12 +45,11 @@ EasyEDA **Pro** → File → Import → *KiCad* accepts `ereader.kicad_pcb`. No 
 - **Fiducials** FID1-3 (bottom edge) for assembly.
 - **GND via stitching** — 58 vias, ~6mm pitch perimeter ring, tied to GND, knitting the planes.
 - **DRC ruleset (JLCPCB 4-layer)** baked into `ereader.kicad_pro`: min track 0.15mm, clearance 0.15mm, via 0.45/0.30, edge clearance 0.30, annular ≥0.13. Track/via/diff-pair presets loaded.
-- **`fab.py`** — one command to emit Gerbers + Excellon drill + zip:  `python3 fab.py`  → `ereader-gerbers.zip` (11 layers + PTH/NPTH).
-- **`ereader-gerbers.zip`** — a set generated NOW so the pipeline is proven.
+- **`fab.py`** — one command to emit Gerbers + Excellon drill + zip:  `python3 fab.py`  → `ereader-gerbers.zip` (11 layers + PTH/NPTH). The zip is a build artifact (git-ignored) — regenerate it, don't commit it.
 
 ## ⛔ The one gate that remains: ROUTING
 The board is **placed, planed, stitched, and DRC-ruled — but NOT routed** (no signal traces).
-`ereader-gerbers.zip` as shipped = pours + pads + vias, **no traces between pads → not manufacturable yet.** Fab it and you get a dead board.
+Gerbers from `fab.py` at this stage = pours + pads + vias, **no traces between pads → not manufacturable yet.** Fab them and you get a dead board.
 
 To finish:
 1. Swap the 5 placeholder footprints (U2-U5, SW4) for exact parts; remap the name-only pins (EPD/microSD/SW4/ICs) so their nets connect.

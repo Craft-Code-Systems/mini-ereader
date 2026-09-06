@@ -33,6 +33,13 @@ All notable changes to the Mini E-Reader project. Format loosely follows
   an ALPS SLLB510200 multi-directional lever switch (CW/CCW/press), all on
   RTC-capable wake GPIOs. (New decision; the reference spec had three buttons
   only.)
+- Folded the exact SSD1677 external DC-DC values from `hardware/DESIGN.md` §5
+  into `ereader-pcb-design.md` §6 (L 47 µH, Si1308EDL FET, MBR0530 ×3,
+  2.2 Ω sense + 1 MΩ pulldown, 4.7 µF/1 µF ≥25 V caps, and the VGH/VGL/VSH/
+  VSL/VCOM rails) so the canonical spec no longer defers to the vendor zip.
+- Removed the committed `ereader-gerbers.zip` build artifact (regenerable with
+  `python3 fab.py`; already git-ignored); docs now describe it as a generated
+  output, not a shipped file.
 
 ### Added
 - Hardware design for a 4.26" 800×480 frontlit e-paper reader:

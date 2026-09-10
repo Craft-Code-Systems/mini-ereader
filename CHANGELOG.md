@@ -5,6 +5,43 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Fix remaining DRC errors and warnings: U1 EPAD net, J1 shield thermals, SW4 library parity, mechanical hole clearance (2026-09-08)
+- **U1 (ESP32-S3-WROOM-1) exposed pad (pin 41/EPAD) wasn't actually on GND.**
+  Of the 13 copper features that make up the module's exposed thermal pad
+  (the 3.9x3.9mm SMD land plus its 12 small heatsink through-holes), only one
+  through-hole carried `(net 5 "GND")` - the rest were floating, even though
+  `ereader-connection-list.md` documents `U1.41(EPAD)` as GND. The floating
+  copper forced the F.Cu GND zone to clear around most of the pad instead of
+  merging with it, splitting the zone into a ~16x17mm island under U1 that
+  DRC reported as 2 "unconnected_items" pairs (4 identical entries - KiCad
+  lists each ratsnest edge both directions). Added the missing net to all 12
+  pads.
+- **J1 (USB-C) shield/mechanical pads (S1) starved their own thermal
+  reliefs.** All 4 S1 pads were on GND with default (spoke) zone connection;
+  one of them resolved to only 1 of the usual spokes on In1.Cu, leaving an
+  isolated copper island (`starved_thermal`) - the same failure mode already
+  fixed for J1's small SMD GND pads (A1/A12/B1/B12) in an earlier pass, just
+  not extended to S1. Also pinched off a second, tiny F.Cu island right next
+  to A12/B1 (the other 2 "unconnected_items" pairs). Gave all 4 S1 pads a
+  solid zone connection (`zone_connect 2`), matching A1/A12/B1/B12.
+- **SW4 (`ereader:ALPS_SLLB5_Lever`) library/board parity - actually fixed
+  this time.** The previous "sync footprint library" pass edited the
+  library's 2 corner solder-lug pad rotations from 45°/135° to 135°/225° to
+  match the board's raw stored angle at SW4's 90° placement - but a pad's
+  stored angle in the `.kicad_pcb` already bakes in the footprint's own
+  rotation (angle = local + placement), so the *pre*-edit library values
+  were the correct local design angles all along; the edit introduced a
+  real 90° mismatch instead of fixing one. Reverted to 45°/135°. (SW1-3,
+  JP5, JP6 already matched their library copies on inspection - the other 5
+  `lib_footprint_mismatch` warnings in the last report look stale.)
+- **SW4 hole-clearance errors (CW/COM/PUSH/CCW pads vs. the switch's own
+  Ø1.1mm locator holes) are the ALPS SLLB5 datasheet land, not a placement
+  bug** - the physical part puts signal pads as close as ~0.05mm from its
+  own locator holes, under the board's global 0.25mm min hole clearance.
+  Added `ereader.kicad_dru` with a custom rule that relaxes hole clearance
+  to 0.02mm only between pads/holes sharing the same footprint reference,
+  leaving the global rule intact for every other part on the board.
+
 ### 3D views: SW4 lever corrected + self-contained bodies for every component (2026-09-06)
 - **SW4 (ALPS SLLB5) 3D body fixed.** The old `ereader.3dshapes/ALPS_SLLB5_Lever.wrl`
   rendered as a tall block with an upward box knob — an "odd big switch". The SLLB5 is

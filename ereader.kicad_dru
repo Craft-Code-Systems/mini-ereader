@@ -1,0 +1,11 @@
+(version 1)
+
+# ALPS SLLB5 lever switch (SW4): the datasheet land places the 4 signal pads
+# (CW/COM/PUSH/CCW) only ~0.05-0.21mm from the switch's own Ø1.1mm locator
+# holes - closer than the board's global 0.25mm min hole clearance. This
+# spacing is fixed by the physical part, not by placement, so relax hole
+# clearance only between pads/holes that belong to the same footprint.
+(rule "Same-footprint hole clearance (mechanical part datasheet spacing)"
+    (condition "A.Reference == B.Reference")
+    (constraint hole_clearance (min 0.02mm))
+)

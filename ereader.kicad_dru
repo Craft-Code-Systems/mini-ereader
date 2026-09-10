@@ -6,6 +6,6 @@
 # spacing is fixed by the physical part, not by placement, so relax hole
 # clearance only between pads/holes that belong to the same footprint.
 (rule "Same-footprint hole clearance (mechanical part datasheet spacing)"
-    (condition "A.Reference == B.Reference")
+    (condition "A.Parent == B.Parent")
     (constraint hole_clearance (min 0.02mm))
 )

@@ -5,6 +5,35 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Remove a mis-scaled antenna keepout zone embedded in U1 that blocked GND fill outside the actual antenna area (2026-09-11)
+- The previous pass's pad-level fixes (U1 EPAD net, broad zone_connect sweep)
+  had zero effect on unconnected_items - still exactly 3, unchanged across
+  three consecutive reports despite a from-scratch local refill confirming
+  those fixes merge the zone into 1 island. Since nothing pad-level moved
+  the number at all, went looking for something structural that no pad
+  setting could route around.
+- Found it: U1 (`ESP32-S3-WROOM-1`) carries its own footprint-embedded
+  keepout zone (`copperpour not_allowed` on F.Cu/In1.Cu/B.Cu) with polygon
+  `(9,6.25)-(57,6.25)-(57,-14.75)-(9,-14.75)` in the footprint's *local*
+  frame. At U1's placement (33,13, no rotation) that's absolute
+  x:42-90, y:-1.75-19.25 - 48x21mm, dwarfing the module's own ~18mm silk
+  outline and running 24mm past the board's right edge and above the top
+  edge. The real, documented antenna keep-out (the board-level "ANTENNA
+  KEEPOUT" silk strip at y=0-7, full width) is already respected without
+  this zone, since GND_F.Cu's own outline starts at y=8 - this extra zone
+  only ate into the y=8-19.25 strip, which `ereader-pcb-design.md` explicitly
+  wants as continuous ground ("Continuous GND plane under everything except
+  antenna keep-out"). Almost certainly leftover data from whatever reference
+  footprint this was built from, never rescaled for this board. Removed it.
+- This exact keepout was present through every previous local KiCad 7.0.11
+  refill test (all of which already showed 1 merged island), so it can't be
+  blamed for anything observed locally - but keepout-vs-zone-fill clipping
+  is exactly the kind of thing that could differ between the 7.0.11 engine
+  available here and the CI's KiCad 8.0, and it's unambiguously a
+  placement/scaling bug regardless of whether it's the cause. Re-filled and
+  re-spliced the 3 GND zones after removing it - still 1 island, no
+  regression.
+
 ### Harden every remaining thermal-relief GND pad to a solid zone connection (2026-09-11)
 - hole_clearance and lib_footprint_mismatch are confirmed clear (0 DRC
   violations in the latest report). unconnected_items held steady at 3,

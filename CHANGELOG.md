@@ -5,6 +5,30 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Confirmed the GND_F.Cu fix holds; the CI's pinned KiCad 8.0 was the actual source of the persistent false positive (2026-09-11)
+- The previous entry's keepout-zone fix *did* work - the "3 unconnected_items
+  between Zone 'GND_F.Cu' and itself" that survived three rounds of board
+  fixes turned out to be a false positive specific to KiCad 8.0, not a real
+  remaining board defect:
+  - A `kicad-cli pcb drc --format json` run on a locally-installed KiCad
+    10.0.0 (same version the project owner already runs locally) shows
+    **zero** zone-related entries at all - every one of its ~60
+    `unconnected_items` is a plain pad-to-pad gap on an unrouted signal net
+    (`+3V3`, `I2C0_SDA`, `BTN_A`, `USB_DP`, `LEV_CW`, ... - expected, since
+    this board has 0 routed track segments; it's placed but not routed, a
+    separate later phase).
+  - A `kicad-cli pcb drc` text-report run from this repo's CI - pinned to
+    `kicad/kicad:8.0` - kept reproducing the exact same 3 zone entries,
+    identical down to the anchor point, across every fix in this pass
+    (pad nets, a 23-pad zone_connect sweep, the keepout removal). Two
+    different KiCad major versions given the *identical* board file
+    disagreeing this completely, with 10.0.0 matching what a ground-up
+    KiCad 7.0.11 source read and engine test also predicted, points at an
+    8.0-era zone-fill/connectivity bug, not the board.
+- Repinned `.github/workflows/kicad.yml` from `kicad/kicad:8.0` to
+  `kicad/kicad:10.0.0` so CI's DRC output matches what's actually
+  authoritative for this board going forward.
+
 ### Remove a mis-scaled antenna keepout zone embedded in U1 that blocked GND fill outside the actual antenna area (2026-09-11)
 - The previous pass's pad-level fixes (U1 EPAD net, broad zone_connect sweep)
   had zero effect on unconnected_items - still exactly 3, unchanged across

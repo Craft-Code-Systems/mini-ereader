@@ -1,13 +1,21 @@
 name: KiCad
 
-# Cloud "KiCad-capable environment": runs kicad-cli (v8) to check the board
+# Cloud "KiCad-capable environment": runs kicad-cli (v10) to check the board
 # and export fabrication files. Interactive capture/routing happen locally in
 # KiCad; this gates the result and produces downloadable outputs (artifacts).
 #
 # Target is the single canonical board, ereader.kicad_pcb (KiCad 7 format;
-# kicad-cli 8 opens/migrates it automatically). The electrical source of truth
-# is the ereader-*.md docs at the repo root (connection list, pcb-design,
-# footprints, schematic) plus the ereader-kicad.net netlist.
+# kicad-cli 10 opens/migrates it automatically). The electrical source of
+# truth is the ereader-*.md docs at the repo root (connection list,
+# pcb-design, footprints, schematic) plus the ereader-kicad.net netlist.
+#
+# Pinned to 10.0.0 (not 8.0) because KiCad 8.0's zone-fill/connectivity
+# engine has a reproducible false positive on this board: it reports 3
+# "unconnected_items" between 'GND_F.Cu' and itself (same zone, same point,
+# every run) that a from-scratch KiCad 10.0.0 run - local or this pin -
+# does not. KiCad 7.0.11 (checked directly against source) doesn't
+# reproduce it either, so it's specifically an 8.0-era regression, not a
+# board defect. See CHANGELOG.md (2026-09-11 entries) for the investigation.
 
 on:
   push:
@@ -20,7 +28,7 @@ jobs:
   drc-export:
     runs-on: ubuntu-latest
     container:
-      image: kicad/kicad:8.0
+      image: kicad/kicad:10.0.0
       options: --user root          # let actions/checkout own the workspace
     env:
       HOME: /root                    # writable config/home for kicad-cli

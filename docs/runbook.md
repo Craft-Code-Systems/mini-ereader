@@ -85,8 +85,12 @@ per-user state, not source).
    or tweezers and hold, briefly bridge the JP6 RESET pads and release them,
    then release JP5).
 5. Bring up the E-Paper with a controller driver matched to the panel.
-6. Bring up the frontlight: PWM GPIO15 (cold) / GPIO16 (warm); start at low
-   duty and confirm current ≤ 15 mA/channel before going bright.
+6. Bring up the frontlight (LM3630A over **I2C1**, addr 0x36 — SDA=GPIO16,
+   SCL=GPIO38): drive **FL_HWEN=GPIO21 high** to enable, then set each bank's
+   brightness/current over I2C (Bank A = cool, Bank B = warm). Start at a low
+   current setting and confirm ≤ 15 mA/channel before going bright. (There is no
+   direct-GPIO PWM to the LEDs — GPIO15/16 are LEV_PUSH / I2C1_SDA, not backlight
+   PWM; the LM3630A does the boost + per-bank PWM internally.)
 7. Add battery; confirm charging (STAT LED) and the battery-sense ADC.
 
 ## Adding a decision

@@ -70,3 +70,18 @@ when on-module flash already holds a large text library).
   MISO + pull-ups.
 - Firmware brings up the panel with a controller driver matched to the
   panel's waveform/LUT.
+
+## Reconciliation note (Rev C — non-normative erratum, 2026-09-11)
+
+The decision above stands, but its **designators predate the Rev C board** and
+must not be read literally — the canonical designators live in
+`ereader-connection-list.md` / `ereader-kicad.net`:
+
+- EPD panel FPC = **J2** (this ADR's prose says "J4"); frontlight FPC = **J3**
+  (prose says "J5"); the 1S Li-Po = **J5**; microSD = **J4**.
+- The SSD1677 external DC-DC parts are now captured as **LE / QE / DE1–DE3 /
+  RE1 / RE2 / CE1–CE9** (this ADR's "L2/Q2/D4-D6" was placeholder naming; note
+  `L2` in Rev C is the *frontlight* boost inductor, not the EPD one).
+
+No decision is changed here — only the part references are mapped to the built
+design so the ADR can't be misread during the remaining EPD-booster work.

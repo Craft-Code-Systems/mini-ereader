@@ -5,6 +5,49 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Rev C4 — capture the missing EPD DC-DC block, reconcile decoupling, correct IC packages, fix doc drift (2026-09-11)
+Design-review pass before a possible manufacturing hand-off found several gaps
+that would produce a non-working or non-buildable board. Addressed at the
+netlist-first source-of-truth level (`ereader-kicad.net` drives the PCB on
+re-import):
+
+- **EPD SSD1677 external DC-DC now captured as real parts.** ADR 0002 /
+  `ereader-pcb-design.md` §6 require an external boost + charge-pump for the
+  panel's ±20V gate / ±15V source rails, but no such parts existed in the
+  netlist/BOM/board — the panel could never have displayed. Added `LE` (47µH),
+  `QE` (Si1308EDL N-FET), `DE1–DE3` (MBR0530), `RE1` (2.2Ω RESE sense), `RE2`
+  (1MΩ GDR pulldown), `CE1–CE6` (4.7µF/25V rail reservoirs), `CE7–CE9`
+  (1µF/25V), wired to J2's support pins (GDR/RESE/VGH/VGL/VSH1/VSH2/VSL/VCOM/
+  VCI) with BS1 tied low for 4-wire SPI. **The diode/charge-pump interconnect,
+  diode orientation, and J2 FPC pin numbers are a functional placeholder** —
+  flagged in-file to be transcribed 1:1 from the Good Display reference before
+  route (rail cap values non-negotiable, ≥25V).
+- **Decoupling reconciled to spec.** Added the local caps the connection-list
+  called for but that were missing: `CGA`/`CGB` (MAX17048 CELL 0.1µF+1µF),
+  `C4I` (LM3630A IN 1µF).
+- **IC package facts corrected** (verified against vendor datasheets): U2
+  BQ25628E is an **18-pin WQFN 2.5×3.0mm (RYK)** — the placeholder
+  `HVQFN-24-1EP_4x4mm` is the wrong pincount/size; U5 TPS62840DLCR is
+  **VSON-HR 8-pin 2.0×2.0mm** — the placeholder `SON-8_3x2mm` is oversized (and
+  it is not SOT-563); U4 LM3630A is DSBGA-only (no WSON variant). Netlist
+  footprints left as import-clean placeholders; corrections documented in
+  `ereader-footprints.md` so the right vendor land gets pulled.
+- **Net classes extended:** the new EPD boost node + ±20V/±15V rails (EPD_SW,
+  EPD_VGH/VGL, EPD_VSH1/VSH2/VSL, EPD_PREVGL) added to the `Power` class in
+  `ereader.kicad_pro`.
+- **Pin-map status clarified:** J4 microSD uses the DM3AT pad names so it maps
+  on import; J2's function-name pins (incl. the new rails) still need the
+  GDEY0426T82 FPC numbers from the datasheet — the one genuinely
+  datasheet-blocked remap.
+- **Doc drift fixed:** ADR 0002 got a non-normative Rev C reconciliation note
+  (its J4/J5 and L2/Q2/D4-D6 designators predate Rev C); runbook bring-up step 6
+  corrected (frontlight is LM3630A over I2C1 + FL_HWEN, not direct GPIO15/16 PWM).
+- **Not changed:** routing (still 0 track segments — an RF+USB+switcher board
+  whose compliance depends on hand/contractor layout, per the README ROUTING
+  gate) and the vendor-exact U2–U5 lands (pull from SnapEDA/Ultra-Librarian).
+  The new parts are in the netlist/`.cmp` but not yet placed on `.kicad_pcb`;
+  re-import the netlist in KiCad to bring them onto the board.
+
 ### Found why the GUI kept showing the stale 3-entry GND_F.Cu result after the fix (2026-09-11)
 - The board-level fix was confirmed correct twice over (a real KiCad 7.0.11
   `ZONE_FILLER` run locally, and CI forced to do a genuine from-scratch

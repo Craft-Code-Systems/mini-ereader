@@ -607,6 +607,34 @@
         "pattern": "BUCK_SW"
       },
       {
+        "netclass": "Power",
+        "pattern": "EPD_SW"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "EPD_VGH"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "EPD_VGL"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "EPD_VSH1"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "EPD_VSH2"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "EPD_VSL"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "EPD_PREVGL"
+      },
+      {
         "netclass": "USB",
         "pattern": "USB_DP"
       },

@@ -343,4 +343,137 @@ ValeurCmp = 0.1uF;
 IdModule  = Capacitor_SMD:C_0402_1005Metric;
 EndCmp
 
+BeginCmp
+TimeStamp = /CGA;
+Reference = CGA;
+ValeurCmp = 0.1uF;
+IdModule  = Capacitor_SMD:C_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CGB;
+Reference = CGB;
+ValeurCmp = 1uF;
+IdModule  = Capacitor_SMD:C_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /C4I;
+Reference = C4I;
+ValeurCmp = 1uF;
+IdModule  = Capacitor_SMD:C_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /LE;
+Reference = LE;
+ValeurCmp = 47uH;
+IdModule  = Inductor_SMD:L_1210_3225Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /QE;
+Reference = QE;
+ValeurCmp = Si1308EDL;
+IdModule  = Package_TO_SOT_SMD:SOT-23;
+EndCmp
+
+BeginCmp
+TimeStamp = /DE1;
+Reference = DE1;
+ValeurCmp = MBR0530;
+IdModule  = Diode_SMD:D_SOD-123;
+EndCmp
+
+BeginCmp
+TimeStamp = /DE2;
+Reference = DE2;
+ValeurCmp = MBR0530;
+IdModule  = Diode_SMD:D_SOD-123;
+EndCmp
+
+BeginCmp
+TimeStamp = /DE3;
+Reference = DE3;
+ValeurCmp = MBR0530;
+IdModule  = Diode_SMD:D_SOD-123;
+EndCmp
+
+BeginCmp
+TimeStamp = /RE1;
+Reference = RE1;
+ValeurCmp = 2.2R;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /RE2;
+Reference = RE2;
+ValeurCmp = 1M;
+IdModule  = Resistor_SMD:R_0402_1005Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CE1;
+Reference = CE1;
+ValeurCmp = 4.7uF/25V;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CE2;
+Reference = CE2;
+ValeurCmp = 4.7uF/25V;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CE3;
+Reference = CE3;
+ValeurCmp = 4.7uF/25V;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CE4;
+Reference = CE4;
+ValeurCmp = 4.7uF/25V;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CE5;
+Reference = CE5;
+ValeurCmp = 4.7uF/25V;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CE6;
+Reference = CE6;
+ValeurCmp = 4.7uF/25V;
+IdModule  = Capacitor_SMD:C_0805_2012Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CE7;
+Reference = CE7;
+ValeurCmp = 1uF/25V;
+IdModule  = Capacitor_SMD:C_0603_1608Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CE8;
+Reference = CE8;
+ValeurCmp = 1uF/25V;
+IdModule  = Capacitor_SMD:C_0603_1608Metric;
+EndCmp
+
+BeginCmp
+TimeStamp = /CE9;
+Reference = CE9;
+ValeurCmp = 1uF/25V;
+IdModule  = Capacitor_SMD:C_0603_1608Metric;
+EndCmp
+
 EndListe

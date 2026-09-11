@@ -9,13 +9,15 @@ name: KiCad
 # truth is the ereader-*.md docs at the repo root (connection list,
 # pcb-design, footprints, schematic) plus the ereader-kicad.net netlist.
 #
-# Pinned to 10.0.0 (not 8.0) because KiCad 8.0's zone-fill/connectivity
-# engine has a reproducible false positive on this board: it reports 3
-# "unconnected_items" between 'GND_F.Cu' and itself (same zone, same point,
-# every run) that a from-scratch KiCad 10.0.0 run - local or this pin -
-# does not. KiCad 7.0.11 (checked directly against source) doesn't
-# reproduce it either, so it's specifically an 8.0-era regression, not a
-# board defect. See CHANGELOG.md (2026-09-11 entries) for the investigation.
+# Pinned to 10.0.0 (not 8.0): kicad-cli's "pcb drc" only checks whatever
+# zone fill is already stored in the file unless --refill-zones is passed -
+# it does NOT recompute by default. Passing --refill-zones here forces a
+# genuine from-scratch fill/connectivity check on every run, so this result
+# can't be masked by (or blamed on) stale fill data committed earlier.
+# See CHANGELOG.md (2026-09-11 entries) for the investigation that found
+# this - a KiCad 8.0 run previously reported 3 "unconnected_items" between
+# 'GND_F.Cu' and itself that didn't move across several rounds of board
+# fixes.
 
 on:
   push:
@@ -44,7 +46,7 @@ jobs:
       # add --exit-code-violations and drop continue-on-error.
       - name: DRC (ereader.kicad_pcb)
         continue-on-error: true
-        run: kicad-cli pcb drc --output drc.rpt "$PCB" && cat drc.rpt || true
+        run: kicad-cli pcb drc --refill-zones --output drc.rpt "$PCB" && cat drc.rpt || true
 
       - name: Export gerbers + drill
         continue-on-error: true

@@ -19,11 +19,22 @@ Open **`ereader.kicad_pro`** in KiCad 7/8 → open the **PCB Editor** (Pcbnew). 
 **IS:** an openable project; every part positioned in a real floorplan; board outline; keep-out + magnet fiducials; ratsnest for the module, all passives, and most of USB-C; a reviewable schematic (`ereader-schematic.md`).
 **IS NOT:** routed, not a Gerber, not manufacturing-ready, **not** a native Eeschema `.kicad_sch` — the design is netlist-first (see `ereader-schematic.md` for why, and how to draw one).
 
-## Two manual steps remain (unavoidable — this is the engineering)
+## Manual steps remain (unavoidable — this is the engineering)
+
+> **First:** re-import the netlist (`File → Import → Netlist… → ereader-kicad.net`).
+> Rev C4 added the **EPD external DC-DC block** (LE/QE/DE1-3/RE1-2/CE1-9) plus
+> local decoupling (CGA/CGB/C4I). These are in the netlist/`.cmp` but **not yet
+> placed on the .kicad_pcb** — the re-import brings them in as unplaced parts.
+
 1. **Fix the flagged parts + name-only pins** (~29% of endpoints unconnected by design, listed below):
-   - **Placeholder footprints (real land = wrong)** → replace with exact per datasheet: `U2` BQ25628E, `U3` MAX17048, `U4` LM3630A, `U5` TPS62840. Pull from SnapEDA / Ultra-Librarian. (`SW1-4` now use the project-local `ereader.pretty` lands — side-actuated tactile + SLLB5 lever — still DRC vs the ordered MPN. `JP5`/`JP6`, BOOT/RESET, are bare jumper pads — also project-local, but no MPN to DRC against, just check the pad spacing against fab minimum clearance.)
-   - **Name-only pins** don't auto-match numeric pads → assign in symbol or connect while routing: `J2` (EPD, 8 pins → map to GDEY0426T82 FPC numbers), `J4` (microSD, 6), `U2-U5`/`U6` (IC function names→pads). (`SW4` is resolved — its pads are named CW/CCW/PUSH/COM.)
-2. **Place-tune → route → DRC → Gerbers.** Follow §11 layout rules in the design spec (antenna keep-out, FL-boost + charger loops tight, USB 90Ω diff, GND plane).
+   - **Placeholder footprints (real land = wrong)** → replace with exact per datasheet: `U2` BQ25628E (**18-pin WQFN 2.5×3.0mm RYK** — current placeholder is a wrong 24-pin QFN), `U3` MAX17048 (µDFN-8 2×2), `U4` LM3630A (DSBGA-12 0.4mm), `U5` TPS62840 (**VSON-HR/DLC 8-pin 2×2mm** — current placeholder is oversized 3×2). Pull from SnapEDA / Ultra-Librarian; see `ereader-footprints.md`. (`SW1-4` use the project-local `ereader.pretty` lands — still DRC vs the ordered MPN. `JP5`/`JP6` bare jumper pads — check pad spacing vs fab minimum.)
+   - **Name-only pins** don't auto-match numeric pads → assign in symbol or connect while routing:
+     - `J2` (EPD FPC): logic + the new support rails (GDR, RESE, VGH, VGL, VSH1, VSH2, VSL, VCOM, VCI, BS1) → **map each to the GDEY0426T82 24-pin FPC number from the panel datasheet.** This is the one genuinely datasheet-blocked remap.
+     - `J4` (microSD): the netlist uses the DM3AT pad names (CLK/CMD/DAT0/DAT3/VDD/VSS) so it should map on import — just add DAT1/DAT2 pull-ups + wire the card-detect/shield pads.
+     - `U2-U5`/`U6`: IC function-name pins → pads of the real symbol.
+     (`SW4` resolved — pads named CW/CCW/PUSH/COM.)
+   - **EPD DC-DC interconnect** → the diode/charge-pump wiring + orientation are a functional placeholder; **copy 1:1 from the Good Display GDEY0426T82-FL01C reference schematic** (see `ereader-connection-list.md` → *EPD external DC-DC*).
+2. **Place-tune → route → DRC → Gerbers.** Follow §11 layout rules in the design spec (antenna keep-out, FL-boost + charger loops tight, EPD boost loop tight, USB 90Ω diff, GND plane).
 
 ## EasyEDA instead?
 EasyEDA **Pro** → File → Import → *KiCad* accepts `ereader.kicad_pcb`. No separate EasyEDA project provided (KiCad is the cleaner base here).
@@ -37,7 +48,7 @@ EasyEDA **Pro** → File → Import → *KiCad* accepts `ereader.kicad_pcb`. No 
 - **4-layer stackup** (SIG / GND / PWR / SIG).
 - **GND planes**: filled zones on In1.Cu (plane), F.Cu, B.Cu — poured everywhere except the antenna keep-out band. Re-fill with `B` after you move parts.
 - **Net classes** (Board Setup → Net Classes):
-  - `Power` 0.40mm track / 0.20 clearance / 0.8-0.4 via → GND, +VBUS, +SYS, +VBAT, +3V3, FL_OUT, FL_SW, CHG_SW, BUCK_SW.
+  - `Power` 0.40mm track / 0.20 clearance / 0.8-0.4 via → GND, +VBUS, +SYS, +VBAT, +3V3, FL_OUT, FL_SW, CHG_SW, BUCK_SW, **EPD_SW, EPD_VGH, EPD_VGL, EPD_VSH1, EPD_VSH2, EPD_VSL, EPD_PREVGL** (EPD boost node + ±20V/±15V rails — keep the EPD_SW loop tight, and give the ±20V rails clearance for their ~40V swing).
   - `USB` 0.25mm, diff-pair 0.20/0.13 → USB_DP, USB_DM (tune to 90Ω against your real stackup).
   - `Default` 0.20/0.15 → everything else.
 - **`ereader-placement.svg`** = subsystem floorplan to eyeball before you commit.

@@ -74,7 +74,7 @@ Rev C: frontlight FULLY RESOLVED from FL0426-S01C (2 independent 4-wire strings)
 | — | 100 kΩ pull-down ×1 | FL_HWEN (FL off at boot) | §5 |
 | — | 100 kΩ strap ×1 | CHG_CE boot-default = charge-on | §8 |
 | — | 4.7 kΩ ×4 | I2C0 + I2C1 pull-ups | |
-| — | SSD1677 booster caps + L | per Good Display ref schematic | §6 |
+| LE/QE/DE1-3/RE1-2/CE1-9 | SSD1677 external DC-DC (L+N-FET+3×Schottky+sense R+rail caps) | now captured line items | §6; copy interconnect 1:1 from Good Display ref |
 
 ---
 
@@ -155,6 +155,14 @@ Match the **panel datasheet pin numbers exactly** (24-pin EPD FPC, 0.5 mm):
 - **D×3** MBR0530 Schottky (≥30 V, ≥500 mA): one builds PREVGH (→ VGH); two build the PREVGL (→ VGL) charge-pump path.
 - **Caps (all ≥25 V, X5R/X7R):** 4.7 µF on VSH1, VSH2, VSL, VGL/PREVGL, VGH/PREVGH, and the +3V3 boost input; 1 µF on VCI, VDD, VCOM.
 - Internal rails: **VGH ≈ +20 V, VGL ≈ −20 V, VSH ≈ +15 V, VSL ≈ −15 V, VCOM ≈ −2 V** — hence the ≥25 V cap rating. Panel VCI draw is small (~7.5 mA), so the +3V3 boost input is light.
+
+> **Now captured** (Rev C4) in `ereader-kicad.net` / `ereader-connection-list.md` as
+> `LE` (47µH), `QE` (Si1308EDL), `DE1‑DE3` (MBR0530), `RE1` (2.2Ω sense), `RE2` (1MΩ
+> GDR pulldown), `CE1‑CE6` (4.7µF/25V rails), `CE7‑CE9` (1µF/25V). ⚠ The diode/charge‑pump
+> **interconnect + orientation + J2 FPC pin numbers are a functional placeholder** —
+> transcribe them 1:1 from the Good Display reference before capture/route. Some SSD1677
+> rails may be internally generated (external reservoir cap only); the reference is the
+> authority on the actual diode/pump-cap count.
 
 - Mechanical: EPD 24p FPC + FL 6p FPC both exit the bottom edge → place J2 + J3 adjacent on bottom edge.
 

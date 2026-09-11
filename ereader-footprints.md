@@ -8,10 +8,10 @@ Always DRC land vs the ordered part's datasheet before route.
 | Ref | MPN | Package | Footprint | Source | Notes |
 |-----|-----|---------|-----------|--------|-------|
 | U1 | ESP32-S3-WROOM-1-N16R8 | 41-pin SMD module | `RF_Module:ESP32-S3-WROOM-1` | ✓ KiCad | symbol `RF_Module:ESP32-S3-WROOM-1`. Honor antenna keep-out in courtyard |
-| U2 | BQ25628E**RYK**R (confirm suffix) | QFN 4×4? / small QFN | ⚑ TI Ultra-Librarian | new part — no KiCad official. Confirm exact package/pad from TI datasheet Sec.11 |
-| U3 | MAX17048G+T10 | µDFN-8 (2×2, 0.5mm) | ⚑ SnapEDA / ADI | verify vs G+ package |
-| U4 | LM3630A**YFQ**R | DSBGA-12 (0.4mm pitch) | ⚑ TI Ultra-Librarian | 0.4mm BGA → tight; check fab min. WSON variant if available = easier |
-| U5 | TPS62840**DLC**R | SOT-563 6-pin (verify) | ⚑ TI Ultra-Librarian | confirm DLC vs other suffix + fixed-vs-adj |
+| U2 | BQ25628E**RYK**R | **18-pin WQFN, 2.5×3.0mm, 0.5mm pitch (RYK)** | ⚑ TI Ultra-Librarian | ✅ package confirmed (TI datasheet SLUSFA4). Netlist placeholder `HVQFN-24-1EP_4x4mm` is **wrong pincount/size** — import-clean only. Pull the 18-pin RYK land per TI Sec.11 before route |
+| U3 | MAX17048G+T10 | µDFN-8 (2×2mm, 0.5mm pitch) | ⚑ SnapEDA / ADI | package OK. Netlist placeholder `DFN-8-1EP_2x2mm` adds a thermal EP the G+ µDFN may **not** have — verify EP presence/size vs the ADI drawing |
+| U4 | LM3630A**YFQ**R | DSBGA-12 (12-bump, 0.4mm pitch) | ⚑ TI Ultra-Librarian | ✅ DSBGA-only part (no WSON variant exists — earlier note was wrong). 0.4mm BGA → check fab min ball/via; hardest part to self-assemble (see README) |
+| U5 | TPS62840**DLC**R | **VSON-HR (DLC), 8-pin, 2.0×2.0mm, 0.5mm pitch** | ⚑ TI Ultra-Librarian | ✅ package confirmed (NOT SOT-563 — earlier note was wrong). Netlist placeholder `SON-8-1EP_3x2mm` is **oversized (3×2 vs 2×2)** — pull the DLC land before route |
 | U6 | USBLC6-2SC6 | SOT-23-6 | `Package_TO_SOT_SMD:SOT-23-6` | ✓ KiCad | symbol `Power_Protection:USBLC6-2SC6` ✓ |
 
 ## Connectors
@@ -44,8 +44,22 @@ Always DRC land vs the ordered part's datasheet before route.
 | L2 | 22µH | `Inductor_SMD:L_1210_3225Metric` | FL boost; ≥0.3A, per LM3630A |
 | D1 | Schottky 30V | `Diode_SMD:D_SOD-123` | FL boost rectifier |
 
-## EPD support (SSD1677, local to J2)
-Not separate line items — copy the **Good Display GDEY0426T82 reference** block verbatim: reservoir caps (0402/0603, 1µF/4.7µF X7R 25V+) on VGH/VGL/VSH/VSL/VCOM/VPP/PREVGH + booster components (GDR/RESE). Place hugging J2.
+## EPD support (SSD1677 external DC-DC, local to J2)
+Now captured as real BOM line items (designators from `ereader-kicad.net`), place hugging J2:
+
+| Ref | Value | Footprint | Notes |
+|-----|-------|-----------|-------|
+| LE | 47µH | `Inductor_SMD:L_1210_3225Metric` | boost inductor +3V3→SW, ≥500mA (NR3015 class) |
+| QE | Si1308EDL | `Package_TO_SOT_SMD:SOT-23` | boost N-FET; verify SOT-23 pin order G/S/D vs the chosen MPN |
+| DE1..3 | MBR0530 | `Diode_SMD:D_SOD-123` | charge-pump Schottky ≥30V; verify count/orientation vs reference |
+| RE1 | 2.2Ω | `Resistor_SMD:R_0402_1005Metric` | RESE current-sense |
+| RE2 | 1MΩ | `Resistor_SMD:R_0402_1005Metric` | GDR gate pull-down |
+| CE1..6 | 4.7µF/25V X7R | `Capacitor_SMD:C_0805_2012Metric` | VSH1/VSH2/VSL/VGL/VGH + boost input |
+| CE7..9 | 1µF/25V X7R | `Capacitor_SMD:C_0603_1608Metric` | VCI/VDD/VCOM |
+
+⚠ The exact **diode/charge-pump interconnect, orientation, and J2 FPC pin numbers** are a
+functional placeholder — **copy 1:1 from the Good Display GDEY0426T82-FL01C reference
+schematic** before route. Rail cap values non-negotiable; keep ratings ≥25V.
 
 ## Library setup
 1. KiCad official libs cover ✓ rows out of the box.

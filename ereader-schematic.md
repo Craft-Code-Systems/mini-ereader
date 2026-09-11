@@ -212,9 +212,36 @@ flowchart LR
   V3 --- R4 --- J2
 ```
 
-`J2.BS1` tied for 4‑wire SPI. EPD support rails (VGH/VGL/VSH/VSL/VCOM/VPP/PREVGH/GDR/
-RESE) use local reservoir caps + a booster L/Schottky per the Good Display reference —
-not host nets.
+`J2.BS1` tied **low** (→GND) for 4‑wire SPI.
+
+### 6a. EPD external DC‑DC (SSD1677 boost + charge pumps)
+
+The SSD1677 needs an external boost + charge‑pump for its ±20 V gate / ±15 V source
+rails. Now captured as real parts (LE/QE/DE1‑3/RE1‑2/CE1‑9) feeding J2's support pins:
+
+```mermaid
+flowchart LR
+  V3["+3V3"]; LE["LE 47µH"]; QE["QE Si1308EDL<br/>N-FET"]
+  SW["EPD_SW"]; DE1["DE1 MBR0530"]; DE2["DE2"]; DE3["DE3"]
+  J2["J2 SSD1677<br/>GDR/RESE/VGH/VGL<br/>VSH1/VSH2/VSL/VCOM/VCI"]
+  RE1["RE1 2.2Ω"]; RE2["RE2 1MΩ"]; GND(["GND"])
+
+  V3 --> LE --> SW
+  SW --> QE
+  J2 -- "GDR" --> QE
+  QE -- "RESE" --> RE1 --> GND
+  J2 -- "GDR" --> RE2 --> GND
+  SW --> DE1 -- "VGH" --> J2
+  SW --> DE2 --> DE3 -- "VGL" --> J2
+  J2 -. "VSH1/VSH2/VSL/VCOM reservoir caps CE1-3,CE9→GND" .- GND
+  V3 -. "VCI/VDD caps CE6-8→GND" .- GND
+```
+
+> ⚠ **VERIFY & COPY 1:1.** The diode/charge‑pump interconnect, diode **orientation**, and
+> the J2 (GDEY0426T82) **FPC pin numbers** are a functional PLACEHOLDER — transcribe them
+> exactly from the Good Display GDEY0426T82‑FL01C reference schematic ("ESP32 Sample Code"
+> zip) and the panel datasheet before capture + route. Rail cap **values are
+> non‑negotiable** (≥25 V). See `ereader-connection-list.md` → *EPD external DC‑DC*.
 
 ---
 

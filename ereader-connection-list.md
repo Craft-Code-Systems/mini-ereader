@@ -39,6 +39,15 @@ Module U1 pin **numbers** are exact (ESP32-S3-WROOM-1 datasheet). IC pins by **f
 | R10,R11 | 4.7k | I2C1 SDA/SCL pull-up |
 | R12,R13 | 10k | CHG_INT, GAUGE_ALRT pull-up |
 | R14,R15 | 10k+10k | BQ25628E TS divider (or NTC) |
+| LE | 47µH | EPD SSD1677 boost inductor (+3V3→SW), ≥500mA |
+| QE | Si1308EDL | EPD boost N-MOSFET (SOT-23): G=GDR, S=RESE, D=EPD_SW |
+| DE1..3 | MBR0530 | EPD charge-pump Schottky (≥30V), builds VGH / VGL rails |
+| RE1 | 2.2Ω | EPD RESE current-sense (RESE→GND) |
+| RE2 | 1MΩ | EPD GDR gate pull-down (GDR→GND) |
+| CE1..CE6 | 4.7µF/25V | EPD rail reservoirs: VSH1, VSH2, VSL, VGL, VGH, +3V3 boost input |
+| CE7..CE9 | 1µF/25V | EPD rail decoupling: VCI, VDD, VCOM |
+| CGA,CGB | 0.1µF+1µF | MAX17048 CELL local decoupling (+VBAT) |
+| C4I | 1µF | LM3630A IN local decoupling (+VBAT) |
 | C_* | decoupling | see notes |
 
 ---
@@ -74,10 +83,35 @@ EPD_CS   : U1.18(IO10), J2.CS,  R4.2
 EPD_DC   : U1.17(IO9),  J2.DC
 EPD_RST  : U1.12(IO8),  J2.RST
 EPD_BUSY : U1.7(IO7),   J2.BUSY
-J2.BS1   : tie for 4-wire SPI (per datasheet)
-J2 support rails (VGH,VGL,VSH,VSL,VCOM,VPP,PREVGH,GDR,RESE):
-          local reservoir caps + booster L/Schottky per Good Display ref. Not host nets.
+J2.BS1   : GND (tie low = 4-wire SPI, per datasheet)
 ```
+
+### EPD external DC-DC (SSD1677 boost + charge pumps, local to J2)
+The SSD1677 needs an external boost + charge-pump for its ±20V gate / ±15V source
+rails (ADR 0002, `ereader-pcb-design.md` §6). Now captured as real parts:
+```
++3V3       : LE.1 (boost input), CE6.1 (boost input cap)   [CE6.2→GND]
+EPD_SW     : LE.2, QE.3(Drain), DE1.1(A), DE2.1(A)          (boost switch node)
+EPD_GDR    : J2.GDR, QE.1(Gate), RE2.1                       [RE2.2→GND, 1MΩ pulldown]
+EPD_RESE   : J2.RESE, QE.2(Source), RE1.1                    [RE1.2→GND, 2.2Ω sense]
+EPD_VGH    : J2.VGH, DE1.2(K), CE5.1                          [CE5.2→GND, 4.7µF]
+EPD_PREVGL : DE2.2(K), DE3.1(A)                               (negative pump node)
+EPD_VGL    : J2.VGL, DE3.2(K), CE4.1                          [CE4.2→GND, 4.7µF]
+EPD_VSH1   : J2.VSH1, CE1.1                                   [CE1.2→GND, 4.7µF]
+EPD_VSH2   : J2.VSH2, CE2.1                                   [CE2.2→GND, 4.7µF]
+EPD_VSL    : J2.VSL, CE3.1                                    [CE3.2→GND, 4.7µF]
+EPD_VCOM   : J2.VCOM, CE9.1                                   [CE9.2→GND, 1µF]
++3V3       : J2.VCI (analog 3.3V), CE7.1                      [CE7.2→GND, 1µF]
++3V3       : CE8 (J2.VDD local decap)                         [CE8.2→GND, 1µF]
+J2.VPP     : NC / per datasheet (OTP program pin)
+```
+> ⚠ **VERIFY & COPY 1:1.** The diode/charge-pump interconnect, diode **orientation**,
+> and the J2 (GDEY0426T82) **FPC pin numbers** above are a functional PLACEHOLDER —
+> transcribe them exactly from the Good Display GDEY0426T82-FL01C reference schematic
+> ("ESP32 Sample Code" zip) and the panel datasheet before schematic capture and
+> routing. Rail **cap values are non-negotiable**; ratings must stay ≥25V. Some SSD1677
+> rails (VGH/VGL/VSH/VSL) may be generated internally with only reservoir caps external —
+> the reference is the authority on how many diodes/pump caps are actually needed.
 
 ### microSD (SPI mode @ J4)
 ```
@@ -153,11 +187,12 @@ U4.IN     : +VBAT
 
 ## Decoupling / bulk (place close to pins)
 ```
-U1 3V3  : 22µF + 4×0.1µF
-U2 VBUS : 1µF ; SYS: 10µF ; BAT: 10µF ; BTST: 0.047µF
-U5      : Cin 10µF (SYS), Cout 10µF (3V3)
-U4      : Cin 1µF (VBAT), Cout ≥1µF/25V (FL_OUT)
-U3 CELL : 0.1µF + 1µF
+U1 3V3  : 22µF + 4×0.1µF          → CU1 + CU2..CU5
+U2 VBUS : 1µF ; SYS: 10µF ; BAT: 10µF ; BTST: 0.047µF   → CV / CS / CB / CBT
+U5      : Cin 10µF (SYS), Cout 10µF (3V3)   → CI / CO
+U4      : Cin 1µF (VBAT), Cout ≥1µF/25V (FL_OUT)   → C4I / CF
+U3 CELL : 0.1µF + 1µF             → CGA / CGB
+EPD     : rail reservoirs CE1..CE6 (4.7µF/25V), CE7..CE9 (1µF/25V)  — see EPD DC-DC above
 ```
 
 ## Unused module pins (leave NC / test-point)

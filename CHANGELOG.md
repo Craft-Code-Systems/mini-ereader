@@ -5,6 +5,34 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Harden every remaining thermal-relief GND pad to a solid zone connection (2026-09-11)
+- hole_clearance and lib_footprint_mismatch are confirmed clear (0 DRC
+  violations in the latest report). unconnected_items held steady at 3,
+  unchanged by the previous pass's net/zone_connect fixes or the spliced-in
+  fresh zone fill - strong evidence the CI's KiCad 8.0 zone-fill algorithm
+  forms different islands than the KiCad 7.0.11 engine available in this
+  sandbox for the *same* pad/net input, since a from-scratch refill in 7.0.11
+  now shows a single, fully-merged island on every GND layer.
+- Since the fill algorithm itself isn't reliably reproducible here, stopped
+  trying to predict exactly which thermal-relief spokes a different KiCad
+  version will or won't resolve, and instead removed the dependency:
+  swept every GND-net copper/thru-hole pad on the board and gave the 23 that
+  were still on default thermal relief a solid connection (`zone_connect 2`)
+  - 6 previously-missed 0805 decoupling caps (CS/CF/CB/CU1/CI/CO), SW4's COM
+    pad, JP5/JP6's pad 2, J5's pad 2, and all 13 copper features of U1's
+    exposed pad/pin 41 (only 1 of which got a net at all in the previous
+    pass). `zone_connect` is one of the fields `FootprintNeedsUpdate()`
+    explicitly excludes from the library-parity comparison (confirmed in
+    source), so this doesn't reopen the footprint-mismatch warnings that
+    pass just cleared.
+- Re-filled all 3 GND zones with KiCad 7.0.11's real `ZONE_FILLER` again
+  after this change (still 1 island each - no regression) and spliced the
+  fresh fill into the board file, same as last time.
+- Still unverified against the actual `kicad-cli` 8.0 the CI runs - if
+  unconnected_items persists after this, the next step is isolating which
+  specific pad differs between the two engines' island formation, since
+  broad-brush solid-fill sweeps don't have much further room to run.
+
 ### Fix remaining DRC errors and warnings, verified against the real KiCad 7 engine (2026-09-10)
 - **Root-caused the previous pass's two open items by reading KiCad's own DRC source**
   (`pcbnew/drc/drc_test_provider_library_parity.cpp`, `drc_rule_parser.cpp`,

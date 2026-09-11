@@ -5,6 +5,30 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Found why the GUI kept showing the stale 3-entry GND_F.Cu result after the fix (2026-09-11)
+- The board-level fix was confirmed correct twice over (a real KiCad 7.0.11
+  `ZONE_FILLER` run locally, and CI forced to do a genuine from-scratch
+  refill on KiCad 10.0.0 - see the two entries below), yet the project
+  owner kept seeing the identical stale 3-entry `Zone 'GND_F.Cu'` report
+  after every fix, including after fully quitting/reopening KiCad. Confirmed
+  the report is generated via the KiCad GUI's own DRC dialog
+  (Inspect -> Design Rules Checker), not `kicad-cli` or a CI artifact - so
+  the CLI/CI proof didn't rule out something GUI-specific.
+- Found it in KiCad's own source (`pcbnew/dialogs/dialog_drc.cpp`): the DRC
+  dialog has a "Refill zones before performing DRC" checkbox
+  (`m_cbRefillZones`), and its checked/unchecked state **persists across
+  sessions** (`cfg->m_DrcDialog.refill_zones`), independent of the project
+  file. If it was left unchecked from an earlier run, the dialog reuses
+  whatever zone fill happens to already be in memory/on-disk instead of
+  recomputing - so closing and reopening KiCad, or pulling new board
+  changes, doesn't clear it. This is the same default-off behavior that
+  `kicad-cli pcb drc` has (and that `--refill-zones` was added to this
+  project's CI to work around, below).
+- Action for the project owner: in the DRC dialog, check "Refill zones
+  before performing DRC" before clicking "Run DRC". No further board
+  changes were made in this entry - the board file itself has been correct
+  since the keepout-zone fix two entries below.
+
 ### Confirmed the GND_F.Cu fix holds; the CI's pinned KiCad 8.0 was the actual source of the persistent false positive (2026-09-11)
 - The previous entry's keepout-zone fix *did* work - the "3 unconnected_items
   between Zone 'GND_F.Cu' and itself" that survived three rounds of board

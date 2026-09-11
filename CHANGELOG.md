@@ -5,6 +5,61 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Fix remaining DRC errors and warnings, verified against the real KiCad 7 engine (2026-09-10)
+- **Root-caused the previous pass's two open items by reading KiCad's own DRC source**
+  (`pcbnew/drc/drc_test_provider_library_parity.cpp`, `drc_rule_parser.cpp`,
+  `pcb_expr_evaluator.cpp`, `pad.cpp`) and cross-checking every fix against a
+  locally-installed KiCad 7.0.11 (`kicad-cli`/`pcbnew` Python bindings aren't
+  available in the normal sandbox - installed via apt for this pass only):
+  - `FOOTPRINT::FootprintNeedsUpdate()` compares each pad's orientation
+    *relative to its parent* (`pad->GetOrientation() - parent->GetOrientation()`),
+    not the raw stored angle. KiCad's writer omits the `at` angle for pads
+    where rotation doesn't change the rendered shape (circles, squares), but
+    the parity check still computes a relative angle from whatever's stored
+    (0) minus the footprint's placement rotation - so every omitted-angle pad
+    in a rotated footprint instance compared as mismatched even though it
+    looks identical on screen. Added the explicit matching angle (matching
+    the footprint's own placement rotation, like the already-correct pads in
+    the same instance) to: SW4's 2 locator NPTH holes (+90), SW1/SW2/SW3's 2
+    boss NPTH holes each (+270), and JP5/JP6's 2 pads each (+270).
+  - `FootprintNeedsUpdate()` also compares `descr` and `tags` verbatim - the
+    board instances and the library copies had diverged wording for SW4
+    (`ALPS_SLLB5_Lever`) and SW1-3 (`WE_WS-TASU_436351045816`). Re-synced the
+    library text to the board's (shorter, already-accurate) copy. JP5/JP6
+    (`JumperPad_2P_P2.0mm`) had board text hardcoded per-instance ("pull IO0
+    low for BOOT" vs "...EN low for RESET") that can't simultaneously match
+    one library description - genericized the library + both instances to
+    "pull the associated signal low".
+  - Verified via `FOOTPRINT.FootprintNeedsUpdate()` (the exact C++ method the
+    DRC check calls) through Python bindings: all 6 previously-flagged
+    footprints (SW1-4, JP5, JP6) now return `False`.
+  - The `ereader.kicad_dru` custom rule from the previous pass used
+    `(condition "A.Reference == B.Reference")`, but `Reference` is only
+    registered as a property on `FOOTPRINT`, not `PAD` - on a pad the
+    expression evaluates to an undefined value, so the condition never
+    matched and the rule silently never applied (board setup's global
+    0.25mm stayed in force). `PAD` instead registers `Parent` (returns the
+    parent footprint's reference). Fixed to `(condition "A.Parent ==
+    B.Parent")`. The `hole_clearance` constraint keyword itself was already
+    correct (confirmed against `drc_test_provider_copper_clearance.cpp`,
+    which is what actually emits this violation and whose implicit rule name
+    - "board setup constraints hole" - matches the DRC report verbatim).
+  - Re-filled all 3 GND zones with KiCad's real `ZONE_FILLER` to check
+    whether the U1/J1 net fixes from the previous pass actually reconnected
+    the copper: `GND_F.Cu` now fills as a single island (was 3 disjoint
+    islands before those fixes), confirming the unconnected_items fix holds.
+    Spliced the freshly-computed `filled_polygon` data for all 3 GND zones
+    back into the hand-edited board file (surgical text replacement, not a
+    full `pcbnew` re-save, to avoid KiCad 7's writer reformatting/reordering
+    the rest of the file) so the committed fill isn't stale relative to the
+    net/zone_connect changes.
+  - Could not reproduce the exact `kicad-cli pcb drc` command the project's
+    CI uses (KiCad 8.0): apt on this box only has KiCad 7.0.11, whose
+    `kicad-cli` predates the `pcb drc` subcommand, and kicad.org/PPA hosts
+    are blocked by this sandbox's egress policy. All of the above was cross-
+    checked against KiCad 7.0.11's real DRC/library-parity source and engine
+    instead - a real re-run in KiCad 8 is still worth doing to confirm.
+
 ### Fix remaining DRC errors and warnings: U1 EPAD net, J1 shield thermals, SW4 library parity, mechanical hole clearance (2026-09-08)
 - **U1 (ESP32-S3-WROOM-1) exposed pad (pin 41/EPAD) wasn't actually on GND.**
   Of the 13 copper features that make up the module's exposed thermal pad

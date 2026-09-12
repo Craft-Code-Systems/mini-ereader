@@ -21,9 +21,9 @@ name: KiCad
 
 on:
   push:
-    paths: ["ereader.kicad_pcb", "ereader-kicad.net", ".github/workflows/kicad.yml"]
+    paths: ["ereader.kicad_pcb", "ereader-kicad.net", "preflight.py", ".github/workflows/kicad.yml"]
   pull_request:
-    paths: ["ereader.kicad_pcb", "ereader-kicad.net", ".github/workflows/kicad.yml"]
+    paths: ["ereader.kicad_pcb", "ereader-kicad.net", "preflight.py", ".github/workflows/kicad.yml"]
   workflow_dispatch:
 
 jobs:
@@ -41,19 +41,37 @@ jobs:
       - name: KiCad version
         run: kicad-cli version
 
-      # DRC is informational until the board is fully routed (the first-try
-      # board is placed but not routed). To gate CI on a clean board later,
-      # add --exit-code-violations and drop continue-on-error.
-      - name: DRC (ereader.kicad_pcb)
-        continue-on-error: true
-        run: kicad-cli pcb drc --refill-zones --output drc.rpt "$PCB" && cat drc.rpt || true
+      # GATE 1 - board/netlist parity. kicad-cli DRC only checks a board's
+      # internal connectivity; it never compares against the netlist, so a
+      # board simply missing components passes DRC. This step fails the job if
+      # any ereader-kicad.net component is absent from ereader.kicad_pcb (the
+      # exact gap that let a routed board reach main without the EPD DC-DC
+      # block). Run "Update PCB from Netlist" in KiCad to resolve.
+      - name: Preflight - board matches netlist
+        run: python3 preflight.py
 
+      # GATE 2 - DRC. Now that the board is meant to be routed, DRC is a hard
+      # gate (was informational while placed-but-unrouted). --refill-zones
+      # forces a genuine from-scratch fill/connectivity check; the report is
+      # printed and also uploaded below. --exit-code-violations makes a
+      # nonzero result (violations OR unconnected items, per the project's
+      # rule severities) fail the job. See CHANGELOG.md.
+      - name: DRC (ereader.kicad_pcb)
+        if: always()
+        run: |
+          set -o pipefail
+          kicad-cli pcb drc --refill-zones --exit-code-violations \
+            --output drc.rpt "$PCB"; rc=$?
+          echo "----- drc.rpt -----"; cat drc.rpt || true
+          exit $rc
+
+      # Only reached when both gates pass, so gerbers are never generated from
+      # an out-of-sync or DRC-dirty board.
       - name: Export gerbers + drill
-        continue-on-error: true
         run: |
           mkdir -p fab
-          kicad-cli pcb export gerbers --output fab/ "$PCB" || true
-          kicad-cli pcb export drill   --output fab/ "$PCB" || true
+          kicad-cli pcb export gerbers --output fab/ "$PCB"
+          kicad-cli pcb export drill   --output fab/ "$PCB"
 
       - name: Upload outputs
         if: always()

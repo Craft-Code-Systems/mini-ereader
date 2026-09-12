@@ -24,4 +24,9 @@ fp-info-cache
 
 # Fabrication outputs (regenerate: python3 fab.py)
 gerbers/
+fab/
 *-gerbers.zip
+
+# Python
+__pycache__/
+*.pyc

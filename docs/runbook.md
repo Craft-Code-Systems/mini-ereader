@@ -56,15 +56,28 @@ via *Run workflow*). In the `kicad/kicad:8.0` container it:
 - exports **gerbers** + drill, uploaded as the `kicad-outputs`
   build artifact.
 
-While the board is placed but not yet routed, DRC is informational (the
-workflow does not hard-fail). Once the schematic/PCB are captured, flip
-`--exit-code-violations` handling in the workflow to make CI gate on a
-clean ERC/DRC. This is the persistent "KiCad-capable environment"; day-to-
-day capture and routing happen locally in KiCad 8.
+CI is now a **hard gate** (the board is meant to be routed):
+
+1. **`preflight.py`** — fails if any `ereader-kicad.net` component is missing
+   from `ereader.kicad_pcb`. kicad-cli DRC never compares board vs netlist, so
+   this catches a board routed before *Update PCB from Netlist* (which is how a
+   board reached `main` missing the whole EPD DC-DC block — see CHANGELOG).
+2. **DRC** — `kicad-cli pcb drc --refill-zones --exit-code-violations`; a
+   nonzero result (violations or unconnected items) fails the job.
+3. Gerbers export only when both gates pass, so no fab output is ever produced
+   from an out-of-sync or DRC-dirty board.
+
+This is the persistent "KiCad-capable environment"; day-to-day capture and
+routing happen locally in KiCad. Run `python3 preflight.py` locally before you
+commit a routed board.
 
 ## Fabrication outputs (JLCPCB / generic)
 
-From the PCB editor once DRC is clean (or download the CI artifact):
+**First run `python3 preflight.py`** — it must report every netlist component
+present on the board. `fab.py` runs the same check and refuses to emit gerbers
+from an out-of-sync board (override with `--force` only for a deliberate
+partial/debug export). Then, from the PCB editor once DRC is clean (or download
+the CI artifact):
 
 - **Gerbers**: *File → Plot* → F.Cu, B.Cu, F/B.SilkS, F/B.Mask, F/B.Paste,
   Edge.Cuts → `fab/`. Then *Generate Drill Files* (Excellon).

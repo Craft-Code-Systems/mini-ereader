@@ -26,15 +26,51 @@ Nothing is guessed: net membership is transcribed verbatim from
 SAFETY: verify diode anode/cathode and every IC power/EP pin against the real
 symbol before you fabricate. See "KNOWN ITEMS TO VERIFY" at the bottom.
 """
-from skidl import *
+import os, glob
 
-# SKiDL must find your installed KiCad symbol libraries. KiCad sets
-# KICAD*_SYMBOL_DIR; if parts don't resolve, set the tool to your version.
-for _tool in ("KICAD9", "KICAD8", "KICAD7", "KICAD"):
-    try:
-        set_default_tool(globals()[_tool]); break
-    except (KeyError, NameError, Exception):
-        continue
+# ---------------------------------------------------------------------------
+# Point SKiDL at the installed KiCad symbol libraries. KiCad does NOT export
+# KICAD*_SYMBOL_DIR to the shell, so a script run outside KiCad cannot find the
+# stock libs -> "Can't open file: RF_Module". Auto-detect the symbols folder
+# (override by exporting KICAD_SYMBOL_DIR), and add this project dir so the
+# project library `ereader.kicad_sym` (U2-U5, J2, SW4) resolves too.
+# ---------------------------------------------------------------------------
+HERE = os.path.dirname(os.path.abspath(__file__))
+_ENV_KEYS = ("KICAD_SYMBOL_DIR", "KICAD10_SYMBOL_DIR", "KICAD9_SYMBOL_DIR",
+             "KICAD8_SYMBOL_DIR", "KICAD7_SYMBOL_DIR", "KICAD6_SYMBOL_DIR")
+
+def _find_symbols():
+    for _k in _ENV_KEYS:
+        _d = os.environ.get(_k)
+        if _d and glob.glob(os.path.join(_d, "*.kicad_sym")):
+            return _d
+    for _c in ("/usr/share/kicad/symbols", "/usr/local/share/kicad/symbols",
+               "/app/share/kicad/symbols",                      # flatpak
+               os.path.expanduser("~/.local/share/kicad/symbols"),
+               "/Applications/KiCad/KiCad.app/Contents/SharedSupport/symbols",
+               r"C:\Program Files\KiCad\10.0\share\kicad\symbols",
+               r"C:\Program Files\KiCad\9.0\share\kicad\symbols",
+               r"C:\Program Files\KiCad\8.0\share\kicad\symbols"):
+        if glob.glob(os.path.join(_c, "*.kicad_sym")):
+            return _c
+    return None
+
+_SYM = _find_symbols()
+if _SYM:
+    for _k in _ENV_KEYS:
+        os.environ.setdefault(_k, _SYM)
+else:
+    print("WARNING: KiCad stock symbols not found. Export KICAD_SYMBOL_DIR to "
+          "your KiCad 'symbols' folder (e.g. /usr/share/kicad/symbols) and re-run.")
+
+from skidl import *
+import skidl as _skidl
+
+# Belt-and-suspenders: ensure the stock dir and this project dir are searched.
+for _paths in getattr(_skidl, "lib_search_paths", {}).values():
+    for _p in (HERE, _SYM):
+        if _p and _p not in _paths:
+            _paths.append(_p)
 
 # ---------------------------------------------------------------------------
 # CFG: symbols NOT in KiCad stock libraries. Install each (SnapEDA / vendor)

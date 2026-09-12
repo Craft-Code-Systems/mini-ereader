@@ -27,10 +27,13 @@ upgrade the file version, accept and re-save.
 
 Two routes:
 
-1. **By hand in Eeschema** (recommended for a reviewable schematic): draw
-   each block from `ereader-schematic.md` / `ereader-connection-list.md`.
-   Assign footprints from `ereader-footprints.md` (switches resolve from the
-   project `ereader.pretty` library).
+1. **By hand in Eeschema** (recommended — a real schematic makes IC pins bind
+   to footprint pads by number, which is what fixes the "pad not found" errors
+   the netlist-first import throws). Follow the step-by-step
+   [`docs/schematic-capture.md`](./schematic-capture.md) worksheet: symbol +
+   footprint picklist, label-based wiring, and the per-subsystem order, drawn
+   from `ereader-schematic.md` / `ereader-connection-list.md` /
+   `ereader-footprints.md`.
 2. **Refresh nets from the netlist**: in the PCB editor, *File → Import →
    Netlist…* → click the folder icon → pick `ereader-kicad.net` → match
    footprints **by Reference** → **Update PCB**. New parts drop in (piled at

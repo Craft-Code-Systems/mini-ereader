@@ -5,6 +5,45 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Fab preflight gate + honest CI, after a routed board reached main out of sync (2026-09-12)
+The board was routed and pushed to `main` (commit `board routed and gerber file
+generated incl. DRC report`), but it was routed **before** *Update PCB from
+Netlist* was run, so the 19 Rev C4 parts never landed on it. Analysis of that
+commit:
+- **Board ≠ netlist.** The routed `ereader.kicad_pcb` carries the original 56
+  footprints; the EPD external DC-DC block (LE/QE/DE1-3/RE1-2/CE1-9) and the
+  decoupling caps (CGA/CGB/C4I) added to `ereader-kicad.net` in Rev C4 are
+  **absent**. The EPD panel therefore still has no boost/charge-pump and cannot
+  display. `kicad-cli` DRC does not compare board vs netlist, so it stayed
+  silent about this.
+- **Placeholder footprints still in place.** U2 is still on the wrong 24-pin
+  QFN 4x4 (BQ25628E is 18-pin WQFN 2.5x3.0) and U5 on the oversized SON-8 3x2
+  (should be VSON-HR 2x2). Traces route to lands the real parts do not fit.
+- **DRC (CI, KiCad 10.0.0, --refill-zones):** 0 violations, 0 footprint errors,
+  **3 unconnected items** — all isolated `GND_F.Cu` pour islands at the antenna
+  keepout corner (1, 8). Real (routing-induced): stitch to the GND plane or trim
+  the pour. `unconnected_items` is `error` severity in this project.
+- **Gerbers/DRC report were NOT committed** despite the message — `.gitignore`
+  excludes `fab/`, `gerbers/`, `*.zip`; only the routed board was committed.
+- Positives: routing is complete for the placed parts (0 pad-to-pad gaps), net
+  classes were honored (Power 0.4mm, USB 0.25mm, default 0.2mm), and the antenna
+  keepout is clean (0 copper in the band).
+
+Fixes applied here (tooling/process — the board-layout fixes require KiCad and
+are listed as the remaining manual steps):
+- **`preflight.py`** — fails if any `ereader-kicad.net` component is missing from
+  `ereader.kicad_pcb`. Closes the board/netlist parity gap kicad-cli can't see.
+- **CI is now a hard gate** (`.github/workflows/kicad.yml`): runs `preflight.py`,
+  then DRC with `--exit-code-violations` (no more `continue-on-error`), and only
+  exports gerbers when both pass. CI will be **red until** the board is synced
+  and the 3 GND islands are fixed — by design.
+- **`fab.py`** refuses to emit gerbers from an out-of-sync board (override:
+  `--force`).
+- Remaining manual steps (KiCad): *Update PCB from Netlist* to place the 19
+  parts; swap U2-U5 to the datasheet lands; place+route the EPD DC-DC block
+  (tight boost loop, transcribe the interconnect + J2 FPC pins 1:1 from the
+  Good Display reference); stitch/trim the 3 GND_F.Cu islands; re-run DRC.
+
 ### Rev C4 — capture the missing EPD DC-DC block, reconcile decoupling, correct IC packages, fix doc drift (2026-09-11)
 Design-review pass before a possible manufacturing hand-off found several gaps
 that would produce a non-working or non-buildable board. Addressed at the

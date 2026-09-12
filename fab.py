@@ -5,6 +5,18 @@ import os, sys, zipfile, pcbnew
 HERE=os.path.dirname(os.path.abspath(__file__))
 PCB=os.path.join(HERE,"ereader.kicad_pcb")
 OUT=os.path.join(HERE,"gerbers")
+
+# Preflight: never emit gerbers from a board that does not match the netlist
+# (missing components pass DRC silently). See preflight.py. Use --force to
+# override for a deliberate partial/debug export.
+try:
+    import preflight
+    if not preflight.check() and "--force" not in sys.argv:
+        sys.exit("\nfab.py: aborted - board is out of sync with the netlist.\n"
+                 "Run 'Update PCB from Netlist' in KiCad, or re-run with --force.")
+except ImportError:
+    print("fab.py: preflight.py not found - skipping netlist parity check.")
+
 os.makedirs(OUT,exist_ok=True)
 b=pcbnew.LoadBoard(PCB)
 pc=pcbnew.PLOT_CONTROLLER(b); po=pc.GetPlotOptions()

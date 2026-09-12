@@ -32,9 +32,18 @@ Two routes:
    Assign footprints from `ereader-footprints.md` (switches resolve from the
    project `ereader.pretty` library).
 2. **Refresh nets from the netlist**: in the PCB editor, *File → Import →
-   Netlist…* → `ereader-kicad.net`. This is the connectivity source; it does
+   Netlist…* → click the folder icon → pick `ereader-kicad.net` → match
+   footprints **by Reference** → **Update PCB**. New parts drop in (piled at
+   one spot) to be placed + routed. This is the connectivity source; it does
    not draw a schematic (see `ereader-schematic.md` for why the design is
    netlist-first and how to get a native `.kicad_sch`).
+
+   > ⚠ **Do NOT use *Tools → Update PCB from Schematic* (F8), and do not open
+   > the Schematic Editor** — this project has no `.kicad_sch`, so both fail
+   > with "The schematic for this board cannot be found." Use *File → Import →
+   > Netlist…* instead. In that dialog, **leave "Delete extra footprints"
+   > unchecked**, or KiCad will remove the fiducials (FID1-3) and mounting
+   > holes (H1-4), which are board-only and not in the netlist.
 
 ## Verify (the "review" step)
 

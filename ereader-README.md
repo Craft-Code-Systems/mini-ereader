@@ -21,10 +21,16 @@ Open **`ereader.kicad_pro`** in KiCad 7/8 → open the **PCB Editor** (Pcbnew). 
 
 ## Manual steps remain (unavoidable — this is the engineering)
 
-> **First:** re-import the netlist (`File → Import → Netlist… → ereader-kicad.net`).
+> **First:** in the PCB editor, `File → Import → Netlist… → ereader-kicad.net`
+> (match **by Reference**, leave **"Delete extra footprints" unchecked** so the
+> FID/H board-only parts survive, then **Update PCB**).
 > Rev C4 added the **EPD external DC-DC block** (LE/QE/DE1-3/RE1-2/CE1-9) plus
 > local decoupling (CGA/CGB/C4I). These are in the netlist/`.cmp` but **not yet
 > placed on the .kicad_pcb** — the re-import brings them in as unplaced parts.
+>
+> ⚠ **Not** *Update PCB from Schematic* (F8) and **do not open the Schematic
+> Editor** — there is no `.kicad_sch`, so those error with "The schematic for
+> this board cannot be found." This project is netlist-first; import the `.net`.
 
 1. **Fix the flagged parts + name-only pins** (~29% of endpoints unconnected by design, listed below):
    - **Placeholder footprints (real land = wrong)** → replace with exact per datasheet: `U2` BQ25628E (**18-pin WQFN 2.5×3.0mm RYK** — current placeholder is a wrong 24-pin QFN), `U3` MAX17048 (µDFN-8 2×2), `U4` LM3630A (DSBGA-12 0.4mm), `U5` TPS62840 (**VSON-HR/DLC 8-pin 2×2mm** — current placeholder is oversized 3×2). Pull from SnapEDA / Ultra-Librarian; see `ereader-footprints.md`. (`SW1-4` use the project-local `ereader.pretty` lands — still DRC vs the ordered MPN. `JP5`/`JP6` bare jumper pads — check pad spacing vs fab minimum.)

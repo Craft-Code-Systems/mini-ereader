@@ -30,3 +30,8 @@ fab/
 # Python
 __pycache__/
 *.pyc
+
+# SKiDL run outputs (gen_netlist.py)
+skidl.log
+skidl.erc
+*_lib_sklib.py

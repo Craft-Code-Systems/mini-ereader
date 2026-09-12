@@ -136,7 +136,9 @@ ereader-*.md           Electrical source of truth: connection-list, schematic, p
 ereader.pretty/        Project footprints (side tactile, ALPS SLLB5 lever)
 ereader.3dshapes/      Simple 3D bodies for the project footprints
 fp-lib-table           Registers the ereader.pretty footprint library
-fab.py                 Gerber/drill export helper
+fab.py                 Gerber/drill export helper (preflight-gated)
+gen_netlist.py         SKiDL netlist generator (real symbols → clean import)
+preflight.py           Board↔netlist parity check (CI gate; fab.py guard)
 docs/
   adr/                 Decisions (0001–0008 + template)
   research-log.md      Dated exploration notes

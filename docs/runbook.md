@@ -25,11 +25,19 @@ upgrade the file version, accept and re-save.
 
 ## Capture the schematic
 
-Two routes:
+Three routes:
 
-1. **By hand in Eeschema** (recommended — a real schematic makes IC pins bind
-   to footprint pads by number, which is what fixes the "pad not found" errors
-   the netlist-first import throws). Follow the step-by-step
+0. **Regenerate the netlist with SKiDL** (`gen_netlist.py`) — the automated
+   path. `pip install skidl` and run `python3 gen_netlist.py` in your KiCad
+   environment: it builds every connection from `ereader-connection-list.md`
+   using **real symbols**, so pins carry their datasheet pad numbers and the
+   emitted `ereader-kicad.net` imports with **no "pad not found"** errors. Fill
+   the `CFG` block for the non-stock parts (U2-U5, J2, SW4 — SnapEDA symbols in
+   `ereader.kicad_sym`) and read "KNOWN ITEMS TO VERIFY" at the bottom of the
+   script (U5.FB, diode polarity, J2 FPC pinout, EPD DC-DC 1:1). First run
+   surfaces any pin-name/library mismatch to fix. Then import per route 2.
+1. **By hand in Eeschema** (a real schematic makes IC pins bind to footprint
+   pads by number — same fix, visual + ERC). Follow the step-by-step
    [`docs/schematic-capture.md`](./schematic-capture.md) worksheet: symbol +
    footprint picklist, label-based wiring, and the per-subsystem order, drawn
    from `ereader-schematic.md` / `ereader-connection-list.md` /

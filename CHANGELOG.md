@@ -5,6 +5,25 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### SKiDL netlist generator to resolve the pin-name↔pad-number wall (2026-09-12)
+Importing the hand-authored `ereader-kicad.net` into Pcbnew threw 56 "pad *X*
+not found in footprint" errors: the netlist names IC pins by function while
+footprints use numbered pads, and with no symbol layer KiCad can't map them.
+- Added **`gen_netlist.py`** — a SKiDL generator that rebuilds the netlist from
+  real symbols, so each pin carries its datasheet pad number and the output
+  imports cleanly. It encodes all 53 nets verbatim from
+  `ereader-connection-list.md`; a `CFG` block at the top holds the non-stock
+  symbols (U2-U5, J2, SW4) for the user to point at SnapEDA/`ereader.kicad_sym`.
+  Runs ERC and writes `ereader-kicad.net`.
+- Also surfaced two latent gaps now flagged in the script's "KNOWN ITEMS TO
+  VERIFY": `U5.EN` was never wired (added → +3V3, always-on) and `U5.FB` is
+  left for the user to set per the fixed-vs-adjustable TPS62840 variant.
+- Documented as capture route 0 in the runbook; the by-hand Eeschema route
+  (`docs/schematic-capture.md`) remains for a visual schematic. Both fix the
+  same root cause. `gen_netlist.py` is syntax-checked here; functional
+  validation is the user's first run (SKiDL's build deps don't compile in the
+  cloud CI sandbox), which surfaces any symbol/pin-name mismatch to iterate on.
+
 ### Fab preflight gate + honest CI, after a routed board reached main out of sync (2026-09-12)
 The board was routed and pushed to `main` (commit `board routed and gerber file
 generated incl. DRC report`), but it was routed **before** *Update PCB from

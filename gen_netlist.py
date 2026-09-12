@@ -26,7 +26,7 @@ Nothing is guessed: net membership is transcribed verbatim from
 SAFETY: verify diode anode/cathode and every IC power/EP pin against the real
 symbol before you fabricate. See "KNOWN ITEMS TO VERIFY" at the bottom.
 """
-import os, glob
+import os, glob, re
 
 # ---------------------------------------------------------------------------
 # Point SKiDL at the installed KiCad symbol libraries. KiCad does NOT export
@@ -89,6 +89,55 @@ CFG = {
     "SW4": ("ereader:ALPS_SLLB5", "ereader:ALPS_SLLB5_Lever"),        # needs: CW CCW PUSH COM
 }
 
+# --- Resolve CFG symbols: auto-use a stock symbol if your KiCad already ships
+#     one; otherwise it must live in ereader.kicad_sym. Report ALL missing at
+#     once (instead of crashing on the first) so you get the full list. --------
+def _symbol_index():
+    idx = {}
+    for _d in [p for p in (_SYM, HERE) if p]:
+        for _f in sorted(glob.glob(os.path.join(_d, "*.kicad_sym"))):
+            _lib = os.path.splitext(os.path.basename(_f))[0]
+            try:
+                _txt = open(_f, encoding="utf-8", errors="ignore").read()
+            except OSError:
+                continue
+            for _m in re.finditer(r'\(symbol\s+"([^"]+)"', _txt):
+                _nm = _m.group(1)
+                if re.search(r'_\d+_\d+$', _nm):   # skip unit sub-symbols
+                    continue
+                idx.setdefault(_nm.lower(), f"{_lib}:{_nm}")
+    return idx
+
+_INDEX = _symbol_index()
+
+def _resolve(ref):
+    want = CFG[ref][0].split(":")[1]
+    exact = _INDEX.get(want.lower())
+    if exact:
+        return exact, []
+    hints = sorted({v for k, v in _INDEX.items()
+                    if k.startswith(want.lower()) or want.lower().startswith(k)})
+    return None, hints
+
+_resolved, _missing = {}, {}
+for _ref in CFG:
+    _id, _hints = _resolve(_ref)
+    (_resolved if _id else _missing).__setitem__(_ref, _id or _hints)
+
+if _missing:
+    print("\n=== SYMBOLS STILL NEEDED (add to ereader.kicad_sym, or install a stock lib) ===")
+    for _ref, _hints in _missing.items():
+        want = CFG[_ref][0].split(":")[1]
+        line = f"  {_ref}: '{want}'  ->  footprint {CFG[_ref][1]}"
+        if _hints:
+            line += f"   [candidate(s) already in your libs: {', '.join(_hints)}]"
+        print(line)
+    print("\nHow: download each from SnapEDA (free) into ereader.kicad_sym next to the")
+    print("board, or draw it in KiCad's Symbol Editor. J2 needs the GDEY0426T82 FPC pin")
+    print("numbering; SW4 pins are CW/COM/PUSH/CCW. See docs/schematic-capture.md.")
+    print("If a candidate above IS the right part, set its lib_id in CFG and re-run.")
+    raise SystemExit(1)
+
 FP = {  # stock footprint shorthands
     "R":   "Resistor_SMD:R_0402_1005Metric",
     "C04": "Capacitor_SMD:C_0402_1005Metric",
@@ -107,7 +156,9 @@ def R(ref, val):  return Part("Device", "R", ref=ref, value=val, footprint=FP["R
 def C(ref, val, fp): return Part("Device", "C", ref=ref, value=val, footprint=FP[fp])
 def L(ref, val, fp): return Part("Device", "L", ref=ref, value=val, footprint=FP[fp])
 def DS(ref, val): return Part("Device", "D_Schottky", ref=ref, value=val, footprint=FP["SOD"])
-def cfg(ref, val): return Part(*CFG[ref][0].split(":"), ref=ref, value=val, footprint=CFG[ref][1])
+def cfg(ref, val):
+    _lib, _name = _resolved[ref].split(":", 1)
+    return Part(_lib, _name, ref=ref, value=val, footprint=CFG[ref][1])
 
 U1 = Part("RF_Module", "ESP32-S3-WROOM-1", ref="U1",
           value="ESP32-S3-WROOM-1-N16R8", footprint="RF_Module:ESP32-S3-WROOM-1")

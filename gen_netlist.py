@@ -115,9 +115,11 @@ def _resolve(ref):
     exact = _INDEX.get(want)
     if exact:
         return exact, []
-    cands = sorted({v for k, v in _INDEX.items()
-                    if k.startswith(want) or want.startswith(k)})
-    if len(cands) == 1:          # unique base-name match (e.g. BQ25628E -> BQ25628ERYKR)
+    # A candidate must START WITH the wanted part name (e.g. bq25628e ->
+    # bq25628erykr). We deliberately do NOT match the reverse direction, so a
+    # short stock symbol like Device:L can't hijack "LM3630A".
+    cands = sorted({v for k, v in _INDEX.items() if k.startswith(want)})
+    if len(cands) == 1:          # unique variant match -> safe to auto-use
         return cands[0], []
     return None, cands           # 0 or ambiguous -> report for the user to pick
 

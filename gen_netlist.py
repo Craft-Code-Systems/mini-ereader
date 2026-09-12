@@ -111,13 +111,15 @@ def _symbol_index():
 _INDEX = _symbol_index()
 
 def _resolve(ref):
-    want = CFG[ref][0].split(":")[1]
-    exact = _INDEX.get(want.lower())
+    want = CFG[ref][0].split(":")[1].lower()
+    exact = _INDEX.get(want)
     if exact:
         return exact, []
-    hints = sorted({v for k, v in _INDEX.items()
-                    if k.startswith(want.lower()) or want.lower().startswith(k)})
-    return None, hints
+    cands = sorted({v for k, v in _INDEX.items()
+                    if k.startswith(want) or want.startswith(k)})
+    if len(cands) == 1:          # unique base-name match (e.g. BQ25628E -> BQ25628ERYKR)
+        return cands[0], []
+    return None, cands           # 0 or ambiguous -> report for the user to pick
 
 _resolved, _missing = {}, {}
 for _ref in CFG:

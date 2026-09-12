@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "ereader")(type "KiCad")(uri "${KIPRJMOD}/ereader.kicad_sym")(options "")(descr "Project-local symbols: SW4 ALPS SLLB5 lever, plus SnapEDA symbols for U2-U5/J2"))
+)

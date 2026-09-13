@@ -236,9 +236,9 @@ Net("+VBUS").connect(J1["A4"], J1["B4"], J1["A9"], J1["B9"], U2["VBUS"], U6["VBU
 Net("+SYS").connect(U2["SYS"], LC[2], U5["VIN"], CS[1], CI[1])
 Net("+VBAT").connect(U2["BAT"], U3["CELL"], U4["IN"], L2[1], J5[1], CB[1], CGA[1], CGB[1], C4I[1])
 Net("+3V3").connect(
-    U1[2], U5["VOUT"], L1[2], J2["VDD"], J2["VCI"], J4["VDD"],
+    U1[2], U5["VOUT"], L1[2], J2["VCI"], J2["VDDIO"], J4["VDD"],  # J2.VCI+VDDIO = 3V3; VDD is NOT here (internal LDO, decap only)
     R3[1], R4[1], R5[1], R8[1], R9[1], R10[1], R11[1], R12[1], R13[1], R14[1],
-    CO[1], CU1[1], CU2[1], CU3[1], CU4[1], CU5[1], LE[1], CE6[1], CE7[1], CE8[1],
+    CO[1], CU1[1], CU2[1], CU3[1], CU4[1], CU5[1], LE[1], CE6[1], CE7[1],
     U5["EN"],  # buck enable = always-on (connection-list SS "3V3 buck"); floating EN = disabled
 )
 Net("GND").connect(
@@ -301,6 +301,7 @@ Net("EPD_VSH1").connect(J2["VSH1"], CE1[1])
 Net("EPD_VSH2").connect(J2["VSH2"], CE2[1])
 Net("EPD_VSL").connect(J2["VSL"], CE3[1])
 Net("EPD_VCOM").connect(J2["VCOM"], CE9[1])
+Net("EPD_VDD").connect(J2["VDD"], CE8[1])   # SSD1677 core LDO output: decap to GND only, NOT driven from +3V3
 
 # ---------------------------------------------------------------------------
 # KNOWN ITEMS TO VERIFY before fabrication (do NOT skip):

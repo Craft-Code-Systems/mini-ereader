@@ -85,12 +85,12 @@ CFG = {
     # resolver prefix-matches whatever suffix SnapEDA used. Footprints prefer a
     # matching .kicad_mod in ereader.pretty/ (auto), falling back to the string
     # here. ref : (symbol lib_id, fallback footprint)
-    "U2": ("ereader:BQ25628E",  "ereader:BQ25628ERYKR"),  # 18-pin WQFN (RYK). needs pins: VBUS SYS BAT GND SDA SCL INT CE TS SW BTST (+ EP->GND)
-    "U3": ("ereader:MAX17048",  "Package_DFN_QFN:DFN-8-1EP_2x2mm_P0.5mm_EP0.9x1.5mm"),  # needs: CELL GND SDA SCL ALRT
-    "U4": ("ereader:LM3630A",   "ereader:LM3630ATME"),    # needs: IN GND SDA SCL HWEN SW LED1 LED2 (OVP per datasheet)
-    "U5": ("ereader:TPS62840",  "ereader:TPS62840DLCR"),  # VSON-HR (DLC). needs: VIN SW VOUT GND EN FB (MODE per variant)
+    "U2": ("ereader:BQ25628E",  "ereader:WQFN-HR18__RYK_TEX"),  # BQ25628E (Ultra Librarian). needs pins: VBUS SYS BAT GND SDA SCL INT CE TS SW BTST (+ EP->GND)
+    "U3": ("ereader:MAX17048",  "ereader:SON50P200X150X100-8N"),  # MAX17048, uDFN-8 no-EP. needs: CELL GND SDA SCL ALRT  [VERIFY: this vs the 200x200-9N is the 8N/no-EP one]
+    "U4": ("ereader:LM3630A",   "ereader:BGA12N50P4X3_196X146X62"),  # LM3630A DSBGA-12. needs: IN GND SDA SCL HWEN SW LED1 LED2 (OVP per datasheet)
+    "U5": ("ereader:TPS62840",  "ereader:SON50P200X200X80-9N"),  # TPS62840 VSON-HR (has thermal EP -> 9N). needs: VIN SW VOUT GND EN FB (MODE per variant)
     "J2": ("ereader:EPD_GDEY0426T82_FPC24", "Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal"),  # 24 pins named by function AND numbered to the panel FPC datasheet
-    "J4": ("ereader:DM3AT", "Connector_Card:microSD_HC_Hirose_DM3AT-SF-PEJM5"),  # DM3AT-SF-PEJM5. needs: CLK CMD DAT0 DAT3 VDD VSS
+    "J4": ("ereader:DM3AT", "ereader:HRS_DM3AT-SF-PEJM5"),  # DM3AT-SF-PEJM5 microSD. needs: CLK CMD DAT0 DAT3 VDD VSS
     "SW4": ("ereader:ALPS_SLLB5", "ereader:ALPS_SLLB5_Lever"),        # needs: CW CCW PUSH COM
 }
 

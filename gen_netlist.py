@@ -245,6 +245,7 @@ Net("GND").connect(
     U1[1], U1[40], U1[41], U2["GND"], U3["GND"], U4["GND"], U5["GND"], U6["GND"],
     J1["A1"], J1["B1"], J1["A12"], J1["B12"], J1["S1"], J2["VSS"], J4["VSS"], J5[2],
     SW1[2], SW2[2], SW3[2], SW4["COM"], JP5[2], JP6[2],
+    U4["SEL"], U4["PWM"],   # SEL->GND = I2C addr 0x36 (design); PWM unused (I2C dimming)
     R1[2], R2[2], R6[2], R7[2], R15[2],
     CEN[2], CV[2], CS[2], CB[2], CI[2], CO[2], CF[2],
     CU1[2], CU2[2], CU3[2], CU4[2], CU5[2], CGA[2], CGB[2], C4I[2],
@@ -286,9 +287,9 @@ Net("CHG_BTST").connect(U2["BTST"], CBT[2])
 Net("TS").connect(U2["TS"], R14[2], R15[1])
 Net("BUCK_SW").connect(U5["SW"], L1[1])
 Net("FL_SW").connect(U4["SW"], L2[2], D1["A"])
-Net("FL_OUT").connect(D1["K"], CF[1], J3[1], J3[5])
-Net("FL_COOL_K").connect(J3[2], U4["LED1"])
-Net("FL_WARM_K").connect(J3[6], U4["LED2"])
+Net("FL_OUT").connect(D1["K"], CF[1], J3[1], J3[5], U4["OVP"])  # OVP senses the boost output (datasheet)
+Net("FL_COOL_K").connect(J3[2], U4["ILED1"])  # datasheet ball D3 = ILED1 (was "LED1")
+Net("FL_WARM_K").connect(J3[6], U4["ILED2"])  # datasheet ball D2 = ILED2 (was "LED2")
 # EPD external DC-DC (topology per pcb-design SS6; VERIFY 1:1 vs Good Display ref)
 Net("EPD_SW").connect(LE[2], QE["D"], DE1["A"], DE2["A"])
 Net("EPD_GDR").connect(J2["GDR"], QE["G"], RE2[1])

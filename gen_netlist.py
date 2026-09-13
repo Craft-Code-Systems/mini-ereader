@@ -80,12 +80,17 @@ for _paths in getattr(_skidl, "lib_search_paths", {}).values():
 # ---------------------------------------------------------------------------
 CFG = {
     # ref : (symbol lib_id,                         footprint)
-    "U2": ("ereader:BQ25628E",  "ereader:BQ25628E_WQFN18_2.5x3.0"),  # 18-pin WQFN (RYK). needs pins: VBUS SYS BAT GND SDA SCL INT CE TS SW BTST (+ EP->GND)
+    # SnapEDA symbols the user imported: BQ25628ERYKR, MAX17048G+T10, LM3630ATME,
+    # TPS62840DLCR, DM3AT-SF-PEJM5. Symbol wants are the BASE name so the
+    # resolver prefix-matches whatever suffix SnapEDA used. Footprints prefer a
+    # matching .kicad_mod in ereader.pretty/ (auto), falling back to the string
+    # here. ref : (symbol lib_id, fallback footprint)
+    "U2": ("ereader:BQ25628E",  "ereader:BQ25628ERYKR"),  # 18-pin WQFN (RYK). needs pins: VBUS SYS BAT GND SDA SCL INT CE TS SW BTST (+ EP->GND)
     "U3": ("ereader:MAX17048",  "Package_DFN_QFN:DFN-8-1EP_2x2mm_P0.5mm_EP0.9x1.5mm"),  # needs: CELL GND SDA SCL ALRT
-    "U4": ("ereader:LM3630A",   "ereader:LM3630A_DSBGA12"),          # needs: IN GND SDA SCL HWEN SW LED1 LED2 (OVP per datasheet)
-    "U5": ("ereader:TPS62840",  "ereader:TPS62840_VSON8_2x2"),       # VSON-HR (DLC). needs: VIN SW VOUT GND EN FB (MODE per variant)
+    "U4": ("ereader:LM3630A",   "ereader:LM3630ATME"),    # needs: IN GND SDA SCL HWEN SW LED1 LED2 (OVP per datasheet)
+    "U5": ("ereader:TPS62840",  "ereader:TPS62840DLCR"),  # VSON-HR (DLC). needs: VIN SW VOUT GND EN FB (MODE per variant)
     "J2": ("ereader:EPD_GDEY0426T82_FPC24", "Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal"),  # 24 pins named by function AND numbered to the panel FPC datasheet
-    "J4": ("Connector:microSD_HC", "Connector_Card:microSD_HC_Hirose_DM3AT-SF-PEJM5"),  # if not stock, use ereader: symbol. needs: CLK CMD DAT0 DAT3 VDD VSS
+    "J4": ("ereader:DM3AT", "Connector_Card:microSD_HC_Hirose_DM3AT-SF-PEJM5"),  # DM3AT-SF-PEJM5. needs: CLK CMD DAT0 DAT3 VDD VSS
     "SW4": ("ereader:ALPS_SLLB5", "ereader:ALPS_SLLB5_Lever"),        # needs: CW CCW PUSH COM
 }
 
@@ -109,6 +114,22 @@ def _symbol_index():
     return idx
 
 _INDEX = _symbol_index()
+
+def _footprint_index():
+    idx = {}   # name.lower() -> "ereader:Name"  (filename of each .kicad_mod)
+    for _f in sorted(glob.glob(os.path.join(HERE, "ereader.pretty", "*.kicad_mod"))):
+        _nm = os.path.splitext(os.path.basename(_f))[0]
+        idx.setdefault(_nm.lower(), f"ereader:{_nm}")
+    return idx
+
+_FPX = _footprint_index()
+
+def _resolve_fp(ref):
+    """Prefer a footprint in ereader.pretty whose filename starts with the part
+    base name (e.g. bq25628e -> BQ25628ERYKR.kicad_mod); else the CFG fallback."""
+    want = CFG[ref][0].split(":")[1].lower()
+    cands = sorted({v for k, v in _FPX.items() if k.startswith(want)})
+    return cands[0] if len(cands) == 1 else CFG[ref][1]
 
 def _resolve(ref):
     want = CFG[ref][0].split(":")[1].lower()
@@ -162,7 +183,7 @@ def L(ref, val, fp): return Part("Device", "L", ref=ref, value=val, footprint=FP
 def DS(ref, val): return Part("Device", "D_Schottky", ref=ref, value=val, footprint=FP["SOD"])
 def cfg(ref, val):
     _lib, _name = _resolved[ref].split(":", 1)
-    return Part(_lib, _name, ref=ref, value=val, footprint=CFG[ref][1])
+    return Part(_lib, _name, ref=ref, value=val, footprint=_resolve_fp(ref))
 
 U1 = Part("RF_Module", "ESP32-S3-WROOM-1", ref="U1",
           value="ESP32-S3-WROOM-1-N16R8", footprint="RF_Module:ESP32-S3-WROOM-1")

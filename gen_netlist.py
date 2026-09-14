@@ -191,13 +191,13 @@ U6 = Part("Power_Protection", "USBLC6-2SC6", ref="U6",
           value="USBLC6-2SC6", footprint="Package_TO_SOT_SMD:SOT-23-6")
 U2, U3, U4, U5 = cfg("U2", "BQ25628E"), cfg("U3", "MAX17048"), cfg("U4", "LM3630A"), cfg("U5", "TPS62840")
 
-J1 = Part("Connector", "USB_C_Receptacle_USB2.0", ref="J1", value="USB-C-16P",
+J1 = Part("Connector", "USB_C_Receptacle_USB2.0_16P", ref="J1", value="USB-C-16P",
           footprint="Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12")
 J2 = cfg("J2", "EPD_FPC_24P")
-J3 = Part("Connector", "Conn_01x06", ref="J3", value="FL_FPC_6P",
+J3 = Part("Connector_Generic", "Conn_01x06", ref="J3", value="FL_FPC_6P",
           footprint="Connector_FFC-FPC:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal")
 J4 = cfg("J4", "microSD")
-J5 = Part("Connector", "Conn_01x02", ref="J5", value="Battery_1S",
+J5 = Part("Connector_Generic", "Conn_01x02", ref="J5", value="Battery_1S",
           footprint="Connector_JST:JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal")
 
 SW1 = Part("Switch", "SW_Push", ref="SW1", value="BTN_A", footprint="ereader:WE_WS-TASU_436351045816")
@@ -207,7 +207,7 @@ SW4 = cfg("SW4", "SLLB510200")
 JP5 = Part("Jumper", "SolderJumper_2_Open", ref="JP5", value="BOOT", footprint="ereader:JumperPad_2P_P2.0mm")
 JP6 = Part("Jumper", "SolderJumper_2_Open", ref="JP6", value="RESET", footprint="ereader:JumperPad_2P_P2.0mm")
 
-QE = Part("Device", "Q_NMOS_GSD", ref="QE", value="Si1308EDL", footprint=FP["SOT23"])
+QE = Part("Transistor_FET", "Q_NMOS_GSD", ref="QE", value="Si1308EDL", footprint=FP["SOT23"])
 D1 = DS("D1", "Schottky_30V")
 DE1, DE2, DE3 = DS("DE1", "MBR0530"), DS("DE2", "MBR0530"), DS("DE3", "MBR0530")
 

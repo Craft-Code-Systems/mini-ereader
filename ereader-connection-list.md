@@ -48,6 +48,9 @@ Module U1 pin **numbers** are exact (ESP32-S3-WROOM-1 datasheet). IC pins by **f
 | CE7..CE9 | 1µF/25V | EPD rail decoupling: VCI, VDD, VCOM |
 | CGA,CGB | 0.1µF+1µF | MAX17048 CELL local decoupling (+VBAT) |
 | C4I | 1µF | LM3630A IN local decoupling (+VBAT) |
+| C_RG (CRG) | 4.7µF | BQ25628E REGN internal-LDO bypass (→GND) — VERIFY |
+| C_PM (CPM) | 1µF | BQ25628E PMID rail bypass (→GND) — VERIFY |
+| R16 | E96, set for 3.3V | TPS62840 VSET output-select resistor (→GND) — **placeholder, MUST set** |
 | C_* | decoupling | see notes |
 
 ---
@@ -57,14 +60,21 @@ Module U1 pin **numbers** are exact (ESP32-S3-WROOM-1 datasheet). IC pins by **f
 ### Power
 ```
 +VBUS   : J1.VBUS(A4,B4,A9,B9), U2.VBUS, U6.VBUS, C_VBUS.1, TVS
-+SYS    : U2.SYS, L_C.2, U5.VIN, C_SYS.1
-+VBAT   : U2.BAT, U3.CELL, U4.IN, L2.1, J5.+, C_BAT.1
-+3V3    : U5.VOUT(SW→L1→3V3), U1.2, J2.VDD, J4.VDD,
++SYS    : U2.SYS, L_C.2, U5.VIN, U5.EN, C_SYS.1
+          (U5.EN sits on the INPUT rail = always-on. Do NOT tie EN to +3V3:
+           it is the buck's own output, so the rail could never start.)
++VBAT   : U2.BAT, U3.CELL, U3.VDD, U4.IN, L2.1, J5.+, C_BAT.1
+          (U3.VDD is a SEPARATE fuel-gauge supply pin, 2.5–4.5V, not the same
+           pad as CELL sense — both sit on +VBAT.)
++3V3    : U5.VOS(=output sense; VOS←L1←SW), U1.2, J2.VCI, J2.VDDIO, J4.VDD,
           R3.1, R4.1, R5.1, R8.1, R9.1, R10.1, R11.1, R12.1, R13.1,
-          U2.(SCL/SDA pull rail), C_3V3(bulk 22µF + 4×0.1µF)
-GND     : U1.1, U1.40, U1.41(EPAD), U2.PGND/GND/EP, U3.GND, U4.GND,
-          U5.GND, U6.GND, J1.GND(A1,B1,A12,B12)+shield, J2.VSS,
-          J4.VSS, J5.-, all C.2 / pull-down returns / SW returns
+          C_3V3(bulk 22µF + 4×0.1µF)
+          (J2.VDD is the SSD1677 internal LDO output → decap only, NOT on +3V3.)
+GND     : U1.1, U1.40, U1.41(EPAD), U2.GND(+ WQFN thermal pad, assign in Pcbnew),
+          U3.GND, U3.CTG, U3.QSTRT, U3.EP, U4.GND, U4.SEL, U4.PWM,
+          U5.GND(+ VSON thermal pad, assign in Pcbnew), U5.MODE, U5.STOP,
+          U6.GND, J1.GND(A1,B1,A12,B12)+shield, J2.VSS, J2.BS1,
+          J4.VSS, J4.shield(P1–P4), J5.-, all C.2 / pull-down returns / SW returns
 ```
 
 ### I2C
@@ -118,8 +128,9 @@ J2.VPP     : NC / per datasheet (OTP program pin)
 SD_SCK  : U1.34(IO41), J4.CLK
 SD_MOSI : U1.35(IO42), J4.CMD(DI)
 SD_MISO : U1.33(IO40), J4.DAT0(DO)
-SD_CS   : U1.32(IO39), J4.DAT3(CS), R5.2
+SD_CS   : U1.32(IO39), J4.CD/DAT3(CS, pin2), R5.2
 (J4.DAT1,DAT2 → pull-up 10k to 3V3 or leave per holder)
+(J4 shell/shield tabs P1–P4 → GND; card-detect SWA/SWB left NC)
 ```
 
 ### Buttons / lever (active-low, internal pull-up)
@@ -156,18 +167,26 @@ U6.VBUS : +VBUS (clamp ref)
 ```
 CHG_SW   : U2.SW, L_C.1, C_BTST.1
 CHG_BTST : U2.BTST, C_BTST.2      (0.047µF SW→BTST)
-TS       : U2.TS, R14.1(→REGN/3V3), R15.1(→GND)   (or NTC to GND)
-CHG_INT  : U1.24(IO47), U2.INT, R12.2
-CHG_CE   : U1.22(IO14), U2.CE, R7.1   (R7.2→GND = charge-on default)
-U2.D+ , U2.D- : NC (BC1.2 unused) or tie to USB_DP/DM if you want DCP detect
+TS_BIAS  : U2.TS_BIAS, R14.1                        (regulated bias for the TS divider)
+TS       : U2.TS, R14.2, R15.1    (R15.2→GND)       (fixed divider, or NTC to GND)
+REGN     : U2.REGN, C_RG.1        (C_RG.2→GND, 4.7µF)  internal-LDO bypass, VERIFY value
+PMID     : U2.PMID, C_PM.1        (C_PM.2→GND, 1µF)     PMID rail bypass, VERIFY value
+CHG_INT  : U1.24(IO47), U2.*INT(pin11), R12.2
+CHG_CE   : U1.22(IO14), U2.*CE(pin14), R7.1   (R7.2→GND = charge-on default)
+U2.ILIM  : input-current-limit set resistor to GND (+~1.2k/330nF RC) — NOT fitted;
+           falls back to the I2C IINDPM register default. Add R_ILIM if a HW limit is wanted.
+U2.*PG, U2.STAT, U2.*QON : NC (open-drain / internal pull-up). Add 10k pull-up only if used.
 ```
 
-### 3V3 buck (TPS62840)
+### 3V3 buck (TPS62840DLCR — resistor-programmed output)
 ```
 BUCK_SW : U5.SW, L1.1        (L1.2→+3V3)
-U5.EN   : +3V3 (always-on) or gate from CHG for load-shed
-U5.FB   : +3V3 (fixed 3.3 variant) OR divider (adjustable variant) — pick part
 U5.VIN  : +SYS
+U5.EN   : +SYS (always-on from the INPUT rail; NOT +3V3 — see Power note)
+VSET    : U5.VSET, R16.1     (R16.2→GND)  ← R16 = E96 resistor per datasheet Table 1 for 3.3V (PLACEHOLDER value, MUST set)
+U5.VOS  : +3V3 (output-voltage sense; this part has VOS, no FB pin)
+U5.MODE : GND (Power-Save, auto PFM/PWM; tie high for forced-PWM)
+U5.STOP : GND (normal switching; STOP high halts switching for noise-free measurement)
 ```
 
 ### Frontlight boost (LM3630A) — FL0426-S01C confirmed 4-wire

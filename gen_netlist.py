@@ -85,10 +85,10 @@ CFG = {
     # resolver prefix-matches whatever suffix SnapEDA used. Footprints prefer a
     # matching .kicad_mod in ereader.pretty/ (auto), falling back to the string
     # here. ref : (symbol lib_id, fallback footprint)
-    "U2": ("ereader:BQ25628E",  "ereader:WQFN-HR18__RYK_TEX"),  # BQ25628E (Ultra Librarian). needs pins: VBUS SYS BAT GND SDA SCL INT CE TS SW BTST (+ EP->GND)
-    "U3": ("ereader:MAX17048",  "ereader:SON50P200X150X100-8N"),  # MAX17048, uDFN-8 no-EP. needs: CELL GND SDA SCL ALRT  [VERIFY: this vs the 200x200-9N is the 8N/no-EP one]
-    "U4": ("ereader:LM3630A",   "ereader:BGA12N50P4X3_196X146X62"),  # LM3630A DSBGA-12. needs: IN GND SDA SCL HWEN SW LED1 LED2 (OVP per datasheet)
-    "U5": ("ereader:TPS62840",  "ereader:SON50P200X200X80-9N"),  # TPS62840 VSON-HR (has thermal EP -> 9N). needs: VIN SW VOUT GND EN FB (MODE per variant)
+    "U2": ("ereader:BQ25628E",  "ereader:WQFN-HR18__RYK_TEX"),  # BQ25628E (Ultra Librarian). pins used: VBUS SYS BAT GND SDA SCL *INT(11) *CE(14) TS TS_BIAS REGN PMID SW BTST. EP not on symbol -> tie thermal pad to GND in Pcbnew.
+    "U3": ("ereader:MAX17048",  "ereader:SON50P200X150X100-8N"),  # MAX17048. pins: CELL VDD GND SDA SCL ~ALERT(5) + CTG/QSTRT/EP->GND. VDD is a SEPARATE supply pin from CELL.
+    "U4": ("ereader:LM3630A",   "ereader:BGA12N50P4X3_196X146X62"),  # LM3630A DSBGA-12. pins: IN GND SDA SCL HWEN SW ILED1 ILED2 OVP (SEL/PWM->GND).
+    "U5": ("ereader:TPS62840",  "ereader:SON50P200X200X80-9N"),  # TPS62840 VSON-HR (thermal EP not on symbol -> tie to GND in Pcbnew). pins: VIN SW VOS(8=output) GND EN MODE STOP VSET(5=Rset). No FB pin.
     "J2": ("ereader:EPD_GDEY0426T82_FPC24", "Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal"),  # 24 pins named by function AND numbered to the panel FPC datasheet
     "J4": ("ereader:DM3AT", "ereader:HRS_DM3AT-SF-PEJM5"),  # DM3AT-SF-PEJM5 microSD. needs: CLK CMD DAT0 DAT3 VDD VSS
     "SW4": ("ereader:ALPS_SLLB5", "ereader:ALPS_SLLB5_Lever"),        # needs: CW CCW PUSH COM
@@ -229,27 +229,39 @@ CE1 = C("CE1", "4.7uF/25V", "C08"); CE2 = C("CE2", "4.7uF/25V", "C08"); CE3 = C(
 CE4 = C("CE4", "4.7uF/25V", "C08"); CE5 = C("CE5", "4.7uF/25V", "C08"); CE6 = C("CE6", "4.7uF/25V", "C08")
 CE7 = C("CE7", "1uF/25V", "C06"); CE8 = C("CE8", "1uF/25V", "C06"); CE9 = C("CE9", "1uF/25V", "C06")
 
+# --- Support parts the VENDOR symbols revealed as needed (were absent from the
+#     function-name connection list). Values are datasheet-typical; VERIFY. ------
+CRG = C("CRG", "4.7uF", "C06")    # BQ25628E REGN internal-LDO bypass -> GND (TI-typical 4.7uF)
+CPM = C("CPM", "1uF", "C04")      # BQ25628E PMID rail bypass -> GND  (TI-typical 1uF)
+R16 = R("R16", "SET_PER_TABLE1")  # TPS62840 VSET output-select resistor -> GND.
+                                  # MUST replace value with the E96 resistor for 3.3V from datasheet Table 1.
+
 # ---------------------------------------------------------------------------
 # Nets  (verbatim from ereader-connection-list.md; U1 by datasheet pin number)
 # ---------------------------------------------------------------------------
 Net("+VBUS").connect(J1["A4"], J1["B4"], J1["A9"], J1["B9"], U2["VBUS"], U6["VBUS"], CV[1])
-Net("+SYS").connect(U2["SYS"], LC[2], U5["VIN"], CS[1], CI[1])
-Net("+VBAT").connect(U2["BAT"], U3["CELL"], U4["IN"], L2[1], J5[1], CB[1], CGA[1], CGB[1], C4I[1])
+Net("+SYS").connect(U2["SYS"], LC[2], U5["VIN"], U5["EN"], CS[1], CI[1])  # U5.EN=always-on from the INPUT rail (see +3V3 note)
+Net("+VBAT").connect(U2["BAT"], U3["CELL"], U3["VDD"], U4["IN"], L2[1], J5[1], CB[1], CGA[1], CGB[1], C4I[1])  # U3.VDD = fuel-gauge supply (2.5-4.5V), a pin SEPARATE from CELL sense
 Net("+3V3").connect(
-    U1[2], U5["VOUT"], L1[2], J2["VCI"], J2["VDDIO"], J4["VDD"],  # J2.VCI+VDDIO = 3V3; VDD is NOT here (internal LDO, decap only)
-    R3[1], R4[1], R5[1], R8[1], R9[1], R10[1], R11[1], R12[1], R13[1], R14[1],
+    U1[2], U5[8], L1[2], J2["VCI"], J2["VDDIO"], J4["VDD"],  # U5[8]=VOS (TPS62840 output sense). J2 VCI+VDDIO=3V3 (J2.VDD is an internal LDO -> decap only); J4.VDD=microSD 3V3
+    R3[1], R4[1], R5[1], R8[1], R9[1], R10[1], R11[1], R12[1], R13[1],       # (R14 top moved to TS_BIAS, not +3V3)
     CO[1], CU1[1], CU2[1], CU3[1], CU4[1], CU5[1], LE[1], CE6[1], CE7[1],
-    U5["EN"],  # buck enable = always-on (connection-list SS "3V3 buck"); floating EN = disabled
+    # NOTE: U5.EN moved to +SYS (was here on +3V3). Tying the buck's EN to its OWN
+    # output deadlocks startup (output=0 -> EN low -> never starts); EN sits on +SYS.
 )
 Net("GND").connect(
     U1[1], U1[40], U1[41], U2["GND"], U3["GND"], U4["GND"], U5["GND"], U6["GND"],
     J1["A1"], J1["B1"], J1["A12"], J1["B12"], J1["S1"], J2["VSS"], J4["VSS"], J5[2],
     SW1[2], SW2[2], SW3[2], SW4["COM"], JP5[2], JP6[2],
     U4["SEL"], U4["PWM"],   # SEL->GND = I2C addr 0x36 (design); PWM unused (I2C dimming)
+    U3["CTG"], U3["QSTRT"], U3["EP"],   # MAX17048: CTG (exposed-pad label), QSTRT (unused quick-start), EP thermal pad -> GND (datasheet)
+    U5["MODE"], U5["STOP"],   # TPS62840: MODE low = Power-Save (auto PFM/PWM); STOP low = normal switching (STOP high halts switching)
+    J4["P1"], J4["P2"], J4["P3"], J4["P4"],   # microSD shell/shield tabs -> GND (ESD/EMC)
     R1[2], R2[2], R6[2], R7[2], R15[2],
     CEN[2], CV[2], CS[2], CB[2], CI[2], CO[2], CF[2],
     CU1[2], CU2[2], CU3[2], CU4[2], CU5[2], CGA[2], CGB[2], C4I[2],
     RE1[2], RE2[2], CE1[2], CE2[2], CE3[2], CE4[2], CE5[2], CE6[2], CE7[2], CE8[2], CE9[2],
+    CRG[2], CPM[2], R16[2],   # BQ25628E REGN/PMID bypass returns + TPS62840 VSET resistor return
     J2["BS1"],
 )
 Net("I2C0_SDA").connect(U1[10], U2["SDA"], U3["SDA"], R8[2])
@@ -265,17 +277,17 @@ Net("EPD_BUSY").connect(U1[7], J2["BUSY"])
 Net("SD_SCK").connect(U1[34], J4["CLK"])
 Net("SD_MOSI").connect(U1[35], J4["CMD"])
 Net("SD_MISO").connect(U1[33], J4["DAT0"])
-Net("SD_CS").connect(U1[32], J4["DAT3"], R5[2])
+Net("SD_CS").connect(U1[32], J4[2], R5[2])   # J4[2] = "CD/DAT3" (microSD CS in SPI mode); by number (name has a "/")
 Net("BTN_A").connect(U1[4], SW1[1])
 Net("BTN_B").connect(U1[5], SW2[1])
 Net("BTN_C").connect(U1[6], SW3[1])
 Net("LEV_CW").connect(U1[39], SW4["CW"])
 Net("LEV_CCW").connect(U1[38], SW4["CCW"])
 Net("LEV_PUSH").connect(U1[8], SW4["PUSH"])
-Net("CHG_INT").connect(U1[24], U2["INT"], R12[2])
-Net("GAUGE_ALRT").connect(U1[25], U3["ALRT"], R13[2])
+Net("CHG_INT").connect(U1[24], U2[11], R12[2])   # U2[11] = "*INT" (open-drain, active-low charger IRQ); by number (name has a "*")
+Net("GAUGE_ALRT").connect(U1[25], U3[5], R13[2])  # U3[5] = "~{ALERT}" (MAX17048 open-drain alert); by number (name has "~{}")
 Net("FL_HWEN").connect(U1[23], U4["HWEN"], R6[1])
-Net("CHG_CE").connect(U1[22], U2["CE"], R7[1])
+Net("CHG_CE").connect(U1[22], U2[14], R7[1])   # U2[14] = "*CE" (active-low charge-enable: R7 pulls low = charge-on); by number
 Net("IO0_BOOT").connect(U1[27], JP5[1])
 Net("EN").connect(U1[3], JP6[1], R3[2], CEN[1])
 Net("USB_DP").connect(U1[14], U6["DP"], J1["A6"], J1["B6"])
@@ -285,6 +297,10 @@ Net("CC2").connect(J1["B5"], R2[1])
 Net("CHG_SW").connect(U2["SW"], LC[1], CBT[1])
 Net("CHG_BTST").connect(U2["BTST"], CBT[2])
 Net("TS").connect(U2["TS"], R14[2], R15[1])
+Net("TS_BIAS").connect(U2["TS_BIAS"], R14[1])   # TS divider biased from the regulated TS_BIAS pin, NOT +3V3, so thresholds track the reference
+Net("REGN").connect(U2["REGN"], CRG[1])         # BQ25628E internal-LDO output: bypass cap only
+Net("PMID").connect(U2["PMID"], CPM[1])         # BQ25628E PMID rail: bypass cap only
+Net("VSET").connect(U5["VSET"], R16[1])         # TPS62840 output-voltage select resistor to GND (R16 -> set for 3.3V)
 Net("BUCK_SW").connect(U5["SW"], L1[1])
 Net("FL_SW").connect(U4["SW"], L2[2], D1["A"])
 Net("FL_OUT").connect(D1["K"], CF[1], J3[1], J3[5], U4["OVP"])  # OVP senses the boost output (datasheet)
@@ -305,14 +321,37 @@ Net("EPD_VDD").connect(J2["VDD"], CE8[1])   # SSD1677 core LDO output: decap to 
 
 # ---------------------------------------------------------------------------
 # KNOWN ITEMS TO VERIFY before fabrication (do NOT skip):
-#  - U5.FB: NOT wired here. Tie to +3V3/VOUT for a fixed-3.3V TPS62840 variant,
-#    or to a feedback divider for an adjustable variant. Set per your MPN.
-#  - U5.EN wired to +3V3 (always-on) per the connection list; confirm polarity.
+#
+#  *** MUST SET A VALUE ***
+#  - R16 (TPS62840 VSET): value is a PLACEHOLDER ("SET_PER_TABLE1"). The output
+#    voltage is chosen by this single E96 resistor to GND per datasheet Table 1.
+#    Look up the resistor for 3.3V and set R16 before ordering. VOS = pin 8 senses
+#    the output; there is NO "FB" pin on this part.
+#
+#  *** CONFIRM POLARITY / VALUES (I wired the datasheet-typical default) ***
+#  - U5.STOP -> GND (normal switching). STOP HIGH halts switching for a noise-free
+#    measurement; confirm your build wants continuous operation (GND).
+#  - U5.MODE -> GND (Power-Save, auto PFM/PWM). Tie HIGH for forced-PWM if desired.
+#  - U5.EN -> +SYS (input rail), NOT +3V3. Corrected: EN on the buck's own output
+#    can never start it. Confirm you don't instead want a GPIO to gate this rail.
+#  - CRG 4.7uF (REGN) and CPM 1uF (PMID): TI-typical bypass values; confirm vs the
+#    BQ25628E datasheet app circuit.
+#  - U2.TS divider (R14/R15): now biased from TS_BIAS. If you fit a real NTC instead
+#    of a fixed divider, wire NTC per the datasheet TS window.
+#
+#  *** STILL OPEN — decide before fab ***
+#  - U2.ILIM (pin 4): input-current-limit set resistor to GND (+ ~1.2k/330nF RC per
+#    datasheet) is NOT fitted. Left open the limit falls back to the I2C register
+#    default. Add RILIM sized to your desired input current if you want a HW limit.
+#  - U2.*PG (3), STAT (10), *QON (7): intentionally left NC (open-drain / internal
+#    pull-up). Add a 10k pull-up + LED/GPIO only if you want charge status/IRQ.
+#  - THERMAL PADS: the Ultra Librarian/SnapEDA symbols for U2 (BQ25628E WQFN) and
+#    U5 (TPS62840 VSON) DO NOT expose the exposed pad as a pin, so the netlist can
+#    NOT tie it. After importing, assign each footprint's thermal pad to GND in
+#    Pcbnew (or add an EP pin to the symbol). U3 (MAX17048) EP IS wired to GND here.
 #  - Diodes use pin names A/K; confirm anode/cathode vs the SOD-123 pads.
-#  - J2 (EPD FPC) symbol pins must be numbered to the GDEY0426T82-FL01C FPC
-#    datasheet, and the EPD DC-DC diode/charge-pump topology copied 1:1 from
-#    the Good Display reference (rail caps >=25V).
-#  - Confirm each IC's exposed thermal pad / unused pins per its datasheet.
+#  - J2 (EPD FPC) pin numbers + EPD DC-DC diode/charge-pump topology copied 1:1 from
+#    the Good Display GDEY0426T82-FL01C reference (rail caps >=25V).
 # ---------------------------------------------------------------------------
 ERC()
 generate_netlist(file_="ereader-kicad.net")

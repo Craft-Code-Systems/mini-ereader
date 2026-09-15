@@ -233,8 +233,8 @@ CE7 = C("CE7", "1uF/25V", "C06"); CE8 = C("CE8", "1uF/25V", "C06"); CE9 = C("CE9
 #     function-name connection list). Values are datasheet-typical; VERIFY. ------
 CRG = C("CRG", "4.7uF", "C06")    # BQ25628E REGN internal-LDO bypass -> GND (TI-typical 4.7uF)
 CPM = C("CPM", "1uF", "C04")      # BQ25628E PMID rail bypass -> GND  (TI-typical 1uF)
-R16 = R("R16", "SET_PER_TABLE1")  # TPS62840 VSET output-select resistor -> GND.
-                                  # MUST replace value with the E96 resistor for 3.3V from datasheet Table 1.
+R16 = R("R16", "267k")  # TPS62840 VSET -> GND. 267k (E96,1%) = 3.3V out for TPS62840DLC per
+                        # datasheet Table 1 (SLVSEC6D), column TPS62840DLC. Window 256.32k-277.68k.
 
 # ---------------------------------------------------------------------------
 # Nets  (verbatim from ereader-connection-list.md; U1 by datasheet pin number)
@@ -301,7 +301,7 @@ Net("TS").connect(U2["TS"], R14[2], R15[1])
 Net("TS_BIAS").connect(U2["TS_BIAS"], R14[1])   # TS divider biased from the regulated TS_BIAS pin, NOT +3V3, so thresholds track the reference
 Net("REGN").connect(U2["REGN"], CRG[1])         # BQ25628E internal-LDO output: bypass cap only
 Net("PMID").connect(U2["PMID"], CPM[1])         # BQ25628E PMID rail: bypass cap only
-Net("VSET").connect(U5["VSET"], R16[1])         # TPS62840 output-voltage select resistor to GND (R16 -> set for 3.3V)
+Net("VSET").connect(U5["VSET"], R16[1])         # TPS62840 output-voltage select: R16=267k -> 3.3V (datasheet Table 1)
 Net("BUCK_SW").connect(U5["SW"], L1[1])
 Net("FL_SW").connect(U4["SW"], L2[2], D1["A"])
 Net("FL_OUT").connect(D1["K"], CF[1], J3[1], J3[5], U4["OVP"])  # OVP senses the boost output (datasheet)
@@ -323,11 +323,10 @@ Net("EPD_VDD").connect(J2["VDD"], CE8[1])   # SSD1677 core LDO output: decap to 
 # ---------------------------------------------------------------------------
 # KNOWN ITEMS TO VERIFY before fabrication (do NOT skip):
 #
-#  *** MUST SET A VALUE ***
-#  - R16 (TPS62840 VSET): value is a PLACEHOLDER ("SET_PER_TABLE1"). The output
-#    voltage is chosen by this single E96 resistor to GND per datasheet Table 1.
-#    Look up the resistor for 3.3V and set R16 before ordering. VOS = pin 8 senses
-#    the output; there is NO "FB" pin on this part.
+#  *** RESOLVED (from the datasheet) ***
+#  - R16 (TPS62840 VSET) = 267k, E96 1%. Sets 3.3V out for the TPS62840DLC per
+#    datasheet Table 1 (SLVSEC6D), TPS62840DLC column (window 256.32k-277.68k).
+#    VOS (pin 8) senses the output; this part has no FB pin. Populate exactly 267k.
 #
 #  *** CONFIRM POLARITY / VALUES (I wired the datasheet-typical default) ***
 #  - U5.STOP -> GND (normal switching). STOP HIGH halts switching for a noise-free

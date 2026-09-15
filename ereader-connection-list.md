@@ -50,7 +50,7 @@ Module U1 pin **numbers** are exact (ESP32-S3-WROOM-1 datasheet). IC pins by **f
 | C4I | 1µF | LM3630A IN local decoupling (+VBAT) |
 | C_RG (CRG) | 4.7µF | BQ25628E REGN internal-LDO bypass (→GND) — VERIFY |
 | C_PM (CPM) | 1µF | BQ25628E PMID rail bypass (→GND) — VERIFY |
-| R16 | E96, set for 3.3V | TPS62840 VSET output-select resistor (→GND) — **placeholder, MUST set** |
+| R16 | 267k (E96, 1%) | TPS62840 VSET output-select (→GND) = 3.3V out (datasheet Table 1, TPS62840DLC column) |
 | C_* | decoupling | see notes |
 
 ---
@@ -183,7 +183,7 @@ U2.*PG, U2.STAT, U2.*QON : NC (open-drain / internal pull-up). Add 10k pull-up o
 BUCK_SW : U5.SW, L1.1        (L1.2→+3V3)
 U5.VIN  : +SYS
 U5.EN   : +SYS (always-on from the INPUT rail; NOT +3V3 — see Power note)
-VSET    : U5.VSET, R16.1     (R16.2→GND)  ← R16 = E96 resistor per datasheet Table 1 for 3.3V (PLACEHOLDER value, MUST set)
+VSET    : U5.VSET, R16.1     (R16.2→GND)  ← R16 = 267k (E96,1%) sets 3.3V out (TPS62840DLC, datasheet Table 1)
 U5.VOS  : +3V3 (output-voltage sense; this part has VOS, no FB pin)
 U5.MODE : GND (Power-Save, auto PFM/PWM; tie high for forced-PWM)
 U5.STOP : GND (normal switching; STOP high halts switching for noise-free measurement)

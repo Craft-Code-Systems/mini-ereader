@@ -48,8 +48,10 @@ Module U1 pin **numbers** are exact (ESP32-S3-WROOM-1 datasheet). IC pins by **f
 | CE7..CE9 | 1µF/25V | EPD rail decoupling: VCI, VDD, VCOM |
 | CGA,CGB | 0.1µF+1µF | MAX17048 CELL local decoupling (+VBAT) |
 | C4I | 1µF | LM3630A IN local decoupling (+VBAT) |
-| C_RG (CRG) | 4.7µF | BQ25628E REGN internal-LDO bypass (→GND) — VERIFY |
-| C_PM (CPM) | 1µF | BQ25628E PMID rail bypass (→GND) — VERIFY |
+| C_RG (CRG) | 4.7µF | BQ25628E REGN internal-LDO bypass (→GND) [datasheet Fig 9-1] |
+| C_PM (CPM) | 10µF | BQ25628E PMID bulk bypass (→GND) [datasheet Fig 9-1] |
+| CPM2 | 0.1µF | BQ25628E PMID HF bypass (→GND) [datasheet Fig 9-1] |
+| R17 | 1.65k (E96, 1%) | BQ25628E ILIM set (→GND) → ~1.5A input limit (RILIM=2500/IINREG) |
 | R16 | 267k (E96, 1%) | TPS62840 VSET output-select (→GND) = 3.3V out (datasheet Table 1, TPS62840DLC column) |
 | C_* | decoupling | see notes |
 
@@ -176,13 +178,14 @@ CHG_SW   : U2.SW, L_C.1, C_BTST.1
 CHG_BTST : U2.BTST, C_BTST.2      (0.047µF SW→BTST)
 TS_BIAS  : U2.TS_BIAS, R14.1                        (regulated bias for the TS divider)
 TS       : U2.TS, R14.2, R15.1    (R15.2→GND)       (fixed divider, or NTC to GND)
-REGN     : U2.REGN, C_RG.1        (C_RG.2→GND, 4.7µF)  internal-LDO bypass, VERIFY value
-PMID     : U2.PMID, C_PM.1        (C_PM.2→GND, 1µF)     PMID rail bypass, VERIFY value
+REGN     : U2.REGN, C_RG(CRG).1   (→GND, 4.7µF)   internal-LDO bypass  [datasheet Fig 9-1]
+PMID     : U2.PMID, C_PM(CPM).1 + CPM2.1  (→GND, 10µF + 0.1µF)          [datasheet Fig 9-1]
 CHG_INT  : U1.24(IO47), U2.*INT(pin11), R12.2
 CHG_CE   : U1.22(IO14), U2.*CE(pin14), R7.1   (R7.2→GND = charge-on default)
-U2.ILIM  : input-current-limit set resistor to GND (+~1.2k/330nF RC) — NOT fitted;
-           falls back to the I2C IINDPM register default. Add R_ILIM if a HW limit is wanted.
-U2.*PG, U2.STAT, U2.*QON : NC (open-drain / internal pull-up). Add 10k pull-up only if used.
+ILIM     : U2.ILIM, R17.1  (R17.2→GND, 1.65kΩ)  → IINREG = 2500/RILIM ≈ 1.5A input limit.
+           REQUIRED: EN_EXTILIM resets to 1 (ILIM pin active from power-on); an open pin
+           would clamp input current to ~0. Retune RILIM=2500/IINREG(A); keep 0.4–2A (no RC).
+U2.*PG, U2.STAT, U2.*QON : NC (open-drain / internal pull-up; optional in Fig 9-1).
 ```
 
 ### 3V3 buck (TPS62840DLCR — resistor-programmed output)

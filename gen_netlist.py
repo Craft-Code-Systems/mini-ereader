@@ -232,8 +232,10 @@ CE10 = C("CE10", "4.7uF/25V", "C08")   # = ref C3: charge-pump coupling cap (EPD
 
 # --- Support parts the VENDOR symbols revealed as needed (were absent from the
 #     function-name connection list). Values are datasheet-typical; VERIFY. ------
-CRG = C("CRG", "4.7uF", "C06")    # BQ25628E REGN internal-LDO bypass -> GND (TI-typical 4.7uF)
-CPM = C("CPM", "1uF", "C04")      # BQ25628E PMID rail bypass -> GND  (TI-typical 1uF)
+CRG = C("CRG", "4.7uF", "C06")    # BQ25628E REGN internal-LDO bypass -> GND (datasheet Fig 9-1: 4.7uF) [confirmed]
+CPM = C("CPM", "10uF", "C08")     # BQ25628E PMID bulk bypass -> GND (datasheet Fig 9-1: 10uF)
+CPM2 = C("CPM2", "0.1uF", "C04")  # BQ25628E PMID HF bypass -> GND (datasheet Fig 9-1: 0.1uF)
+R17 = R("R17", "1.65k")           # BQ25628E ILIM: RILIM -> GND. IINREG = KILIM/RILIM = 2500/1650 = ~1.5A input limit.
 R16 = R("R16", "267k")  # TPS62840 VSET -> GND. 267k (E96,1%) = 3.3V out for TPS62840DLC per
                         # datasheet Table 1 (SLVSEC6D), column TPS62840DLC. Window 256.32k-277.68k.
 
@@ -263,7 +265,7 @@ Net("GND").connect(
     CEN[2], CV[2], CS[2], CB[2], CI[2], CO[2], CF[2],
     CU1[2], CU2[2], CU3[2], CU4[2], CU5[2], CGA[2], CGB[2], C4I[2],
     RE1[2], RE2[2], CE1[2], CE2[2], CE3[2], CE4[2], CE5[2], CE6[2], CE7[2], CE8[2], CE9[2],
-    CRG[2], CPM[2], R16[2],   # BQ25628E REGN/PMID bypass returns + TPS62840 VSET resistor return
+    CRG[2], CPM[2], CPM2[2], R16[2], R17[2],   # BQ25628E REGN/PMID bypass + ILIM(R17) returns + TPS62840 VSET(R16) return
     DE2["K"],   # EPD charge-pump D2 cathode -> GND (clamps node X to GND, per GDEY0426T82 ref)
     J2["BS1"],
 )
@@ -301,8 +303,9 @@ Net("CHG_SW").connect(U2["SW"], LC[1], CBT[1])
 Net("CHG_BTST").connect(U2["BTST"], CBT[2])
 Net("TS").connect(U2["TS"], R14[2], R15[1])
 Net("TS_BIAS").connect(U2["TS_BIAS"], R14[1])   # TS divider biased from the regulated TS_BIAS pin, NOT +3V3, so thresholds track the reference
-Net("REGN").connect(U2["REGN"], CRG[1])         # BQ25628E internal-LDO output: bypass cap only
-Net("PMID").connect(U2["PMID"], CPM[1])         # BQ25628E PMID rail: bypass cap only
+Net("REGN").connect(U2["REGN"], CRG[1])                # BQ25628E internal-LDO output: 4.7uF bypass (datasheet Fig 9-1)
+Net("PMID").connect(U2["PMID"], CPM[1], CPM2[1])       # BQ25628E PMID: 10uF + 0.1uF bypass (datasheet Fig 9-1)
+Net("ILIM").connect(U2["ILIM"], R17[1])                # BQ25628E input-current limit: RILIM=1.65k -> ~1.5A. REQUIRED: EN_EXTILIM resets to 1 (pin active), so an open ILIM would clamp input current to ~0.
 Net("VSET").connect(U5["VSET"], R16[1])         # TPS62840 output-voltage select: R16=267k -> 3.3V (datasheet Table 1)
 Net("BUCK_SW").connect(U5["SW"], L1[1])
 Net("FL_SW").connect(U4["SW"], L2[2], D1["A"])
@@ -344,17 +347,18 @@ Net("EPD_VDD").connect(J2["VDD"], CE8[1])     # C7: SSD1677 internal LDO output 
 #    J2.VPP(19) NC per ref; J2.BS1(8) -> GND (4-wire SPI + internal TS).
 #  - Thermal pads: U5 EP(pad9)->GND and U3 EP->GND wired; U2 is HotRod WQFN (no pad).
 #
-#  DESIGN CHOICES (fine as-is; change only for different behavior):
-#  - U2.ILIM (pin4) left open: input current limit is set over I2C (IINDPM register)
-#    and governs from boot. Fit an RILIM (+ ~1.2k/330nF RC) only for a hardware limit.
-#  - U2.*PG(3)/STAT(10)/*QON(7) left NC (open-drain / internal pull-up). Add a 10k
-#    pull-up (+LED/GPIO) only if you want charge status / IRQ / ship-mode control.
-#  - U2.TS divider R14/R15 biased from TS_BIAS. Swap to a real NTC->GND if desired.
-#  - Diodes use pin names A/K (D_Schottky: pad1=K, pad2=A) -- verified vs the symbol.
+#  - U2 charger passives confirmed vs BQ25628E datasheet Fig 9-1: REGN=4.7uF (CRG),
+#    PMID=10uF+0.1uF (CPM/CPM2), VBUS=1uF (CV), SYS=20uF (CS+CI), BAT=10uF (CB),
+#    BTST=47nF (CBT), SW->SYS L=1uH (LC), TS divider from TS_BIAS.
+#  - U2.ILIM = RILIM (R17) 1.65k -> ~1.5A input limit. EN_EXTILIM resets to 1 (ILIM
+#    pin active from power-on), so a resistor is REQUIRED -- an open pin would clamp
+#    input current to ~0 and could stall a USB-only bring-up. Retune per source:
+#    RILIM = 2500 / IINREG(A); stay within 0.4-2A to avoid needing an RC filter.
 #
-#  STILL VERIFY (ti.com is blocked from here -- upload the BQ25628E PDF and I'll
-#  confirm the exact numbers; I set BQ2562x-family-typical values in the meantime):
-#  - CRG 4.7uF (REGN internal-LDO bypass) and CPM 1uF (PMID bypass).
+#  DESIGN CHOICES (fine as-is; change only for different behavior):
+#  - U2.*PG(3)/STAT(10)/*QON(7) left NC (open-drain / internal pull-up; all optional
+#    in Fig 9-1). Add a 10k pull-up (+LED/GPIO/button) only for status/IRQ/ship-mode.
+#  - Diodes use pin names A/K (D_Schottky: pad1=K, pad2=A) -- verified vs the symbol.
 # ---------------------------------------------------------------------------
 # Give every part a stable tag = its RefDes, so the netlist's tstamps are
 # deterministic across runs (no more ~145-line random-tag churn in git, and it

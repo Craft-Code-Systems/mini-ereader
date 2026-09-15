@@ -237,6 +237,30 @@ R16 = R("R16", "SET_PER_TABLE1")  # TPS62840 VSET output-select resistor -> GND.
                                   # MUST replace value with the E96 resistor for 3.3V from datasheet Table 1.
 
 # ---------------------------------------------------------------------------
+# TEMP DIAGNOSTIC: KiCad stock symbols name their pins their own way (the shield
+# on J1, the ESD pins on U6, etc.), and those names/numbers are the only thing
+# SKiDL matches on. Print the real pin map of every STOCK part we reference by
+# NAME so the net references can be aligned in one pass instead of one-per-crash.
+# This runs BEFORE the nets, so we get the full map even if a net then fails.
+# (Remove this block once the netlist builds clean.)
+# ---------------------------------------------------------------------------
+def _dump_pins(*parts):
+    for _p in parts:
+        _pins = getattr(_p, "pins", None)
+        if _pins is None and hasattr(_p, "get_pins"):
+            _pins = _p.get_pins()
+        try:
+            _rows = sorted(((str(pin.num), str(pin.name)) for pin in (_pins or [])),
+                           key=lambda t: (len(t[0]), t[0]))
+        except Exception as _e:                       # noqa
+            print(f"  {getattr(_p,'ref','?')}: <could not read pins: {_e}>"); continue
+        print(f"  {getattr(_p,'ref','?')} = {getattr(_p,'name','?')}:")
+        print("      " + "  ".join(f"{n}:{nm}" for n, nm in _rows))
+print("\n=== STOCK PART PIN MAPS (pad_number:pin_name) ===")
+_dump_pins(J1, U6, QE, D1)
+print("=== end pin maps ===\n")
+
+# ---------------------------------------------------------------------------
 # Nets  (verbatim from ereader-connection-list.md; U1 by datasheet pin number)
 # ---------------------------------------------------------------------------
 Net("+VBUS").connect(J1["A4"], J1["B4"], J1["A9"], J1["B9"], U2["VBUS"], U6["VBUS"], CV[1])

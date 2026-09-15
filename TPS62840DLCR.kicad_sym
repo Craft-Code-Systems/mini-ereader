@@ -123,6 +123,14 @@
           (effects (font (size 1.016 1.016)))
         )
       )
+      (pin power_in line (at 17.78 -10.16 180.0) (length 5.08)
+        (name "EP"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "9"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
     )
   )
 )

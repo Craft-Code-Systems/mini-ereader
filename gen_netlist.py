@@ -85,10 +85,10 @@ CFG = {
     # resolver prefix-matches whatever suffix SnapEDA used. Footprints prefer a
     # matching .kicad_mod in ereader.pretty/ (auto), falling back to the string
     # here. ref : (symbol lib_id, fallback footprint)
-    "U2": ("ereader:BQ25628E",  "ereader:WQFN-HR18__RYK_TEX"),  # BQ25628E (Ultra Librarian). pins used: VBUS SYS BAT GND SDA SCL *INT(11) *CE(14) TS TS_BIAS REGN PMID SW BTST. EP not on symbol -> tie thermal pad to GND in Pcbnew.
+    "U2": ("ereader:BQ25628E",  "ereader:WQFN-HR18__RYK_TEX"),  # BQ25628E (Ultra Librarian). pins used: VBUS SYS BAT GND SDA SCL *INT(11) *CE(14) TS TS_BIAS REGN PMID SW BTST. RYK HotRod WQFN-HR18: footprint is pads 1-18, NO exposed pad -> nothing to tie.
     "U3": ("ereader:MAX17048",  "ereader:SON50P200X150X100-8N"),  # MAX17048. pins: CELL VDD GND SDA SCL ~ALERT(5) + CTG/QSTRT/EP->GND. VDD is a SEPARATE supply pin from CELL.
     "U4": ("ereader:LM3630A",   "ereader:BGA12N50P4X3_196X146X62"),  # LM3630A DSBGA-12. pins: IN GND SDA SCL HWEN SW ILED1 ILED2 OVP (SEL/PWM->GND).
-    "U5": ("ereader:TPS62840",  "ereader:SON50P200X200X80-9N"),  # TPS62840 VSON-HR (thermal EP not on symbol -> tie to GND in Pcbnew). pins: VIN SW VOS(8=output) GND EN MODE STOP VSET(5=Rset). No FB pin.
+    "U5": ("ereader:TPS62840",  "ereader:SON50P200X200X80-9N"),  # TPS62840 VSON-HR-8 + thermal pad. pins: VIN SW VOS(8=output) GND EN MODE STOP VSET(5=Rset) EP(9=thermal->GND, added to symbol). No FB pin. (9N footprint has pad 9; symbol's own 8N property is overridden by SKiDL.)
     "J2": ("ereader:EPD_GDEY0426T82_FPC24", "Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal"),  # 24 pins named by function AND numbered to the panel FPC datasheet
     "J4": ("ereader:DM3AT", "ereader:HRS_DM3AT-SF-PEJM5"),  # DM3AT-SF-PEJM5 microSD. needs: CLK CMD DAT0 DAT3 VDD VSS
     "SW4": ("ereader:ALPS_SLLB5", "ereader:ALPS_SLLB5_Lever"),        # needs: CW CCW PUSH COM
@@ -255,7 +255,8 @@ Net("GND").connect(
     SW1[2], SW2[2], SW3[2], SW4["COM"], JP5[2], JP6[2],
     U4["SEL"], U4["PWM"],   # SEL->GND = I2C addr 0x36 (design); PWM unused (I2C dimming)
     U3["CTG"], U3["QSTRT"], U3["EP"],   # MAX17048: CTG (exposed-pad label), QSTRT (unused quick-start), EP thermal pad -> GND (datasheet)
-    U5["MODE"], U5["STOP"],   # TPS62840: MODE low = Power-Save (auto PFM/PWM); STOP low = normal switching (STOP high halts switching)
+    U5["MODE"], U5["STOP"], U5["EP"],   # TPS62840: MODE low=Power-Save (auto PFM/PWM); STOP low=normal switching (high halts); EP=pad 9 thermal pad -> GND
+
     J4["P1"], J4["P2"], J4["P3"], J4["P4"],   # microSD shell/shield tabs -> GND (ESD/EMC)
     R1[2], R2[2], R6[2], R7[2], R15[2],
     CEN[2], CV[2], CS[2], CB[2], CI[2], CO[2], CF[2],
@@ -345,10 +346,11 @@ Net("EPD_VDD").connect(J2["VDD"], CE8[1])   # SSD1677 core LDO output: decap to 
 #    default. Add RILIM sized to your desired input current if you want a HW limit.
 #  - U2.*PG (3), STAT (10), *QON (7): intentionally left NC (open-drain / internal
 #    pull-up). Add a 10k pull-up + LED/GPIO only if you want charge status/IRQ.
-#  - THERMAL PADS: the Ultra Librarian/SnapEDA symbols for U2 (BQ25628E WQFN) and
-#    U5 (TPS62840 VSON) DO NOT expose the exposed pad as a pin, so the netlist can
-#    NOT tie it. After importing, assign each footprint's thermal pad to GND in
-#    Pcbnew (or add an EP pin to the symbol). U3 (MAX17048) EP IS wired to GND here.
+#  - THERMAL PADS: resolved. U5 (TPS62840) now has an EP pin (pad 9) added to its
+#    symbol and tied to GND here. U3 (MAX17048) EP is tied to GND. U2 (BQ25628E) is
+#    the RYK *HotRod* WQFN-HR18 - its footprint has NO exposed pad (pads 1-18 only,
+#    ground/thermal via the pin array), so there is nothing to tie. Confirm your
+#    fab's copper/thermal relief on the multiple GND pins for the charger.
 #  - Diodes use pin names A/K; confirm anode/cathode vs the SOD-123 pads.
 #  - J2 (EPD FPC) pin numbers + EPD DC-DC diode/charge-pump topology copied 1:1 from
 #    the Good Display GDEY0426T82-FL01C reference (rail caps >=25V).

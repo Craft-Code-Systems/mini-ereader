@@ -70,9 +70,9 @@ Module U1 pin **numbers** are exact (ESP32-S3-WROOM-1 datasheet). IC pins by **f
           R3.1, R4.1, R5.1, R8.1, R9.1, R10.1, R11.1, R12.1, R13.1,
           C_3V3(bulk 22µF + 4×0.1µF)
           (J2.VDD is the SSD1677 internal LDO output → decap only, NOT on +3V3.)
-GND     : U1.1, U1.40, U1.41(EPAD), U2.GND(+ WQFN thermal pad, assign in Pcbnew),
+GND     : U1.1, U1.40, U1.41(EPAD), U2.GND (RYK HotRod WQFN-HR18: pads 1-18, no exposed pad),
           U3.GND, U3.CTG, U3.QSTRT, U3.EP, U4.GND, U4.SEL, U4.PWM,
-          U5.GND(+ VSON thermal pad, assign in Pcbnew), U5.MODE, U5.STOP,
+          U5.GND, U5.EP(pad9 thermal), U5.MODE, U5.STOP,
           U6.GND, J1.GND(A1,B1,A12,B12)+shield, J2.VSS, J2.BS1,
           J4.VSS, J4.shield(P1–P4), J5.-, all C.2 / pull-down returns / SW returns
 ```

@@ -155,12 +155,12 @@ screwdriver tip or tweezers to trigger BOOT/RESET. See §4 of
 
 ### USB-C
 ```
-USB_DP : U1.14(IO20), U6.(dp I/O), J1.DP1(A6)+DP2(B6)
-USB_DM : U1.13(IO19), U6.(dm I/O), J1.DM1(A7)+DM2(B7)
+USB_DP : U1.14(IO20), U6.I/O1(pads 1+6), J1.DP1(A6)+DP2(B6)
+USB_DM : U1.13(IO19), U6.I/O2(pads 3+4), J1.DM1(A7)+DM2(B7)
 CC1    : J1.CC1(A5), R1.1   (R1.2→GND)
 CC2    : J1.CC2(B5), R2.1   (R2.2→GND)
-J1.SBU1(A8), J1.SBU2(B8) : NC
-U6.VBUS : +VBUS (clamp ref)
+J1.SBU1(A8), J1.SBU2(B8) : NC ; J1.shield = pad SH → GND
+U6.VBUS(pad5) : +VBUS (clamp ref) ; U6.GND(pad2) → GND
 ```
 
 ### Charger switching (BQ25628E)

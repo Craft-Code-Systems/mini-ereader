@@ -237,30 +237,6 @@ R16 = R("R16", "SET_PER_TABLE1")  # TPS62840 VSET output-select resistor -> GND.
                                   # MUST replace value with the E96 resistor for 3.3V from datasheet Table 1.
 
 # ---------------------------------------------------------------------------
-# TEMP DIAGNOSTIC: KiCad stock symbols name their pins their own way (the shield
-# on J1, the ESD pins on U6, etc.), and those names/numbers are the only thing
-# SKiDL matches on. Print the real pin map of every STOCK part we reference by
-# NAME so the net references can be aligned in one pass instead of one-per-crash.
-# This runs BEFORE the nets, so we get the full map even if a net then fails.
-# (Remove this block once the netlist builds clean.)
-# ---------------------------------------------------------------------------
-def _dump_pins(*parts):
-    for _p in parts:
-        _pins = getattr(_p, "pins", None)
-        if _pins is None and hasattr(_p, "get_pins"):
-            _pins = _p.get_pins()
-        try:
-            _rows = sorted(((str(pin.num), str(pin.name)) for pin in (_pins or [])),
-                           key=lambda t: (len(t[0]), t[0]))
-        except Exception as _e:                       # noqa
-            print(f"  {getattr(_p,'ref','?')}: <could not read pins: {_e}>"); continue
-        print(f"  {getattr(_p,'ref','?')} = {getattr(_p,'name','?')}:")
-        print("      " + "  ".join(f"{n}:{nm}" for n, nm in _rows))
-print("\n=== STOCK PART PIN MAPS (pad_number:pin_name) ===")
-_dump_pins(J1, U6, QE, D1)
-print("=== end pin maps ===\n")
-
-# ---------------------------------------------------------------------------
 # Nets  (verbatim from ereader-connection-list.md; U1 by datasheet pin number)
 # ---------------------------------------------------------------------------
 Net("+VBUS").connect(J1["A4"], J1["B4"], J1["A9"], J1["B9"], U2["VBUS"], U6["VBUS"], CV[1])
@@ -275,7 +251,7 @@ Net("+3V3").connect(
 )
 Net("GND").connect(
     U1[1], U1[40], U1[41], U2["GND"], U3["GND"], U4["GND"], U5["GND"], U6["GND"],
-    J1["A1"], J1["B1"], J1["A12"], J1["B12"], J1["S1"], J2["VSS"], J4["VSS"], J5[2],
+    J1["A1"], J1["B1"], J1["A12"], J1["B12"], J1["SH"], J2["VSS"], J4["VSS"], J5[2],  # J1["SH"] = USB-C shell/shield
     SW1[2], SW2[2], SW3[2], SW4["COM"], JP5[2], JP6[2],
     U4["SEL"], U4["PWM"],   # SEL->GND = I2C addr 0x36 (design); PWM unused (I2C dimming)
     U3["CTG"], U3["QSTRT"], U3["EP"],   # MAX17048: CTG (exposed-pad label), QSTRT (unused quick-start), EP thermal pad -> GND (datasheet)
@@ -314,8 +290,8 @@ Net("FL_HWEN").connect(U1[23], U4["HWEN"], R6[1])
 Net("CHG_CE").connect(U1[22], U2[14], R7[1])   # U2[14] = "*CE" (active-low charge-enable: R7 pulls low = charge-on); by number
 Net("IO0_BOOT").connect(U1[27], JP5[1])
 Net("EN").connect(U1[3], JP6[1], R3[2], CEN[1])
-Net("USB_DP").connect(U1[14], U6["DP"], J1["A6"], J1["B6"])
-Net("USB_DM").connect(U1[13], U6["DM"], J1["A7"], J1["B7"])
+Net("USB_DP").connect(U1[14], U6[1], U6[6], J1["A6"], J1["B6"])   # USBLC6 I/O1 = pads 1 & 6 (same internal node; route-through)
+Net("USB_DM").connect(U1[13], U6[3], U6[4], J1["A7"], J1["B7"])   # USBLC6 I/O2 = pads 3 & 4
 Net("CC1").connect(J1["A5"], R1[1])
 Net("CC2").connect(J1["B5"], R2[1])
 Net("CHG_SW").connect(U2["SW"], LC[1], CBT[1])

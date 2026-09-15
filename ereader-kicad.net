@@ -2,7 +2,7 @@
   (version "D")
   (design
     (source "gen_netlist.py")
-    (date "09/15/2026 11:02 AM")
+    (date "09/15/2026 11:11 AM")
     (tool "SKiDL (2.3.0)")
     (sheet
       (number 1)
@@ -1726,12 +1726,12 @@
       (ref "U3")
       (value "MAX17048")
       (description "\n                        \n                            3ÂµA 1-Cell/2-Cell Fuel Gauge with ModelGauge\n                        \n")
-      (footprint "ereader:SON50P200X150X100-8N")
+      (footprint "ereader:SON50P200X200X80-9N")
       (fields
         (field
           (name "Description") "\n                        \n                            3ÂµA 1-Cell/2-Cell Fuel Gauge with ModelGauge\n                        \n")
         (field
-          (name "Footprint") "ereader:SON50P200X150X100-8N")
+          (name "Footprint") "ereader:SON50P200X200X80-9N")
         (field
           (name "Datasheet"))
         (field

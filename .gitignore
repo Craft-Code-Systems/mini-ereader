@@ -18,14 +18,19 @@ Thumbs.db
 *.kicad_prl
 _autosave-*
 fp-info-cache
+*-backups/
 
 # Editor local history
 .history/
 
 # Fabrication outputs (regenerate: python3 fab.py)
 gerbers/
+gerber/
 fab/
 *-gerbers.zip
+# Freerouting round-trip exports
+temp-freerouting.dsn
+*.ses
 
 # Python
 __pycache__/
@@ -34,4 +39,6 @@ __pycache__/
 # SKiDL run outputs (gen_netlist.py)
 skidl.log
 skidl.erc
-*_lib_sklib.py
+gen_netlist.log
+gen_netlist.erc
+*_sklib.py

@@ -96,26 +96,33 @@ EPD_BUSY : U1.7(IO7),   J2.BUSY
 J2.BS1   : GND (tie low = 4-wire SPI, per datasheet)
 ```
 
-### EPD external DC-DC (SSD1677 boost + charge pumps, local to J2)
-The SSD1677 needs an external boost + charge-pump for its ±20V gate / ±15V source
-rails (ADR 0002, `ereader-pcb-design.md` §6). Now captured as real parts:
+### EPD external DC-DC (SSD1677 boost + charge pump, local to J2)
+Transcribed **1:1 from the Good Display GDEY0426T82-FL01C spec §8.2 Reference Circuit.**
+The external L1(=LE) boost + charge pump builds VGH(+)/VGL(−); the panel derives
+VSH1/VSH2/VSL/VCOM internally (external reservoir caps only). Ref part map:
+LE=L1(47µH), QE=Q1(Si1308EDL), DE1/DE2/DE3=D1/D2/D3(MBR0530), RE2=R1(1M), RE1=R2(2.2Ω),
+CE6=C4, CE10=C3, CE5=C5, CE2=C2, CE7=C6, CE8=C7, CE1=C9, CE3=C10, CE4=C11, CE9=C12.
 ```
-+3V3       : LE.1 (boost input), CE6.1 (boost input cap)   [CE6.2→GND]
-EPD_SW     : LE.2, QE.3(Drain), DE1.1(A), DE2.1(A)          (boost switch node)
-EPD_GDR    : J2.GDR, QE.1(Gate), RE2.1                       [RE2.2→GND, 1MΩ pulldown]
-EPD_RESE   : J2.RESE, QE.2(Source), RE1.1                    [RE1.2→GND, 2.2Ω sense]
-EPD_VGH    : J2.VGH, DE1.2(K), CE5.1                          [CE5.2→GND, 4.7µF]
-EPD_PREVGL : DE2.2(K), DE3.1(A)                               (negative pump node)
-EPD_VGL    : J2.VGL, DE3.2(K), CE4.1                          [CE4.2→GND, 4.7µF]
-EPD_VSH1   : J2.VSH1, CE1.1                                   [CE1.2→GND, 4.7µF]
-EPD_VSH2   : J2.VSH2, CE2.1                                   [CE2.2→GND, 4.7µF]
-EPD_VSL    : J2.VSL, CE3.1                                    [CE3.2→GND, 4.7µF]
-EPD_VCOM   : J2.VCOM, CE9.1                                   [CE9.2→GND, 1µF]
-+3V3       : J2.VCI (analog 3.3V), CE7.1                      [CE7.2→GND, 1µF]
-+3V3       : CE8 (J2.VDD local decap)                         [CE8.2→GND, 1µF]
-J2.VPP     : NC / per datasheet (OTP program pin)
++3V3       : LE.1 (boost input), CE6.1 (=C4 input cap)      [CE6.2→GND, 4.7µF/25V]
+EPD_SW     : LE.2, QE.D, DE3.A, CE10.1(=C3)                 (boost switch node / pump drive)
+EPD_GDR    : J2.GDR, QE.G, RE2.1                             [RE2.2→GND, 1MΩ pulldown]
+EPD_RESE   : J2.RESE, QE.S, RE1.1                            [RE1.2→GND, 2.2Ω sense]
+EPD_NODEX  : CE10.2(=C3), DE2.A, DE1.K                       (charge-pump node)
+EPD_VGH    : J2.VGH, DE3.K, CE5.1  (PREVGH, +)              [CE5.2→GND, 4.7µF/25V]
+EPD_VGL    : J2.VGL, DE1.A, CE4.1  (PREVGL, −)              [CE4.2→GND, 4.7µF/25V]
+GND        : DE2.K   (D2 cathode clamps node X to GND)
+EPD_VSH1   : J2.VSH1, CE1.1                                   [CE1.2→GND, 4.7µF/25V]
+EPD_VSH2   : J2.VSH2, CE2.1                                   [CE2.2→GND, 4.7µF/25V]
+EPD_VSL    : J2.VSL, CE3.1                                    [CE3.2→GND, 4.7µF/25V]
+EPD_VCOM   : J2.VCOM, CE9.1                                   [CE9.2→GND, 1µF/25V]
++3V3       : J2.VCI (analog 3.3V), CE7.1                      [CE7.2→GND, 1µF/25V]
++3V3       : J2.VDDIO (=VCI, both 3.3V)
+EPD_VDD    : J2.VDD, CE8.1 (SSD1677 internal LDO out, decap only)  [CE8.2→GND, 1µF/25V]
+J2.VPP     : NC (OTP program pin, per ref)
 ```
-> ⚠ **VERIFY & COPY 1:1.** The diode/charge-pump interconnect, diode **orientation**,
+> ✅ **Now matches the Good Display reference** (diode roles, C3 coupling cap, and the
+> node-X charge pump). Rail caps are ≥25V per the ref spare-part table (C1–C12).
+> Historical caveat retained below for context:
 > and the J2 (GDEY0426T82) **FPC pin numbers** above are a functional PLACEHOLDER —
 > transcribe them exactly from the Good Display GDEY0426T82-FL01C reference schematic
 > ("ESP32 Sample Code" zip) and the panel datasheet before schematic capture and

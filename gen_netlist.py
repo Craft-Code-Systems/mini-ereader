@@ -228,6 +228,7 @@ CGA, CGB, C4I = C("CGA", "0.1uF", "C04"), C("CGB", "1uF", "C04"), C("C4I", "1uF"
 CE1 = C("CE1", "4.7uF/25V", "C08"); CE2 = C("CE2", "4.7uF/25V", "C08"); CE3 = C("CE3", "4.7uF/25V", "C08")
 CE4 = C("CE4", "4.7uF/25V", "C08"); CE5 = C("CE5", "4.7uF/25V", "C08"); CE6 = C("CE6", "4.7uF/25V", "C08")
 CE7 = C("CE7", "1uF/25V", "C06"); CE8 = C("CE8", "1uF/25V", "C06"); CE9 = C("CE9", "1uF/25V", "C06")
+CE10 = C("CE10", "4.7uF/25V", "C08")   # = ref C3: charge-pump coupling cap (EPD_SW <-> node X), GDEY0426T82 ref circuit
 
 # --- Support parts the VENDOR symbols revealed as needed (were absent from the
 #     function-name connection list). Values are datasheet-typical; VERIFY. ------
@@ -263,6 +264,7 @@ Net("GND").connect(
     CU1[2], CU2[2], CU3[2], CU4[2], CU5[2], CGA[2], CGB[2], C4I[2],
     RE1[2], RE2[2], CE1[2], CE2[2], CE3[2], CE4[2], CE5[2], CE6[2], CE7[2], CE8[2], CE9[2],
     CRG[2], CPM[2], R16[2],   # BQ25628E REGN/PMID bypass returns + TPS62840 VSET resistor return
+    DE2["K"],   # EPD charge-pump D2 cathode -> GND (clamps node X to GND, per GDEY0426T82 ref)
     J2["BS1"],
 )
 Net("I2C0_SDA").connect(U1[10], U2["SDA"], U3["SDA"], R8[2])
@@ -307,52 +309,62 @@ Net("FL_SW").connect(U4["SW"], L2[2], D1["A"])
 Net("FL_OUT").connect(D1["K"], CF[1], J3[1], J3[5], U4["OVP"])  # OVP senses the boost output (datasheet)
 Net("FL_COOL_K").connect(J3[2], U4["ILED1"])  # datasheet ball D3 = ILED1 (was "LED1")
 Net("FL_WARM_K").connect(J3[6], U4["ILED2"])  # datasheet ball D2 = ILED2 (was "LED2")
-# EPD external DC-DC (topology per pcb-design SS6; VERIFY 1:1 vs Good Display ref)
-Net("EPD_SW").connect(LE[2], QE["D"], DE1["A"], DE2["A"])
-Net("EPD_GDR").connect(J2["GDR"], QE["G"], RE2[1])
-Net("EPD_RESE").connect(J2["RESE"], QE["S"], RE1[1])
-Net("EPD_VGH").connect(J2["VGH"], DE1["K"], CE5[1])
-Net("EPD_PREVGL").connect(DE2["K"], DE3["A"])
-Net("EPD_VGL").connect(J2["VGL"], DE3["K"], CE4[1])
-Net("EPD_VSH1").connect(J2["VSH1"], CE1[1])
-Net("EPD_VSH2").connect(J2["VSH2"], CE2[1])
-Net("EPD_VSL").connect(J2["VSL"], CE3[1])
-Net("EPD_VCOM").connect(J2["VCOM"], CE9[1])
-Net("EPD_VDD").connect(J2["VDD"], CE8[1])   # SSD1677 core LDO output: decap to GND only, NOT driven from +3V3
+# EPD external DC-DC -- transcribed 1:1 from the Good Display GDEY0426T82-FL01C
+# reference circuit (spec section 8.2). L1(=LE) boost + a charge pump build VGH(+)
+# and VGL(-); the panel derives VSH1/VSH2/VSL/VCOM internally (external reservoirs
+# only). Diode roles: D3 SW->PREVGH(+); C3 couples SW to node X; D2 clamps X to GND;
+# D1 delivers the negative peak PREVGL->X (i.e. D1 anode = the VGL rail).
+Net("EPD_SW").connect(LE[2], QE["D"], DE3["A"], CE10[1])   # L1 out / Q1 drain / D3 anode / C3 pump cap
+Net("EPD_GDR").connect(J2["GDR"], QE["G"], RE2[1])         # Q1 gate; RE2 = 1M pulldown
+Net("EPD_RESE").connect(J2["RESE"], QE["S"], RE1[1])       # Q1 source; RE1 = 2.2R sense
+Net("EPD_NODEX").connect(CE10[2], DE2["A"], DE1["K"])      # C3 far plate / D2 anode / D1 cathode (pump node)
+Net("EPD_VGH").connect(J2["VGH"], DE3["K"], CE5[1])        # PREVGH(+): D3 cathode + C5 reservoir -> panel VGH (pin 21)
+Net("EPD_VGL").connect(J2["VGL"], DE1["A"], CE4[1])        # PREVGL(-): D1 anode + C11 reservoir -> panel VGL (pin 23)
+Net("EPD_VSH1").connect(J2["VSH1"], CE1[1])   # C9 reservoir  (panel-internal rail)
+Net("EPD_VSH2").connect(J2["VSH2"], CE2[1])   # C2 reservoir
+Net("EPD_VSL").connect(J2["VSL"], CE3[1])     # C10 reservoir
+Net("EPD_VCOM").connect(J2["VCOM"], CE9[1])   # C12 reservoir
+Net("EPD_VDD").connect(J2["VDD"], CE8[1])     # C7: SSD1677 internal LDO output -- decap to GND only, NOT driven from +3V3
 
 # ---------------------------------------------------------------------------
-# KNOWN ITEMS TO VERIFY before fabrication (do NOT skip):
+# PRE-FAB NOTES (status after datasheet review):
 #
-#  *** RESOLVED (from the datasheet) ***
-#  - R16 (TPS62840 VSET) = 267k, E96 1%. Sets 3.3V out for the TPS62840DLC per
-#    datasheet Table 1 (SLVSEC6D), TPS62840DLC column (window 256.32k-277.68k).
-#    VOS (pin 8) senses the output; this part has no FB pin. Populate exactly 267k.
+#  RESOLVED from datasheets / the panel reference circuit:
+#  - R16 (TPS62840 VSET) = 267k E96 1% -> 3.3V (Table 1, TPS62840DLC column, SLVSEC6D).
+#    VOS(8) senses the output; this part has no FB pin. Populate exactly 267k.
+#  - U5.MODE -> GND (Power-Save, auto PFM/PWM) and U5.STOP -> GND (normal switching;
+#    a STOP high halts switching) -- both confirmed against SLVSEC6D pp.5/12/14.
+#  - U5.EN -> +SYS (input rail). EN on the buck's own +3V3 output would deadlock start.
+#  - U5 passives: L1=2.2uH, CI(Cin)>=4.7uF, CO(Cout)=10uF all match the datasheet
+#    typical app (p17). Spec CO at >=6.3V rating (the rail is 3.3V; datasheet's 4V
+#    example is for lower Vout).
+#  - EPD DC-DC block transcribed 1:1 from Good Display GDEY0426T82-FL01C spec sec 8.2:
+#    LE=47uH; DE1-3=MBR0530; QE=Si1308EDL; RE1=2.2R, RE2=1M; CE1-10 all >=25V; the
+#    diode roles + charge-pump node are per the reference (see the EPD nets above).
+#    J2.VPP(19) NC per ref; J2.BS1(8) -> GND (4-wire SPI + internal TS).
+#  - Thermal pads: U5 EP(pad9)->GND and U3 EP->GND wired; U2 is HotRod WQFN (no pad).
 #
-#  *** CONFIRM POLARITY / VALUES (I wired the datasheet-typical default) ***
-#  - U5.STOP -> GND (normal switching). STOP HIGH halts switching for a noise-free
-#    measurement; confirm your build wants continuous operation (GND).
-#  - U5.MODE -> GND (Power-Save, auto PFM/PWM). Tie HIGH for forced-PWM if desired.
-#  - U5.EN -> +SYS (input rail), NOT +3V3. Corrected: EN on the buck's own output
-#    can never start it. Confirm you don't instead want a GPIO to gate this rail.
-#  - CRG 4.7uF (REGN) and CPM 1uF (PMID): TI-typical bypass values; confirm vs the
-#    BQ25628E datasheet app circuit.
-#  - U2.TS divider (R14/R15): now biased from TS_BIAS. If you fit a real NTC instead
-#    of a fixed divider, wire NTC per the datasheet TS window.
+#  DESIGN CHOICES (fine as-is; change only for different behavior):
+#  - U2.ILIM (pin4) left open: input current limit is set over I2C (IINDPM register)
+#    and governs from boot. Fit an RILIM (+ ~1.2k/330nF RC) only for a hardware limit.
+#  - U2.*PG(3)/STAT(10)/*QON(7) left NC (open-drain / internal pull-up). Add a 10k
+#    pull-up (+LED/GPIO) only if you want charge status / IRQ / ship-mode control.
+#  - U2.TS divider R14/R15 biased from TS_BIAS. Swap to a real NTC->GND if desired.
+#  - Diodes use pin names A/K (D_Schottky: pad1=K, pad2=A) -- verified vs the symbol.
 #
-#  *** STILL OPEN — decide before fab ***
-#  - U2.ILIM (pin 4): input-current-limit set resistor to GND (+ ~1.2k/330nF RC per
-#    datasheet) is NOT fitted. Left open the limit falls back to the I2C register
-#    default. Add RILIM sized to your desired input current if you want a HW limit.
-#  - U2.*PG (3), STAT (10), *QON (7): intentionally left NC (open-drain / internal
-#    pull-up). Add a 10k pull-up + LED/GPIO only if you want charge status/IRQ.
-#  - THERMAL PADS: resolved. U5 (TPS62840) now has an EP pin (pad 9) added to its
-#    symbol and tied to GND here. U3 (MAX17048) EP is tied to GND. U2 (BQ25628E) is
-#    the RYK *HotRod* WQFN-HR18 - its footprint has NO exposed pad (pads 1-18 only,
-#    ground/thermal via the pin array), so there is nothing to tie. Confirm your
-#    fab's copper/thermal relief on the multiple GND pins for the charger.
-#  - Diodes use pin names A/K; confirm anode/cathode vs the SOD-123 pads.
-#  - J2 (EPD FPC) pin numbers + EPD DC-DC diode/charge-pump topology copied 1:1 from
-#    the Good Display GDEY0426T82-FL01C reference (rail caps >=25V).
+#  STILL VERIFY (ti.com is blocked from here -- upload the BQ25628E PDF and I'll
+#  confirm the exact numbers; I set BQ2562x-family-typical values in the meantime):
+#  - CRG 4.7uF (REGN internal-LDO bypass) and CPM 1uF (PMID bypass).
 # ---------------------------------------------------------------------------
+# Give every part a stable tag = its RefDes, so the netlist's tstamps are
+# deterministic across runs (no more ~145-line random-tag churn in git, and it
+# silences the "Missing tag / Random tag" notices). Overwrites the random tag
+# SKiDL assigned at instantiation; guarded so it can never break generation.
+try:
+    for _p in default_circuit.parts:
+        _p.tag = _p.ref
+except Exception:
+    pass
+
 ERC()
 generate_netlist(file_="ereader-kicad.net")

@@ -8,10 +8,10 @@ Always DRC land vs the ordered part's datasheet before route.
 | Ref | MPN | Package | Footprint | Source | Notes |
 |-----|-----|---------|-----------|--------|-------|
 | U1 | ESP32-S3-WROOM-1-N16R8 | 41-pin SMD module | `RF_Module:ESP32-S3-WROOM-1` | ✓ KiCad | symbol `RF_Module:ESP32-S3-WROOM-1`. Honor antenna keep-out in courtyard |
-| U2 | BQ25628E**RYK**R | **18-pin WQFN, 2.5×3.0mm, 0.5mm pitch (RYK)** | ⚑ TI Ultra-Librarian | ✅ package confirmed (TI datasheet SLUSFA4). Netlist placeholder `HVQFN-24-1EP_4x4mm` is **wrong pincount/size** — import-clean only. Pull the 18-pin RYK land per TI Sec.11 before route |
-| U3 | MAX17048G+T10 | µDFN-8 (2×2mm, 0.5mm pitch) | ⚑ SnapEDA / ADI | package OK. Netlist placeholder `DFN-8-1EP_2x2mm` adds a thermal EP the G+ µDFN may **not** have — verify EP presence/size vs the ADI drawing |
+| U2 | BQ25628E**RYK**R | **18-pin WQFN-HR (HotRod), 2.5×3.0mm, 0.5mm pitch (RYK), no EP** | `ereader:WQFN-HR18__RYK_TEX` | ⚑ TI Ultra-Librarian | ✅ package confirmed (SLUSFA4C). HotRod = pads 1–18, **no thermal pad** (ground via the pin array) |
+| U3 | MAX17048G+T10 | **TDFN-8, 2.0×2.0mm, 0.5mm pitch, WITH EP** | `ereader:SON50P200X200X80-9N` | ⚑ SnapEDA / ADI | ✅ EP confirmed (symbol package = "TDFN-8", SnapEDA pairs the 9N/EP land). EP = pad 9 → GND. Uses the same 2×2 9N land as U5 (both TDFN/VSON-8+EP); confirm EP/pad dims vs the ADI drawing before route |
 | U4 | LM3630A**YFQ**R | DSBGA-12 (12-bump, 0.4mm pitch) | ⚑ TI Ultra-Librarian | ✅ DSBGA-only part (no WSON variant exists — earlier note was wrong). 0.4mm BGA → check fab min ball/via; hardest part to self-assemble (see README) |
-| U5 | TPS62840**DLC**R | **VSON-HR (DLC), 8-pin, 2.0×2.0mm, 0.5mm pitch** | ⚑ TI Ultra-Librarian | ✅ package confirmed (NOT SOT-563 — earlier note was wrong). Netlist placeholder `SON-8-1EP_3x2mm` is **oversized (3×2 vs 2×2)** — pull the DLC land before route |
+| U5 | TPS62840**DLC**R | **VSON-HR-8 (DLC), 2.0×2.0mm, 0.5mm pitch, WITH EP** | `ereader:SON50P200X200X80-9N` | ⚑ TI Ultra-Librarian | ✅ package confirmed (SLVSEC6D). EP = pad 9 → GND (added to symbol) |
 | U6 | USBLC6-2SC6 | SOT-23-6 | `Package_TO_SOT_SMD:SOT-23-6` | ✓ KiCad | symbol `Power_Protection:USBLC6-2SC6` ✓ |
 
 ## Connectors

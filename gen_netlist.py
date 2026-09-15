@@ -86,7 +86,7 @@ CFG = {
     # matching .kicad_mod in ereader.pretty/ (auto), falling back to the string
     # here. ref : (symbol lib_id, fallback footprint)
     "U2": ("ereader:BQ25628E",  "ereader:WQFN-HR18__RYK_TEX"),  # BQ25628E (Ultra Librarian). pins used: VBUS SYS BAT GND SDA SCL *INT(11) *CE(14) TS TS_BIAS REGN PMID SW BTST. RYK HotRod WQFN-HR18: footprint is pads 1-18, NO exposed pad -> nothing to tie.
-    "U3": ("ereader:MAX17048",  "ereader:SON50P200X150X100-8N"),  # MAX17048. pins: CELL VDD GND SDA SCL ~ALERT(5) + CTG/QSTRT/EP->GND. VDD is a SEPARATE supply pin from CELL.
+    "U3": ("ereader:MAX17048",  "ereader:SON50P200X200X80-9N"),  # MAX17048G+T10 = TDFN-8 2x2 WITH EP (pad 9), per the symbol's own package/footprint pairing. The 8N (2x1.5, no-EP) was wrong -> import error "U3 pad 9 not found". pins: CELL VDD GND SDA SCL ~ALERT(5) + CTG/QSTRT/EP->GND.
     "U4": ("ereader:LM3630A",   "ereader:BGA12N50P4X3_196X146X62"),  # LM3630A DSBGA-12. pins: IN GND SDA SCL HWEN SW ILED1 ILED2 OVP (SEL/PWM->GND).
     "U5": ("ereader:TPS62840",  "ereader:SON50P200X200X80-9N"),  # TPS62840 VSON-HR-8 + thermal pad. pins: VIN SW VOS(8=output) GND EN MODE STOP VSET(5=Rset) EP(9=thermal->GND, added to symbol). No FB pin. (9N footprint has pad 9; symbol's own 8N property is overridden by SKiDL.)
     "J2": ("ereader:EPD_GDEY0426T82_FPC24", "Connector_FFC-FPC:Hirose_FH12-24S-0.5SH_1x24-1MP_P0.50mm_Horizontal"),  # 24 pins named by function AND numbered to the panel FPC datasheet

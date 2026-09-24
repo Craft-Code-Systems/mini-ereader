@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
-"""Mark every wire and via in ereader.dsn as `(type protect)`.
+"""Set the Specctra fixed type on every wire and via in ereader.dsn.
 
-KiCad 10 does not translate a locked track into Specctra's protect type on
-export -- export_dsn.py locks 112 items and the DSN comes back with zero
-protected ones. Freerouting treats an unprotected wire as its own work and
-will happily rip it up, which would undo the pad escapes and put the board
-back where it started.
+KiCad 10 DOES carry a locked track through to the DSN -- it writes
+`(type fix)`. An earlier version of export_dsn.py grepped only for the
+literal `protect`, reported zero, and this script was then used to rewrite
+all 112 items from fix down to protect, weakening them. Hence the default
+here is `fix`: the same thing KiCad emits, and the strongest of the fixed
+types. Use this script to restore or verify that state, not to change it.
 
 Specctra wire/via types: normal | route | protect | fix | shove_fixed.
-Freerouting leaves `protect` and `fix` alone. This walks the (wiring ...)
-block with a real s-expression scanner -- quoted strings can and do contain
-parentheses, so regex is not safe here -- and sets the type on each direct
-child, adding the clause when there isn't one.
+Freerouting reroutes normal and route; it leaves the other three alone.
+This walks the (wiring ...) block with a real s-expression scanner --
+quoted strings can and do contain parentheses, so regex is not safe here --
+and sets the type on each direct child, adding the clause when there is none.
 
 Refuses to write anything if the file isn't shaped the way it expects, and
 prints the first wire and via verbatim so you can see what it acted on.
 
 USAGE:  python3 protect_dsn.py [ereader.dsn] [type]   # after export_dsn.py
-        type defaults to protect; use fix if Freerouting still reroutes them
+        type defaults to fix, which is what KiCad itself writes
 """
 import os
 import re
@@ -26,12 +27,10 @@ import sys
 
 DSN = sys.argv[1] if len(sys.argv) > 1 else "ereader.dsn"
 
-# Freerouting maps protect/fix/shove_fixed onto its fixed states and leaves
-# those traces alone; normal and route are fair game for rip-up. protect is
-# the right level -- it is what a user-fixed trace is. If Freerouting still
-# reroutes over the escapes, re-run with `fix`, which is the strongest.
-TYPES = ("protect", "fix", "shove_fixed", "normal", "route")
-WANT = sys.argv[2] if len(sys.argv) > 2 else "protect"
+# Freerouting maps fix/protect/shove_fixed onto its fixed states and leaves
+# those traces alone; normal and route are fair game for rip-up.
+TYPES = ("fix", "protect", "shove_fixed", "normal", "route")
+WANT = sys.argv[2] if len(sys.argv) > 2 else "fix"
 if WANT not in TYPES:
     sys.exit("type must be one of: %s" % ", ".join(TYPES))
 

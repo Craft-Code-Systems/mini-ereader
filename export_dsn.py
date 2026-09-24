@@ -17,6 +17,7 @@ USAGE:  python3 export_dsn.py [ereader.kicad_pcb] [ereader.dsn]
 import os
 import re
 import sys
+from collections import Counter
 
 import pcbnew
 
@@ -62,13 +63,21 @@ except TypeError:
     pcbnew.ExportSpecctraDSN(dsn)
 
 text = open(dsn, encoding="utf-8", errors="replace").read()
-n_prot = len(re.findall(r"\(type\s+protect\)", text))
+
+# Specctra has several fixed types and KiCad picks `fix` for a locked track.
+# Counting only `protect` here once produced a false alarm that led to the
+# escapes being downgraded from fix to protect -- count them all.
+found = Counter(re.findall(r"\(type\s+(\w+)\)", text))
+n_fixed = sum(found[t] for t in ("fix", "protect", "shove_fixed"))
+n_loose = sum(found[t] for t in ("normal", "route"))
 n_layer = len(re.findall(r"\(layer\s+\S+\s*\n?\s*\(type\s+signal\)", text))
 print("wrote %s  (%.1f MB)" % (dsn, os.path.getsize(dsn) / 1e6))
-print("  signal layers declared  : %d" % n_layer)
-print("  protected (locked) items: %d" % n_prot)
-if not n_prot:
-    print("  -> KiCad 10 does not carry a locked track into Specctra's protect")
-    print("     type. Run:  python3 protect_dsn.py %s" % dsn)
-    print("     Without it Freerouting will rip the escapes out and you are")
-    print("     back where you started.")
+print("  signal layers declared: %d" % n_layer)
+print("  wire/via types        : %s"
+      % (", ".join("%s=%d" % (k, v) for k, v in sorted(found.items())) or "none"))
+print("  fixed (Freerouting will not rip these up): %d" % n_fixed)
+if n_loose or not n_fixed:
+    print("  -> %d item(s) are rippable. Run:  python3 protect_dsn.py %s"
+          % (n_loose, dsn))
+    print("     Freerouting reroutes anything not fixed, which would undo the")
+    print("     pad escapes and put the board back where it started.")

@@ -7,9 +7,13 @@ the board had ZERO inner-layer segments. The GUI import reports success
 either way. This counts segments per layer so a silent drop is visible
 immediately.
 
+It refuses outright if the .ses is older than the .dsn: a Freerouting run
+that fails leaves the previous session file in place, and importing that
+lays a stale route over the board without a word of complaint.
+
 It also checks that the pad escapes survived the round trip. If Freerouting
-ripped them out despite (type protect), the escape via count drops and you
-will see it here rather than three steps later in DRC.
+ripped them out despite the fixed type, the locked count drops and you see
+it here rather than three steps later in DRC.
 
 Run with KiCad's Python (the one that can `import pcbnew`), board closed.
 
@@ -20,14 +24,32 @@ import re
 import sys
 from collections import Counter
 
-import pcbnew
-
 pcb = sys.argv[1] if len(sys.argv) > 1 else "ereader.kicad_pcb"
 ses = sys.argv[2] if len(sys.argv) > 2 else "ereader.ses"
 
 for f in (pcb, ses):
     if not os.path.exists(f):
         sys.exit("no %s here -- run this in the mini-ereader directory" % f)
+
+# A failed Freerouting run leaves the PREVIOUS .ses sitting there, and
+# importing it silently lays a stale route over the board. That already
+# happened once: the jar was missing, java exited, and this script cheerfully
+# imported a session file from the run before the escapes existed.
+dsn = os.path.splitext(ses)[0] + ".dsn"
+if os.path.exists(dsn) and os.path.getmtime(ses) < os.path.getmtime(dsn):
+    import datetime
+
+    def when(p):
+        return datetime.datetime.fromtimestamp(
+            os.path.getmtime(p)).strftime("%Y-%m-%d %H:%M:%S")
+
+    sys.exit("refusing to import a stale session file:\n"
+             "  %s  %s\n  %s  %s\n"
+             "The .ses predates the .dsn, so it is from an earlier run --\n"
+             "Freerouting most likely failed or never started. Re-route, then\n"
+             "run this again." % (ses, when(ses), dsn, when(dsn)))
+
+import pcbnew  # noqa: E402  -- after the cheap checks above, which need no KiCad
 
 # what the .ses itself claims, before KiCad gets a say
 text = open(ses, encoding="utf-8", errors="replace").read()
@@ -73,5 +95,5 @@ if locked < 112:
     print()
     print("*** %d of the 112 locked escape items are gone -- Freerouting rewrote"
           % (112 - locked))
-    print("    them despite (type protect). Re-run protect_dsn.py with `fix`")
-    print("    and route again:  python3 protect_dsn.py ereader.dsn fix")
+    print("    them despite the Specctra fixed type. Check the .dsn really")
+    print("    says (type fix) on all 112:  python3 protect_dsn.py %s fix" % dsn)

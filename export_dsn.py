@@ -66,6 +66,9 @@ n_prot = len(re.findall(r"\(type\s+protect\)", text))
 n_layer = len(re.findall(r"\(layer\s+\S+\s*\n?\s*\(type\s+signal\)", text))
 print("wrote %s  (%.1f MB)" % (dsn, os.path.getsize(dsn) / 1e6))
 print("  signal layers declared  : %d" % n_layer)
-print("  protected (locked) items: %d%s" % (
-    n_prot, "" if n_prot else
-    "   <-- lock did NOT survive the export; Freerouting may rip the escapes up"))
+print("  protected (locked) items: %d" % n_prot)
+if not n_prot:
+    print("  -> KiCad 10 does not carry a locked track into Specctra's protect")
+    print("     type. Run:  python3 protect_dsn.py %s" % dsn)
+    print("     Without it Freerouting will rip the escapes out and you are")
+    print("     back where you started.")

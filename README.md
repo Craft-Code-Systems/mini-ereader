@@ -98,6 +98,8 @@ A buildable learning platform, not a product.
 
 Live verification state: the milestone checklist above.
 
+Generated overview of these docs (status, Decisions, Changelog, doc freshness): <https://craft-code-systems.github.io/mini-ereader/>
+
 ## Key decisions
 
 | # | Decision |

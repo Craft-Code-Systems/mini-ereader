@@ -5,6 +5,13 @@ All notable changes to the Mini E-Reader project. Format loosely follows
 
 ## [Unreleased]
 
+### Generated project overview (2026-11-04)
+- Added **`scripts/overview.py`** and the **Overview** workflow, copied from
+  Colophon's reference generator. On every push to `main` and once a day it
+  builds one page from the Brief, Decisions, Log and Changelog plus git
+  history, and publishes it to GitHub Pages. The page is never committed;
+  `_site/` is ignored.
+
 ### SKiDL netlist generator to resolve the pin-name↔pad-number wall (2026-09-12)
 Importing the hand-authored `ereader-kicad.net` into Pcbnew threw 56 "pad *X*
 not found in footprint" errors: the netlist names IC pins by function while

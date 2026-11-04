@@ -1,0 +1,52 @@
+# Publishes the project overview to GitHub Pages.
+#
+# Reference workflow for Decision 0006 (generated views). To use it:
+#   1. Copy templates/overview/overview.py to scripts/overview.py.
+#   2. Copy this file to .github/workflows/overview.yml.
+#   3. In Settings > Pages, set Source to "GitHub Actions".
+#
+# The page rebuilds on every push to main and once a day, so ages and
+# milestones stay current. It is published, never committed.
+
+name: Overview
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: read      # milestones
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # freshness needs the full history
+      - run: python3 scripts/overview.py --out _site
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
